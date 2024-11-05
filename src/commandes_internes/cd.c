@@ -44,7 +44,8 @@ int cd_commande(char * chemin ){
         return 1; 
     }else{
         getcwd(chelin_test, sizeof(chelin_test));
-        printf("%s\n" , chelin_test);
+       // printf("%s\n" , chelin_test); 
+       //! je veux pas que ca affiche ou on est maintenant juste que ca déplace -MAJDA
     }
 
     strncpy(chemin_precedent, chemin_courant , sizeof(chemin_precedent)-1) ;
@@ -55,20 +56,20 @@ int cd_commande(char * chemin ){
 
 }
 
+// ! pas le droit d'avoir 2 main 
+// int main(int argc , char * argv[]){
+//     char* chemin ; 
 
-int main(int argc , char * argv[]){
-    char* chemin ; 
+//     if(argc > 1){
+//         chemin = argv[1];
+//     }else{
+//         chemin = NULL ; 
+//     }
 
-    if(argc > 1){
-        chemin = argv[1];
-    }else{
-        chemin = NULL ; 
-    }
+//     if(cd_commande(chemin) != 0){
+//         perror("Echec");
+//         return 1;
+//     }
+//     return 0;
 
-    if(cd_commande(chemin) != 0){
-        perror("Echec");
-        return 1;
-    }
-    return 0;
-
-}
+// }
