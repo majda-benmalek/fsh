@@ -4,6 +4,7 @@ EXEC = exec/main
 all: $(EXEC)
 
 $(EXEC): $(SRC)
+	clear
 	gcc -Wall -o $(EXEC) $(SRC) -lreadline
 
 clean:
@@ -16,5 +17,6 @@ cd :
 	gcc -Wall -o exec/cd src/commandes_internes/cd.c
 
 run_cd : 
+	clear
 	exec/./cd
 .PHONY: all clean

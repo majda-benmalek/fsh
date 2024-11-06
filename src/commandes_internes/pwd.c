@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <dirent.h>
 
+
+
 char *nom_du_repertoire()
 {
     struct stat st_target, st_ent; // stat du rep dont on veut le nom et stat des entrées du rep courant

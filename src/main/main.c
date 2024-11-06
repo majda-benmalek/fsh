@@ -26,7 +26,7 @@ int main()
 
         if (strcmp(input, "exit") == 0)
         {
-            goto exit;
+            break;
         }
         else if (strncmp(input, "cd", 2) == 0)
         {
@@ -39,7 +39,7 @@ int main()
         {
             if (fork() == 0)
             {
-                execlp("ls", "ls", NULL);
+                execlp(input, input, NULL);
                 perror("execlp");
                 exit(EXIT_FAILURE);
             };
@@ -60,10 +60,6 @@ int main()
         }
     }
 
-    free(chemin);
-    free(input);
-    return 0;
-exit:
     free(chemin);
     free(input);
     return 0;
