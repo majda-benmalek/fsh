@@ -3,7 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <limits.h> 
+#include <limits.h> // n'est pas reconnu jcp prk
+#define PATH_MAX 4096
 
 
 int cd_commande(char * chemin ){
@@ -11,7 +12,7 @@ int cd_commande(char * chemin ){
 
     static char chemin_precedent[PATH_MAX] = "";
     char chemin_courant[PATH_MAX];
-    char chelin_test [PATH_MAX];
+
 
     ;
     if(getcwd(chemin_courant, sizeof(chemin_courant)) == NULL){ // doute sur ça 
@@ -42,10 +43,6 @@ int cd_commande(char * chemin ){
     if(chdir(chemin) <0 ){
         perror("Impossible de se déplacer dans le dossier"); 
         return 1; 
-    }else{
-        getcwd(chelin_test, sizeof(chelin_test));
-       // printf("%s\n" , chelin_test); 
-       //! je veux pas que ca affiche ou on est maintenant juste que ca déplace -MAJDA
     }
 
     strncpy(chemin_precedent, chemin_courant , sizeof(chemin_precedent)-1) ;
@@ -56,20 +53,3 @@ int cd_commande(char * chemin ){
 
 }
 
-// ! pas le droit d'avoir 2 main 
-// int main(int argc , char * argv[]){
-//     char* chemin ; 
-
-//     if(argc > 1){
-//         chemin = argv[1];
-//     }else{
-//         chemin = NULL ; 
-//     }
-
-//     if(cd_commande(chemin) != 0){
-//         perror("Echec");
-//         return 1;
-//     }
-//     return 0;
-
-// }
