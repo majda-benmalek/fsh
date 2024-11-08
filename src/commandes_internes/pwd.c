@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE // SI YA UN PROBLEME D4INCLUDE A LA COMPILATION
+#define _DEFAULT_SOURCE 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,8 +12,6 @@
 #include <errno.h>
 #include <dirent.h>
 
-
-
 char *nom_du_repertoire()
 {
     struct stat st_target, st_ent; // stat du rep dont on veut le nom et stat des entrées du rep courant
@@ -23,12 +21,14 @@ char *nom_du_repertoire()
 
     if (stat(".", &st_target) != 0)
     {
+        perror("stat .");
         goto error;
     }
 
     parent = opendir("..");
     if (parent == NULL)
     {
+        perror("opendir ..");
         goto error;
     }
 
@@ -40,6 +40,7 @@ char *nom_du_repertoire()
         {
             if (errno != 0)
             {
+                perror("readdir");
                 goto error;
             }
             else
@@ -58,6 +59,7 @@ char *nom_du_repertoire()
 
         if (lstat(ent_path, &st_ent) != 0)
         {
+            perror("lstat");
             goto error;
         }
         if (st_ent.st_ino == st_target.st_ino && st_ent.st_dev == st_target.st_dev)
@@ -69,18 +71,70 @@ char *nom_du_repertoire()
     ret = strdup(ent->d_name);
     if (ret == NULL)
     {
+        perror("strdup");
         goto error;
     }
     closedir(parent);
     return ret;
 
-    error : 
-    if (parent!=NULL)
+error:
+    if (parent != NULL)
     {
-       closedir(parent);
+        closedir(parent);
     }
-    if(ret!=NULL){
+    if (ret != NULL)
+    {
         free(ret);
     }
     return NULL;
+}
+
+char *chemin_absolu(char *path, size_t size)
+{
+    char *dir_name = nom_du_repertoire();
+    if (dir_name == NULL)
+    {
+        return path;
+    }
+
+    if (strcmp(dir_name, "/") == 0)
+    {
+        free(dir_name);
+        return strdup("/");
+    }
+
+    if (chdir("..") != 0)
+    {
+        free(dir_name);
+        return NULL;
+    }
+
+    char current_path[PATH_MAX];
+    getcwd(current_path, sizeof(current_path));
+    if (strcmp(current_path, "/") == 0)
+    {
+        snprintf(path, size, "/%s", dir_name);
+        free(dir_name);
+        return strdup(path);
+    }
+
+    // Récursion pour obtenir le chemin du parent
+    char *parent_path = chemin_absolu(path, size);
+    if (parent_path == NULL)
+    {
+        free(dir_name);
+        return NULL;
+    }
+
+    snprintf(path, size, "%s/%s", parent_path, dir_name);
+    free(dir_name);
+    free(parent_path);
+
+    return strdup(path);
+}
+
+char *pwd()
+{
+    char path[PATH_MAX] = "";
+    return chemin_absolu(path, sizeof(path));
 }
