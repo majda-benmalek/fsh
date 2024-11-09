@@ -1,4 +1,4 @@
-SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c
+SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c src/commandes_externes/for.c
 EXEC = exec/main
 
 all: $(EXEC)
@@ -26,5 +26,12 @@ exit :
 run_exit :
 	exec/./exit
 
+
+for :
+	gcc -Wall -o exec/for src/commandes_externes/for.c
+
+
+run_for :
+	exec/./for
 
 .PHONY: all clean

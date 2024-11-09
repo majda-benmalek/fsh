@@ -8,6 +8,7 @@
 #include "../../utils/pwd.h"
 #include "../../utils/exit.h"
 #include "../../utils/redirection.h"
+#include "../../utils/for.h"
 
 
 int dernier_exit = 0 ; // pour initialiser la derniére valeur de retour 
@@ -75,6 +76,13 @@ int main()
                 input = NULL ;
             }
 
+            input = NULL;
+        }else if(strncmp(input, "for", 3) == 0){
+            int result = boucle_for(input);
+            if(result != 0){
+                printf("Boucle for échouée\n");
+                input= NULL;
+            }
             input = NULL;
         }
         else
