@@ -8,7 +8,7 @@
 #include "../../utils/pwd.h"
 #include "../../utils/exit.h"
 #include "../../utils/redirection.h"
-
+#include "../../utils/ftype.h"
 
 int dernier_exit = 0 ; // pour initialiser la derniére valeur de retour 
 
@@ -21,11 +21,11 @@ int main()
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    if (chdir("/Users/majda") != 0)
-    {
-        perror("chdir /");
-        exit(EXIT_FAILURE);
-    }
+    // if (chdir("/Users/majda") != 0)
+    // {
+    //     perror("chdir /");
+    //     exit(EXIT_FAILURE);
+    // }
 
     getcwd(chemin, 100);
       if (chemin == NULL)
@@ -104,6 +104,14 @@ int main()
             }
 
             input = NULL;
+        }
+        else if (strncmp(input ,"ftype ",5)==0)
+        {
+            char *name = input+6; 
+            int res= ftype(name);
+            if (res<1){
+                printf("Erreur ftype \n");
+            }
         }
         else
         {
