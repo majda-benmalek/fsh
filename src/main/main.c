@@ -73,26 +73,7 @@ int main()
         }
         else if (strcmp(input, "pwd") == 0 || strcmp(input, "pwd ") == 0)
         {
-            char *full_path = malloc(PATH_MAX);
-            if (full_path == NULL)
-            {
-                perror("malloc");
-                exit(EXIT_FAILURE);
-            }
-            full_path = chemin_absolu(full_path, PATH_MAX);
-            fprintf(stdout, "%s\n", full_path);
-            chdir(full_path);
-            if (full_path == NULL)
-            {
-                perror("pwd");
-                exit(EXIT_FAILURE);
-            }
-            else
-            {
-
-                printf("free de full_path\n");
-                free(full_path);
-            }
+            pwd();
         }
         else if(strstr(input , ">>") || strstr(input , ">")){
             //printf("detection de > >> \n");

@@ -1,10 +1,11 @@
+#define _DEFAULT_SOURCE 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h> // n'est pas reconnu jcp prk
-#define PATH_MAX 4096
+// #define PATH_MAX 4096
 
 
 int cd_commande(char * chemin ){
