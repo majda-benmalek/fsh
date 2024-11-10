@@ -7,8 +7,20 @@
 #define PATH_MAX 4096
 
 
-int cd_commande(char * chemin ){
+int cd_commande(char * input ){
     /*garder le chemin courant pour l'utiliser comme précedent */
+    char *chemin =  input + 3;
+
+    if(strlen(input)==2 || strcmp(chemin , "") == 0 ){
+        chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
+
+        if(chemin == NULL){
+            perror("Variable HOME non trouvée");
+            return 1 ; 
+        }
+    }
+
+    
 
     static char chemin_precedent[PATH_MAX] = "";
     char chemin_courant[PATH_MAX];
@@ -22,7 +34,7 @@ int cd_commande(char * chemin ){
 
     /*on va tester si le chemin a ete fournit si c'est pas le cas on retourne vers $HOME*/
 
-    if(chemin == NULL){
+    /*if(strcmp(chemin , "") == 0 || chemin == NULL){
         chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
 
         if(chemin == NULL){
@@ -30,7 +42,7 @@ int cd_commande(char * chemin ){
             return 1 ; 
         }
 
-    }
+    }*/
 
     else if(strcmp(chemin , "-") == 0){
         chemin = chemin_precedent; 

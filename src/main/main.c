@@ -44,8 +44,8 @@ int main()
         } // pour le exit si on met une autre valeur que le 0 le makefile affiche une erreur ce qui esr normal mais y'a possiblité de changer ca (demander si c'est nécessaire)
         else if (strncmp(input, "cd", 2) == 0)
         {
-            char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment 
-            cd_commande(chemin_cd);
+            //char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment 
+            cd_commande(input);
             getcwd(chemin, 512);
             input = NULL;
         }
