@@ -41,14 +41,6 @@ int main()
         perror("getcwd");
         exit(EXIT_FAILURE);
     }
-    int nbr_cmd = 6;
-    char **cmd = malloc(nbr_cmd * sizeof(char *));
-    cmd[0] = "ls";
-    cmd[1] = "cd";
-    cmd[2] = "pwd";
-    cmd[3] = "exit";
-    cmd[4] = ">>";
-    cmd[5] = ">";
 
     while (1)
     {
@@ -73,8 +65,8 @@ int main()
         //* Commande cd
         else if (strncmp(input, "cd", 2) == 0)
         {
-            char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
-            ok=!(cd_commande(chemin_cd));
+            //char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
+            ok=!(cd_commande(input));
             getcwd(chemin, 512);
         }
         //* Commande pwd
