@@ -1,4 +1,4 @@
-SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c
+SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c  src/main/prompt.c
 EXEC = exec/main
 
 all: $(EXEC)
@@ -23,6 +23,12 @@ exit :
 
 run_exit :
 	exec/./exit
+
+prompt :
+	gcc -Wall -o exec/prompt src/main/prompt.c -lreadline
+
+run_prompt :
+	exec/./prompt
 
 
 .PHONY: all clean

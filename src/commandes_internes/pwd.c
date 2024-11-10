@@ -24,6 +24,7 @@ char *nom_du_repertoire()
     struct dirent *ent;
     char *ret = NULL;
 
+
     if (stat(".", &st_target) != 0)
     {
         perror("stat .");
@@ -157,13 +158,13 @@ char *chemin_absolu(char *path, size_t size)
  * Cette fonction utilise `chemin_absolu` pour obtenir le chemin absolu du
  * répertoire courant et l'affiche sur la sortie standard.
  */
-void pwd()
+int pwd()
 {
     char *full_path = malloc(PATH_MAX);
     if (full_path == NULL)
     {
         perror("malloc");
-        exit(EXIT_FAILURE);
+        return 0;
     }
     full_path = chemin_absolu(full_path, PATH_MAX);
     fprintf(stdout, "%s\n", full_path);
@@ -172,10 +173,11 @@ void pwd()
     if (full_path == NULL)
     {
         perror("pwd");
-        exit(EXIT_FAILURE);
+        return 0;
     }
     else
     {
         free(full_path);
     }
+    return 1;
 }
