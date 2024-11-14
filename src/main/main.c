@@ -13,7 +13,8 @@
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
-bool ok = true;
+int ok =0;
+
 int main()
 {
     char *input = malloc(MAX_INPUT);
@@ -46,7 +47,7 @@ int main()
     {
         rl_outstream = stderr;
         prompt(chemin, input, ok);
-        ok = true;
+        ok = 0;
         //* Commande exit
         if (strncmp(input, "exit", 4) == 0)
         {
@@ -66,7 +67,7 @@ int main()
         else if (strncmp(input, "cd", 2) == 0)
         {
             //char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
-            ok=!(cd_commande(input));
+            ok=cd_commande(input);
             getcwd(chemin, 512);
         }
         //* Commande pwd
@@ -78,9 +79,9 @@ int main()
         else if (strstr(input, ">>") || strstr(input, ">"))
         {
             // printf("detection de > >> \n");
-            int result = redirection(input);
+            ok = redirection(input);
 
-            if (result != 0)
+            if (ok != 0)
             {
                 printf("Redirection échouée\n");
             }
@@ -90,8 +91,8 @@ int main()
         {
             if (fork() == 0)
             {
-                int r = execlp("ls", "ls", NULL);
-                if (r == -1)
+                ok = execlp("ls", "ls", NULL);
+                if (ok == -1)
                 {
                     perror("execlp");
                     exit(EXIT_FAILURE);
@@ -102,8 +103,13 @@ int main()
         //* Pas une commande reconnue
         else
         {
-            fprintf(rl_outstream, "Commande non reconnue : %s\n", input);
-            ok=false;
+            char *msg=malloc(MAX_INPUT);
+            sprintf(msg,"Commande non reconnue : %s\n",input);
+            write(2,msg,strlen(msg));
+            ok=0;
+            if(msg!=NULL){
+                free(msg);
+            }
         }
     }
 

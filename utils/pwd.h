@@ -7,6 +7,6 @@
 /**
  * Affiche le chemin absolu du répertoire courant.
  */
-char *pwd();
+int pwd();
 
 #endif // PWD_H

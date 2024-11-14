@@ -9,23 +9,65 @@
 #include <limits.h>
 #include <stdbool.h>
 
-char *decoupe(char *prompt)
+int compter_chiffres(int nombre)
 {
-    size_t size = strlen(prompt);
-    if (size <= 23)
+    int count = 0;
+    // Cas pour le nombre 0
+    if (nombre == 0)
+    {
+        return 1;
+    }
+    // Si le nombre est négatif, on le rend positif
+    if (nombre < 0)
+    {
+        nombre = -nombre;
+    }
+    // Compter les chiffres
+    while (nombre != 0)
+    {
+        nombre /= 10; // Diviser le nombre par 10
+        count++;      // Incrémenter le compteur de chiffres
+    }
+
+    return count;
+}
+
+char *decoupe(char *prompt, int ok, char *chemin)
+{
+    size_t size_path = strlen(chemin);
+    size_t size = size_path+5;
+    if (size <= 30)
     {
         return NULL;
     }
     else
     {
-        char *new_prompt = malloc( size * sizeof(char));
+        char *new_prompt = malloc(size * sizeof(char));
         if (new_prompt == NULL)
         {
             perror("malloc");
             return NULL;
         }
-        size_t debut_prompt = size - 23;
-        snprintf(new_prompt, 27 , "...%s", prompt + debut_prompt);
+        int ouverture = 5;
+        int fermeture = 4;
+        int where = 0;
+        snprintf(new_prompt, ouverture + 2, "%s", prompt); //+2 pour [ et '\0'
+        where = ouverture + 1;
+        snprintf(new_prompt + where, fermeture + 1, "%s", prompt + where);
+        where += fermeture;
+        int c = compter_chiffres(ok);
+        printf("%u\n", c);
+        snprintf(new_prompt + where, c + 2, "%s", prompt + where); // +2 pour ] et '\0'
+        where += c + 1;
+        char *new_path = chemin + (size_path - 21);
+        snprintf(new_prompt + where, strlen(new_path) + 4, "...%s", new_path); // pour ... et '\0'
+        int where2 = where + size_path;
+        where += strlen(new_path) + 3;
+        snprintf(new_prompt + where, ouverture + 2, "%s", prompt + where2); //+2 pour $ et '\0'
+        where2 += ouverture + 1;
+        where += ouverture + 1;
+        snprintf(new_prompt + where, fermeture + 2, "%s", prompt + where2);
+
         return new_prompt;
     }
 }
@@ -41,34 +83,34 @@ void enlever_home(char *chemin, const char *home)
     }
 }
 
-void prompt(char *chemin, char *input, bool ok)
+void prompt(char *chemin, char *input, int ok)
 {
 
     input[0] = '\0';
-    enlever_home(chemin, getenv("HOME"));
-    char *prompt = decoupe(chemin);
-    if (prompt != NULL)
-    {
-        sprintf(chemin, "%s", prompt);
-        free(prompt);
-    }
+    // enlever_home(chemin, getenv("HOME"));
 
     char readline_prompt[512];
-    if (ok)
+    if (ok == 0)
     {
-        snprintf(readline_prompt, sizeof(readline_prompt), "\033[32m[\033[0m0]%s\033[34m$ \033[0m", chemin);
+        sprintf(readline_prompt, "\033[32m[\033[0m%d]%s\033[34m$\033[0m ", ok, chemin);
     }
     else
     {
-        snprintf(readline_prompt, sizeof(readline_prompt), "\033[91m[\033[0m1]%s\033[34m$ \033[0m", chemin);
+        sprintf(readline_prompt, "\033[91m[\033[0m%d]%s\033[34m$\033[0m ", ok, chemin);
     }
 
+    // fprintf(stderr,"%s\n",readline_prompt);
+    char *prompt = decoupe(readline_prompt, ok, chemin);
+    if (prompt != NULL)
+    {
+        sprintf(readline_prompt, "%s", prompt);
+        free(prompt);
+    }
+    // fprintf(stderr,"%s\n",readline_prompt);
     char *line = readline(readline_prompt);
     if (line != NULL)
     {
         sprintf(input, "%s", line);
         add_history(input);
-        free(line);
     }
-    write_history("history");
 }
