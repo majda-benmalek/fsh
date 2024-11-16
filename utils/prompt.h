@@ -18,7 +18,7 @@ char *decoupe(char *prompt);
  * @param chemin Le chemin du répertoire courant.
  * @param input Un pointeur vers une chaîne de caractères pour stocker l'entrée de l'utilisateur.
  */
-void prompt(char *chemin, char *input,bool ok);
+void prompt(char *chemin, char *input,int *ok);
 
 /**
  * Enlève le chemin du répertoire personnel de l'utilisateur du chemin du répertoire courant.

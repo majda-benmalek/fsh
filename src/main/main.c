@@ -12,10 +12,7 @@
 #include <stdbool.h>
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
-
-int ok =0;
-
-int main()
+int main(void)
 {
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
@@ -32,21 +29,23 @@ int main()
     }
 
     //* Ouvert fsh directement dans le répertoire personnel de l'utilisateur (à voir)
-    if (chdir(getenv("HOME"))==-1)
-    {
-        perror("chdir");
-        exit(EXIT_FAILURE);
-    }
+    // if (chdir(getenv("HOME"))==-1)
+    // {
+    //     perror("chdir");
+    //     exit(EXIT_FAILURE);
+    // }
+
     if (getcwd(chemin, PATH_MAX) == NULL)
     {
         perror("getcwd");
         exit(EXIT_FAILURE);
     }
-
+    rl_outstream = stderr;
+    int ok = 0;
+    int *p_ok = &ok;
     while (1)
     {
-        rl_outstream = stderr;
-        prompt(chemin, input, ok);
+        prompt(chemin, input, p_ok);
         ok = 0;
         //* Commande exit
         if (strncmp(input, "exit", 4) == 0)
@@ -66,14 +65,14 @@ int main()
         //* Commande cd
         else if (strncmp(input, "cd", 2) == 0)
         {
-            //char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
-            ok=cd_commande(input);
-            getcwd(chemin, 512);
+            // char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
+            ok = cd_commande(input);
+            getcwd(chemin, 512); // met le nouveau chemin dans la variable chemin
         }
         //* Commande pwd
         else if (strcmp(input, "pwd") == 0 || strcmp(input, "pwd ") == 0)
         {
-            ok=pwd();
+            ok = pwd();
         }
         //* Redirection > et >>
         else if (strstr(input, ">>") || strstr(input, ">"))
@@ -83,7 +82,7 @@ int main()
 
             if (ok != 0)
             {
-                printf("Redirection échouée\n");
+                write(2, "Redirection échouée\n", strlen("Redirection échouée\n"));
             }
         }
         //* Commande externe ls sans argument
@@ -103,16 +102,16 @@ int main()
         //* Pas une commande reconnue
         else
         {
-            char *msg=malloc(MAX_INPUT);
-            sprintf(msg,"Commande non reconnue : %s\n",input);
-            write(2,msg,strlen(msg));
-            ok=0;
-            if(msg!=NULL){
+            char *msg = malloc(MAX_INPUT);
+            sprintf(msg, "Commande non reconnue : %s\n", input);
+            write(2, msg, strlen(msg));
+            ok = 1;
+            if (msg != NULL)
+            {
                 free(msg);
             }
-        }
+        } // Réinitialisation de ok à la fin de chaque itération
     }
-
     if (input != NULL)
     {
         free(input);

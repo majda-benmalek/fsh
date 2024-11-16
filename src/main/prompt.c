@@ -12,21 +12,18 @@
 int compter_chiffres(int nombre)
 {
     int count = 0;
-    // Cas pour le nombre 0
     if (nombre == 0)
     {
         return 1;
     }
-    // Si le nombre est négatif, on le rend positif
     if (nombre < 0)
     {
-        nombre = -nombre;
+        (nombre) = -(nombre);
     }
-    // Compter les chiffres
     while (nombre != 0)
     {
-        nombre /= 10; // Diviser le nombre par 10
-        count++;      // Incrémenter le compteur de chiffres
+        (nombre) /= 10;
+        count++;
     }
 
     return count;
@@ -35,7 +32,7 @@ int compter_chiffres(int nombre)
 char *decoupe(char *prompt, int ok, char *chemin)
 {
     size_t size_path = strlen(chemin);
-    size_t size = size_path+5;
+    size_t size = size_path + 5;
     if (size <= 30)
     {
         return NULL;
@@ -56,7 +53,6 @@ char *decoupe(char *prompt, int ok, char *chemin)
         snprintf(new_prompt + where, fermeture + 1, "%s", prompt + where);
         where += fermeture;
         int c = compter_chiffres(ok);
-        printf("%u\n", c);
         snprintf(new_prompt + where, c + 2, "%s", prompt + where); // +2 pour ] et '\0'
         where += c + 1;
         char *new_path = chemin + (size_path - 21);
@@ -72,41 +68,26 @@ char *decoupe(char *prompt, int ok, char *chemin)
     }
 }
 
-void enlever_home(char *chemin, const char *home)
+void prompt(char *chemin, char *input, int *ok)
 {
-    char *position = strstr(chemin, home);
-    if (position == chemin) // Si 'home' est trouvé au début de 'chemin'
-    {
-        size_t home_len = strlen(home);
-        size_t chemin_len = strlen(chemin);
-        memmove(chemin, chemin + home_len, chemin_len - home_len + 1); // +1 pour inclure le '\0'
-    }
-}
-
-void prompt(char *chemin, char *input, int ok)
-{
-
     input[0] = '\0';
-    // enlever_home(chemin, getenv("HOME"));
-
     char readline_prompt[512];
-    if (ok == 0)
+    if (*ok == 0)
     {
-        sprintf(readline_prompt, "\033[32m[\033[0m%d]%s\033[34m$\033[0m ", ok, chemin);
+        sprintf(readline_prompt, "\033[32m[\033[0m%d]%s\033[34m$\033[0m ", *(ok), chemin);
     }
     else
     {
-        sprintf(readline_prompt, "\033[91m[\033[0m%d]%s\033[34m$\033[0m ", ok, chemin);
+        sprintf(readline_prompt, "\033[91m[\033[0m%d]%s\033[34m$\033[0m ", *(ok), chemin);
     }
 
-    // fprintf(stderr,"%s\n",readline_prompt);
-    char *prompt = decoupe(readline_prompt, ok, chemin);
+    char *prompt = decoupe(readline_prompt, *ok, chemin);
     if (prompt != NULL)
     {
         sprintf(readline_prompt, "%s", prompt);
         free(prompt);
     }
-    // fprintf(stderr,"%s\n",readline_prompt);
+
     char *line = readline(readline_prompt);
     if (line != NULL)
     {

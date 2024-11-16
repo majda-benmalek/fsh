@@ -17,7 +17,7 @@
  * @return Un pointeur vers une chaîne de caractères contenant le nom du
  * répertoire courant. Retourne NULL en cas d'erreur.
  */
-char *nom_du_repertoire()
+char *nom_du_repertoire(void)
 {
     struct stat st_target, st_ent; // stat du rep dont on veut le nom et stat des entrées du rep courant
     DIR *parent = NULL;
@@ -158,7 +158,7 @@ char *chemin_absolu(char *path, size_t size)
  * Cette fonction utilise `chemin_absolu` pour obtenir le chemin absolu du
  * répertoire courant et l'affiche sur la sortie standard.
  */
-int pwd()
+int pwd(void)
 {
     char *full_path = malloc(PATH_MAX);
     if (full_path == NULL)
@@ -173,11 +173,11 @@ int pwd()
     if (full_path == NULL)
     {
         perror("pwd");
-        return 0;
+        return 1;
     }
     else
     {
         free(full_path);
     }
-    return 1;
+    return 0;
 }
