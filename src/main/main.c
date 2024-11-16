@@ -11,7 +11,9 @@
 #include "../../utils/prompt.h"
 #include <stdbool.h>
 
+void gestion_cmd(char *, char **, char **);
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
+
 int main(void)
 {
     char *input = malloc(MAX_INPUT);
@@ -41,57 +43,63 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     rl_outstream = stderr;
-    int ok = 0;
-    int *p_ok = &ok;
+    using_history();
+    read_history("history.txt");
+
+    int ret = 0;//la valeur de retour de chaque commande (pour le prompt)
+
+    char *arg = malloc(ARG_MAX);
+    char *cmd = malloc(ARG_MAX);
+    if (arg == NULL || cmd == NULL)
+    {
+        fprintf(stderr, "Erreur d'allocation de mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
     while (1)
     {
-        prompt(chemin, input, p_ok);
-        ok = 0;
-        //* Commande exit
-        if (strncmp(input, "exit", 4) == 0)
+        if (arg != NULL && cmd != NULL) //réinitialisation de arg et cmd a chaque tour de boucle 
         {
-            char *valeur_code;
-            if (input[4] == ' ')
-            {
-                // si j'ai un espace aprés exit donc l'utilisateur a fournis un code
-                valeur_code = input + 5;
-            }
-            else
-            {
-                valeur_code = NULL;
-            }
-            commande_exit(valeur_code);
+            strcpy(arg, "");
+            strcpy(cmd, "");
+        }
+        prompt(chemin, input, &ret);
+        gestion_cmd(input, &arg, &cmd);
+        ret = 0; //réinitialisation de ret après l'avoir utilisé dans l'affichage du prompt
+        //* Commande exit
+        if (strcmp(cmd, "exit") == 0)
+        {
+            cmd_exit(arg);
         } // pour le exit si on met une autre valeur que le 0 le makefile affiche une erreur ce qui esr normal mais y'a possiblité de changer ca (demander si c'est nécessaire)
         //* Commande cd
-        else if (strncmp(input, "cd", 2) == 0)
+        else if (strcmp(cmd, "cd") == 0)
         {
-            // char *chemin_cd = input + 3; //? pas besoin de le free psq il pointe vers input qui est lui meme un pointeur qui vas etre libérer a un moment
-            ok = cd_commande(input);
+            ret = cd_commande(arg);
             getcwd(chemin, 512); // met le nouveau chemin dans la variable chemin
         }
         //* Commande pwd
-        else if (strcmp(input, "pwd") == 0 || strcmp(input, "pwd ") == 0)
+        else if (strcmp(cmd,"pwd")==0)
         {
-            ok = pwd();
+            ret = pwd();
         }
         //* Redirection > et >>
         else if (strstr(input, ">>") || strstr(input, ">"))
         {
             // printf("detection de > >> \n");
-            ok = redirection(input);
+            ret = redirection(input);
 
-            if (ok != 0)
+            if (ret != 0)
             {
                 write(2, "Redirection échouée\n", strlen("Redirection échouée\n"));
             }
         }
         //* Commande externe ls sans argument
-        else if (strcmp(input, "ls") == 0)
+        else if (strcmp(cmd,"ls")==0)
         {
             if (fork() == 0)
             {
-                ok = execlp("ls", "ls", NULL);
-                if (ok == -1)
+                ret = execlp("ls", "ls", NULL);
+                if (ret == -1)
                 {
                     perror("execlp");
                     exit(EXIT_FAILURE);
@@ -105,13 +113,15 @@ int main(void)
             char *msg = malloc(MAX_INPUT);
             sprintf(msg, "Commande non reconnue : %s\n", input);
             write(2, msg, strlen(msg));
-            ok = 1;
+            ret = 1;
             if (msg != NULL)
             {
                 free(msg);
             }
-        } // Réinitialisation de ok à la fin de chaque itération
+        }
     }
+
+
     if (input != NULL)
     {
         free(input);
@@ -120,5 +130,36 @@ int main(void)
     {
         free(chemin);
     }
+    if(arg!=NULL){
+        free(arg);
+    }
+    if(cmd!=NULL){
+        free(cmd);
+    }
+    // if(p_ret!=NULL){
+    //     free(p_ret);
+    // }
+    write_history("history.txt");
     return 0;
 }
+
+//TODO : DOCUMENTATION
+void gestion_cmd(char *input, char **arg, char **cmd)
+{
+    char *espace = strchr(input, ' ');
+    if (espace != NULL )
+    {
+        int indice_espace = espace - input;
+        *arg = (input + indice_espace + 1);
+    }
+    if(espace !=NULL && strlen(*arg)==0){
+        snprintf(*cmd,strlen(input) ,"%s",input);
+    }else if(espace == NULL && strlen(*arg)==0){
+        sprintf(*cmd,"%s",input);
+    }
+    else if (strlen(*arg) >= 1)
+    {
+        snprintf(*cmd, (strlen(input) - strlen(*arg)), "%s", input);
+    }
+}
+

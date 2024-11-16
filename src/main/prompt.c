@@ -29,7 +29,7 @@ int compter_chiffres(int nombre)
     return count;
 }
 
-char *decoupe(char *prompt, int ok, char *chemin)
+char *decoupe(char *prompt, int ret, char *chemin)
 {
     size_t size_path = strlen(chemin);
     size_t size = size_path + 5;
@@ -52,7 +52,7 @@ char *decoupe(char *prompt, int ok, char *chemin)
         where = ouverture + 1;
         snprintf(new_prompt + where, fermeture + 1, "%s", prompt + where);
         where += fermeture;
-        int c = compter_chiffres(ok);
+        int c = compter_chiffres(ret);
         snprintf(new_prompt + where, c + 2, "%s", prompt + where); // +2 pour ] et '\0'
         where += c + 1;
         char *new_path = chemin + (size_path - 21);
@@ -68,20 +68,20 @@ char *decoupe(char *prompt, int ok, char *chemin)
     }
 }
 
-void prompt(char *chemin, char *input, int *ok)
+void prompt(char *chemin, char *input, int *ret)
 {
     input[0] = '\0';
     char readline_prompt[512];
-    if (*ok == 0)
+    if (*ret == 0)
     {
-        sprintf(readline_prompt, "\033[32m[\033[0m%d]%s\033[34m$\033[0m ", *(ok), chemin);
+        sprintf(readline_prompt, "\033[32m[\033[0m%d]%s\033[34m$\033[0m ", *(ret), chemin);
     }
     else
     {
-        sprintf(readline_prompt, "\033[91m[\033[0m%d]%s\033[34m$\033[0m ", *(ok), chemin);
+        sprintf(readline_prompt, "\033[91m[\033[0m%d]%s\033[34m$\033[0m ", *(ret), chemin);
     }
 
-    char *prompt = decoupe(readline_prompt, *ok, chemin);
+    char *prompt = decoupe(readline_prompt, *ret, chemin);
     if (prompt != NULL)
     {
         sprintf(readline_prompt, "%s", prompt);

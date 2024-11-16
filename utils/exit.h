@@ -10,4 +10,6 @@ extern int dernier_exit ;
  */
 void commande_exit( char * valeur);
 
+void cmd_exit(char *arg);
+
 #endif
