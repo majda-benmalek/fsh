@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include "../../utils/redirection.h"
+#include "../../utils/gestion.h"
 
 
 int boucle_for(char* input){
@@ -118,36 +119,37 @@ int boucle_for(char* input){
                         perror("Erreur de fork");
                         return 1;
                     case 0 :
-                        if(strstr(cmd , ">>") || strstr(cmd , ">")){
-                        //printf("detection de > >> \n");
-                        int result = redirection(cmd);
-                        if(result != 0){
-                        //printf("Redirection échouée\n");
-                        }
-                        }else{
-                            char *args[100];
-                            int i = 0;
-                            char* token = strtok(cmd, " ");
+//                         if(strstr(cmd , ">>") || strstr(cmd , ">")){
+//                         //printf("detection de > >> \n");
+//                         int result = redirection(cmd);
+//                         if(result != 0){
+//                         //printf("Redirection échouée\n");
+//                         }
+//                         }else{
+//                             char *args[100];
+//                             int i = 0;
+//                             char* token = strtok(cmd, " ");
 
-                            while (token != NULL)
-                            {
-                                args[i] = token;
-                                //printf("Argument %d : %s\n", i, args[i]);
-                                token = strtok(NULL, " ");
-                                i++;
+//                             while (token != NULL)
+//                             {
+//                                 args[i] = token;
+//                                 //printf("Argument %d : %s\n", i, args[i]);
+//                                 token = strtok(NULL, " ");
+//                                 i++;
                                 
-                            }
-                            args[i] = NULL;
-                            /*printf("Arguments pour execvp :\n");
-for (int j = 0; j < i; j++) {
-    printf("%s ", args[j]);
-}
-printf("\n");*/
-                            if(execvp(args[0], args) < 0){
-                                perror("Erreur d'exécution");
-                                return 1;
-                            }     
-                        } 
+//                             }
+//                             args[i] = NULL;
+//                             /*printf("Arguments pour execvp :\n");
+// for (int j = 0; j < i; j++) {
+//     printf("%s ", args[j]);
+// }
+// printf("\n");*/
+//                             if(execvp(args[0], args) < 0){
+//                                 perror("Erreur d'exécution");
+//                                 return 1;
+//                             }     
+//                         } 
+                        fsh(0);
                         break;
                    
                     default:
