@@ -107,7 +107,17 @@ int main(void)
             }
             wait(NULL);
         }
-        //* Pas une commande reconnue
+        else if(strstr(input , ">>") || strstr(input , ">")){
+            //printf("detection de > >> \n");
+            int result = redirection(input);
+
+            if(result != 0){
+                printf("Redirection échouée\n");
+                input = NULL ;
+            }
+
+            input = NULL;
+        }
         else
         {
             char *msg = malloc(MAX_INPUT);
