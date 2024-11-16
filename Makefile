@@ -40,4 +40,4 @@ extern :
 run_extern :
 	exec/./extern
 
-.PHONY: all clean
+.PHONY: init tarexamples

@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/wait.h>
 
+#define ARG_MAX 512
+
 int cmd_extern(char *input)
 {
     char **arg = malloc(ARG_MAX * sizeof(char *));
@@ -14,7 +16,6 @@ int cmd_extern(char *input)
         fprintf(stderr, "Erreur d'allocation de mémoire\n");
         return -1;
     }
-    printf("input : %s\n", input);
 
     char *copy = strdup(input);
     if (copy == NULL)
@@ -24,7 +25,6 @@ int cmd_extern(char *input)
         return -1;
     }
 
-    printf("copy : %s\n", copy);
     char *token = strtok(copy, " ");
 
     int count = 0;
@@ -47,10 +47,10 @@ int cmd_extern(char *input)
     }
     arg[count] = NULL;
     //affiché arg
-    for (int i = 0; i < count; i++)
-    {
-        printf("arg[%d] : %s\n", i, arg[i]);
-    }
+    // for (int i = 0; i < count; i++)
+    // {
+    //     printf("arg[%d] : %s\n", i, arg[i]);
+    // }
     int child_pid;
     int status;
     switch (child_pid = fork())
@@ -78,6 +78,7 @@ int cmd_extern(char *input)
         }
     default:
         waitpid(child_pid, &status, 0);
+        printf("Commande terminée : %s\n", arg[0]);
         if (WIFEXITED(status))
         {
             int exit_status = WEXITSTATUS(status);

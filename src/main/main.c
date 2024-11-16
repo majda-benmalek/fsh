@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -12,9 +13,13 @@
 #include <stdbool.h>
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
+#include "../../utils/for.h"
+
+#define ARG_MAX 512
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
 int main(){
+
     return fsh(dernier_exit);
 }

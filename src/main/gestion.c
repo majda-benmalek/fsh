@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -12,6 +13,9 @@
 #include <stdbool.h>
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
+#include "../../utils/for.h"
+
+#define ARG_MAX 512
 
 // TODO : documentation
 void gestion_cmd(char *input, char **arg, char **cmd)
@@ -77,7 +81,6 @@ int fsh(int dernier_exit)
         fprintf(stderr, "Erreur d'allocation de mémoire\n");
         exit(EXIT_FAILURE);
     }
-
     while (1)
     {
         if (arg != NULL && cmd != NULL) // réinitialisation de arg et cmd a chaque tour de boucle
@@ -92,6 +95,7 @@ int fsh(int dernier_exit)
         if (strcmp(cmd, "exit") == 0)
         {
             cmd_exit(arg);
+            // break;
         } // pour le exit si on met une autre valeur que le 0 le makefile affiche une erreur ce qui esr normal mais y'a possiblité de changer ca (demander si c'est nécessaire)
         //* Commande cd
         else if (strcmp(cmd, "cd") == 0)
@@ -129,6 +133,10 @@ int fsh(int dernier_exit)
 
             input = NULL;
         }
+        else if (strcmp(cmd, "for") == 0)
+        {
+            ret = boucle_for(input);
+        }
         else
         {
             printf("input : %s\n", input);
@@ -147,7 +155,7 @@ int fsh(int dernier_exit)
         }
     }
 
-    if (input != NULL)
+        if (input != NULL)
     {
         free(input);
     }
