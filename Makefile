@@ -10,7 +10,6 @@ clean:
 	rm -f $(EXEC)
 
 run: 
-	gcc -Wall -o $(EXEC) $(SRC) -lreadline
 	exec/./main
 
 .PHONY: all clean 

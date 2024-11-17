@@ -8,9 +8,8 @@
 
 
 
-int cd_commande(char * arg ){
+int cd_commande(char * chemin ){
     /*garder le chemin courant pour l'utiliser comme précedent */
-    char *chemin = arg;
     if (strlen(chemin) > 0) {
         char last_char = chemin[strlen(chemin) - 1];
         if(last_char == ' '){

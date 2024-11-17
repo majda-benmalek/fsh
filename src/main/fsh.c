@@ -57,8 +57,10 @@ int main(void)
     while (1)
     {
         prompt(chemin, input, &ret);
+        fprintf(stderr, "input après prompt : %s\n", input);
         if (strlen(input) == 0)
         {
+            fprintf(stderr, "input est vide\n");
             continue;
         }
         gestion_cmd(input, &arg, &cmd);
@@ -79,16 +81,18 @@ int main(void)
                 free(chemin);
             }
             exit(dernier_exit);
-        } // pour le exit si on met une autre valeur que le 0 le makefile affiche une erreur ce qui esr normal mais y'a possiblité de changer ca (demander si c'est nécessaire)
+        }
         //* Commande cd
         if (strcmp(cmd, "cd") == 0)
         {
+            fprintf(stderr, "input avant cd_commande : %s\n", input);
+            printf("arg : %s\n", arg);
             ret = cd_commande(arg);
             if (getcwd(chemin, PATH_MAX) == NULL)
             {
                 perror("getcwd");
                 return 1;
-            } // met le nouveau chemin dans la variable chemin
+            }
             continue;
         }
         //* Commande pwd
@@ -100,9 +104,7 @@ int main(void)
         //* Redirection > et >>
         if (strstr(input, ">>") || strstr(input, ">"))
         {
-            // printf("detection de > >> \n");
             ret = redirection(input);
-
             if (ret != 0)
             {
                 write(2, "Redirection échouée\n", strlen("Redirection échouée\n"));
@@ -114,19 +116,19 @@ int main(void)
             continue;
         }
 
-        ret = cmd_extern(input);
-        // printf("input : %s\n", input);
-        if (ret >= 1)
-        {
-            char *msg = malloc(MAX_INPUT);
-            sprintf(msg, "Commande non reconnue : %s\n", input);
-            write(2, msg, strlen(msg));
-            ret = 1;
-            if (msg != NULL)
-            {
-                free(msg);
-            }
-        }
-        continue;
+        // fprintf(stderr, "input avant cmd_extern : %s\n", input);
+        // ret = cmd_extern(input);
+        // if (ret >= 1)
+        // {
+        //     char *msg = malloc(MAX_INPUT);
+        //     sprintf(msg, "Commande non reconnue : %s\n", cmd);
+        //     write(2, msg, strlen(msg));
+        //     ret = 1;
+        //     if (msg != NULL)
+        //     {
+        //         free(msg);
+        //     }
+        // }
+        // continue;
     }
 }
