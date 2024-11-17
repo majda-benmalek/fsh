@@ -42,4 +42,5 @@ void gestion_cmd(char *input, char **arg, char **cmd)
     {
         snprintf(*cmd, (strlen(input) - strlen(*arg) ), "%s", input);
     }
+    
 }

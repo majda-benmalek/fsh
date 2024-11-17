@@ -14,6 +14,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
 #include "../../utils/for.h"
+#include "../../utils/ftype.h"
 
 #define ARG_MAX 512
 
@@ -56,22 +57,19 @@ int main(void)
 
     while (1)
     {
-        prompt(chemin, input, &ret);
-        fprintf(stderr, "input après prompt : %s\n", input);
-        if (strlen(input) == 0)
-        {
-            fprintf(stderr, "input est vide\n");
+        int r=prompt(chemin, input, &ret);
+        if(r==1){
             continue;
         }
+
         gestion_cmd(input, &arg, &cmd);
-        dernier_exit = ret;
-        ret = 0;
+        // dernier_exit = ret;
+        // ret = 0;
 
         //* Commande exit
         if (strcmp(cmd, "exit") == 0)
         {
             dernier_exit = commande_exit(arg);
-            write_history("history.txt");
             if (input != NULL)
             {
                 free(input);
@@ -83,10 +81,8 @@ int main(void)
             exit(dernier_exit);
         }
         //* Commande cd
-        if (strcmp(cmd, "cd") == 0)
+        else if (strcmp(cmd, "cd") == 0)
         {
-            fprintf(stderr, "input avant cd_commande : %s\n", input);
-            printf("arg : %s\n", arg);
             ret = cd_commande(arg);
             if (getcwd(chemin, PATH_MAX) == NULL)
             {
@@ -96,13 +92,13 @@ int main(void)
             continue;
         }
         //* Commande pwd
-        if (strcmp(cmd, "pwd") == 0)
+        else if (strcmp(cmd, "pwd") == 0)
         {
             ret = pwd();
             continue;
         }
         //* Redirection > et >>
-        if (strstr(input, ">>") || strstr(input, ">"))
+        else if (strstr(input, ">>") || strstr(input, ">"))
         {
             ret = redirection(input);
             if (ret != 0)
@@ -111,24 +107,43 @@ int main(void)
             }
             continue;
         }
-        if (strchr(cmd, '\n') == 0)
+        else if (strcmp(cmd, "ftype") == 0)
         {
+            ret = ftype(arg);
+            if (ret > 0)
+            {
+                printf("Erreur ftype \n");
+            }
+        }
+        else if (strstr(input, "for"))
+        {
+            ret = boucle_for(input);
+            if (ret != 0)
+            {
+                write(2, "Boucle for échouée\n", strlen("Boucle for échouée\n"));
+            }
             continue;
         }
-
-        // fprintf(stderr, "input avant cmd_extern : %s\n", input);
-        // ret = cmd_extern(input);
-        // if (ret >= 1)
+        // else if (strchr(cmd, '\n') == 0 || strchr(cmd,' ')== 0 || strchr(cmd,'\0')==0 || input == NULL || cmd==NULL )
         // {
-        //     char *msg = malloc(MAX_INPUT);
-        //     sprintf(msg, "Commande non reconnue : %s\n", cmd);
-        //     write(2, msg, strlen(msg));
-        //     ret = 1;
-        //     if (msg != NULL)
-        //     {
-        //         free(msg);
-        //     }
+        //     write(2, "Commande vide\n", strlen("Commande vide\n"));
+        //     continue;
         // }
-        // continue;
+        else
+        {
+            ret = cmd_extern(input);
+            if (ret >= 1)
+            {
+                char *msg = malloc(MAX_INPUT);
+                sprintf(msg, "Commande non reconnue : %s\n", cmd);
+                write(2, msg, strlen(msg));
+                ret = 1;
+                if (msg != NULL)
+                {
+                    free(msg);
+                }
+            }
+            continue;
+        }
     }
 }

@@ -1,0 +1,23 @@
+exit
+exit
+exit 0
+exit 0
+exit 0
+exit
+exit 0
+exit 
+exit
+exit 0
+exit
+ls
+cd src
+exit
+exit
+exit
+cd my_folder/
+exit
+exit
+exit 6
+exit
+cd src
+exit
