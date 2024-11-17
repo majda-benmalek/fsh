@@ -58,7 +58,7 @@ int cd_commande(char * chemin ){
     }
 
     if(chdir(chemin) < 0 ){
-        perror("cd :"); 
+        perror("cd"); 
         return 1; 
     }
 
