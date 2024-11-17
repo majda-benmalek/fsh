@@ -9,6 +9,7 @@
 #include "../../utils/exit.h"
 #include "../../utils/redirection.h"
 #include "../../utils/ftype.h"
+#include "../../utils/redirection_erreur.h"
 
 int dernier_exit = 0 ; // pour initialiser la derniére valeur de retour 
 
@@ -94,7 +95,15 @@ int main()
                 free(full_path);
             }
         }
-        else if(strstr(input , ">>") || strstr(input , ">")){
+        else if(strstr(input,"2>>") || strstr(input,"2>")){
+            int result = redirection_erreur(input);
+            if (result != 0){
+                printf("marche pas erreur redi \n");
+                input = NULL;
+            }
+        }
+
+        else if(strstr(input , ">>") || strstr(input , ">") || strstr(input, "<")){
             //printf("detection de > >> \n");
             int result = redirection(input);
 

@@ -1,4 +1,4 @@
-SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c src/commandes_internes/ftype.c
+SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c src/commandes_internes/ftype.c src/commandes_internes/redirection_erreur.c
 EXEC = exec/main
 
 all: $(EXEC)
