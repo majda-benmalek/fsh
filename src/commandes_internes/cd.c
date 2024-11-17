@@ -59,7 +59,7 @@ int cd_commande(char * arg ){
     }
 
     if(chdir(chemin) < 0 ){
-        perror("Impossible de se déplacer dans le dossier"); 
+        perror("cd :"); 
         return 1; 
     }
 

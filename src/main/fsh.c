@@ -50,20 +50,26 @@ int main(void)
     char *cmd = malloc(ARG_MAX);
     if (arg == NULL || cmd == NULL)
     {
-        write(2, "Erreur d'allocation de mémoire\n",strlen("Erreur d'allocation de mémoire\n"));
+        write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
         return 1;
     }
 
     while (1)
     {
         prompt(chemin, input, &ret);
+        if (strlen(input) == 0)
+        {
+            continue;
+        }
         gestion_cmd(input, &arg, &cmd);
         dernier_exit = ret;
+        ret = 0;
 
         //* Commande exit
         if (strcmp(cmd, "exit") == 0)
         {
-            ret = commande_exit(arg);
+            dernier_exit = commande_exit(arg);
+            write_history("history.txt");
             if (input != NULL)
             {
                 free(input);
@@ -72,21 +78,27 @@ int main(void)
             {
                 free(chemin);
             }
-            return ret;
+            exit(dernier_exit);
         } // pour le exit si on met une autre valeur que le 0 le makefile affiche une erreur ce qui esr normal mais y'a possiblité de changer ca (demander si c'est nécessaire)
         //* Commande cd
-        else if (strcmp(cmd, "cd") == 0)
+        if (strcmp(cmd, "cd") == 0)
         {
             ret = cd_commande(arg);
-            getcwd(chemin, 512); // met le nouveau chemin dans la variable chemin
+            if (getcwd(chemin, PATH_MAX) == NULL)
+            {
+                perror("getcwd");
+                return 1;
+            } // met le nouveau chemin dans la variable chemin
+            continue;
         }
         //* Commande pwd
-        else if (strcmp(cmd, "pwd") == 0)
+        if (strcmp(cmd, "pwd") == 0)
         {
             ret = pwd();
+            continue;
         }
         //* Redirection > et >>
-        else if (strstr(input, ">>") || strstr(input, ">"))
+        if (strstr(input, ">>") || strstr(input, ">"))
         {
             // printf("detection de > >> \n");
             ret = redirection(input);
@@ -95,35 +107,16 @@ int main(void)
             {
                 write(2, "Redirection échouée\n", strlen("Redirection échouée\n"));
             }
+            continue;
         }
-        //* Commande externe ls sans argument
-        else if (strcmp(cmd, "ls") == 0)
+        if (strchr(cmd, '\n') == 0)
         {
-            if (fork() == 0)
-            {
-                ret = execlp("ls", "ls", NULL);
-                if (ret == -1)
-                {
-                    perror("execlp");
-                    return 1;
-                }
-            }
-            wait(NULL);
+            continue;
         }
-        else if (strstr(input, ">>") || strstr(input, ">"))
-        {
-            // printf("detection de > >> \n");
-            int result = redirection(input);
 
-            if (result != 0)
-            {
-                printf("Redirection échouée\n");
-                input = NULL;
-            }
-
-            input = NULL;
-        }
-        else
+        ret = cmd_extern(input);
+        // printf("input : %s\n", input);
+        if (ret >= 1)
         {
             char *msg = malloc(MAX_INPUT);
             sprintf(msg, "Commande non reconnue : %s\n", input);
@@ -134,5 +127,6 @@ int main(void)
                 free(msg);
             }
         }
+        continue;
     }
 }

@@ -13,16 +13,16 @@ int cmd_extern(char *input)
     char **arg = malloc(ARG_MAX * sizeof(char *));
     if (arg == NULL)
     {
-        fprintf(stderr, "Erreur d'allocation de mémoire\n");
-        return -1;
+        write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
+        return 1;
     }
 
     char *copy = strdup(input);
     if (copy == NULL)
     {
-        fprintf(stderr, "Erreur d'allocation de mémoire\n");
+        write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
         free(arg);
-        return -1;
+        return 1;
     }
 
     char *token = strtok(copy, " ");
@@ -33,7 +33,7 @@ int cmd_extern(char *input)
         arg[count] = strdup(token);
         if (arg[count] == NULL)
         {
-            fprintf(stderr, "Erreur d'allocation de mémoire\n");
+            write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
             free(copy);
             for (int i = 0; i < count; i++)
             {
@@ -78,7 +78,6 @@ int cmd_extern(char *input)
         }
     default:
         waitpid(child_pid, &status, 0);
-        printf("Commande terminée : %s\n", arg[0]);
         if (WIFEXITED(status))
         {
             int exit_status = WEXITSTATUS(status);
@@ -94,28 +93,3 @@ int cmd_extern(char *input)
     free(arg);
     return 0;
 }
-
-// int main()
-// {
-//     char *input = "ls -l ";
-
-//     char* chemin = malloc(PATH_MAX * sizeof(char));
-//     if (chemin == NULL)
-//     {
-//         fprintf(stderr, "Erreur d'allocation de mémoire\n");
-//         return EXIT_FAILURE;
-//     }
-//     getcwd(chemin, PATH_MAX);
-//     printf("chemin : %s\n", chemin);
-//     if (cmd_extern(input) == -1)
-//     {
-//         fprintf(stderr, "Erreur lors de l'exécution de la commande externe\n");
-//         return EXIT_FAILURE;
-//     }
-
-//     return EXIT_SUCCESS;
-// }
-// printf("copy : %s\n", copy);
-// printf("token : %s\n", token);
-// printf("cmd : %s\n", cmd);
-// printf("input : %s\n", input);

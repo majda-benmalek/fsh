@@ -89,7 +89,7 @@ void prompt(char *chemin, char *input, int *ret)
     }
 
     char *line = readline(readline_prompt);
-    if (line != NULL)
+    if (line != NULL  && strlen(line) > 0)
     {
         sprintf(input, "%s", line);
         add_history(input);

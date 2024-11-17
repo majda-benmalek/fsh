@@ -21,13 +21,14 @@
 void gestion_cmd(char *input, char **arg, char **cmd)
 {
     char *espace = strchr(input, ' ');
+    if(input[0]=='\0'){
+        sprintf(*cmd ,"%c", '\0');
+    }
     if (espace != NULL)
     {
         int indice_espace = espace - input;
         *arg = (input + indice_espace + 1);
 
-    }else{
-        *arg = input + strlen(input);
     }
     if (espace != NULL && strlen(*arg) == 0)
     {
@@ -40,6 +41,5 @@ void gestion_cmd(char *input, char **arg, char **cmd)
     else if (strlen(*arg) >= 1)
     {
         snprintf(*cmd, (strlen(input) - strlen(*arg) ), "%s", input);
-
     }
 }
