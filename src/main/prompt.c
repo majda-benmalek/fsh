@@ -95,4 +95,5 @@ void prompt(char *chemin, char *input, int *ret)
         add_history(input);
         write_history("history.txt");
     }
+    fprintf(stderr, "input dans prompt : %s\n", input);
 }

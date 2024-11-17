@@ -44,7 +44,7 @@ int main(void)
     using_history();
     read_history("history.txt");
 
-    int ret;
+    int ret = 0;
 
     char *arg = malloc(ARG_MAX);
     char *cmd = malloc(ARG_MAX);
@@ -57,18 +57,20 @@ int main(void)
     while (1)
     {
         prompt(chemin, input, &ret);
+        fprintf(stderr, "input après prompt : %s\n", input);
         if (strlen(input) == 0)
         {
+            fprintf(stderr, "input est vide\n");
             continue;
         }
         gestion_cmd(input, &arg, &cmd);
-        // dernier_exit = ret;
-        // ret = 0;
+        dernier_exit = ret;
+        ret = 0;
+
         //* Commande exit
         if (strcmp(cmd, "exit") == 0)
         {
             dernier_exit = commande_exit(arg);
-
             write_history("history.txt");
             if (input != NULL)
             {
@@ -83,8 +85,9 @@ int main(void)
         //* Commande cd
         if (strcmp(cmd, "cd") == 0)
         {
+            fprintf(stderr, "input avant cd_commande : %s\n", input);
+            printf("arg : %s\n", arg);
             ret = cd_commande(arg);
-            dernier_exit = ret;
             if (getcwd(chemin, PATH_MAX) == NULL)
             {
                 perror("getcwd");
@@ -96,14 +99,12 @@ int main(void)
         if (strcmp(cmd, "pwd") == 0)
         {
             ret = pwd();
-            dernier_exit = ret;
             continue;
         }
         //* Redirection > et >>
         if (strstr(input, ">>") || strstr(input, ">"))
         {
             ret = redirection(input);
-            dernier_exit = ret;
             if (ret != 0)
             {
                 write(2, "Redirection échouée\n", strlen("Redirection échouée\n"));
