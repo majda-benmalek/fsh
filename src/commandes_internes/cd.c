@@ -1,20 +1,38 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h> // n'est pas reconnu jcp prk
-#define PATH_MAX 4096
 
 
-int cd_commande(char * chemin ){
+
+int cd_commande(char * arg ){
     /*garder le chemin courant pour l'utiliser comme précedent */
+    char *chemin = arg;
+    if (strlen(chemin) > 0) {
+        char last_char = chemin[strlen(chemin) - 1];
+        if(last_char == ' '){
+            chemin[strlen(chemin) - 1] = '\0';
+        }
+    }
+
+    if(strcmp(chemin , "") == 0 || strcmp(chemin , " ") == 0 ){
+        chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
+
+        if(chemin == NULL){
+            perror("Variable HOME non trouvée");
+            return 1 ; 
+        }
+    }
+
+    
 
     static char chemin_precedent[PATH_MAX] = "";
     char chemin_courant[PATH_MAX];
 
 
-    ;
     if(getcwd(chemin_courant, sizeof(chemin_courant)) == NULL){ // doute sur ça 
         perror("chemin courant non trouvé ");
         return 1;
@@ -22,7 +40,7 @@ int cd_commande(char * chemin ){
 
     /*on va tester si le chemin a ete fournit si c'est pas le cas on retourne vers $HOME*/
 
-    if(chemin == NULL){
+    /*if(strcmp(chemin , "") == 0 || chemin == NULL){
         chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
 
         if(chemin == NULL){
@@ -30,7 +48,7 @@ int cd_commande(char * chemin ){
             return 1 ; 
         }
 
-    }
+    }*/
 
     else if(strcmp(chemin , "-") == 0){
         chemin = chemin_precedent; 
@@ -40,8 +58,8 @@ int cd_commande(char * chemin ){
         }
     }
 
-    if(chdir(chemin) <0 ){
-        perror("Impossible de se déplacer dans le dossier"); 
+    if(chdir(chemin) < 0 ){
+        perror("cd :"); 
         return 1; 
     }
 

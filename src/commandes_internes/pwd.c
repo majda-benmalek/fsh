@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE 
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,16 +8,22 @@
 #include <string.h>
 #include <libgen.h>
 #include <sys/param.h>
-#include "../../utils/tarutils.h"
 #include <errno.h>
 #include <dirent.h>
 
-char *nom_du_repertoire()
+/**
+ * Retourne le nom du répertoire courant.
+ *
+ * @return Un pointeur vers une chaîne de caractères contenant le nom du
+ * répertoire courant. Retourne NULL en cas d'erreur.
+ */
+char *nom_du_repertoire(void)
 {
     struct stat st_target, st_ent; // stat du rep dont on veut le nom et stat des entrées du rep courant
     DIR *parent = NULL;
     struct dirent *ent;
     char *ret = NULL;
+
 
     if (stat(".", &st_target) != 0)
     {
@@ -89,6 +95,19 @@ error:
     return NULL;
 }
 
+/**
+ * Construit le chemin absolu du répertoire courant.
+ *
+ * Cette fonction utilise une approche récursive pour construire le chemin
+ * absolu du répertoire courant en remontant jusqu'à la racine du système
+ * de fichiers.
+ *
+ * @param path Un pointeur vers une chaîne de caractères où le chemin absolu
+ * sera stocké.
+ * @param size La taille du buffer pointé par `path`.
+ * @return Un pointeur vers une chaîne de caractères contenant le chemin
+ * absolu du répertoire courant. Retourne NULL en cas d'erreur.
+ */
 char *chemin_absolu(char *path, size_t size)
 {
     char *dir_name = nom_du_repertoire();
@@ -133,8 +152,32 @@ char *chemin_absolu(char *path, size_t size)
     return strdup(path);
 }
 
-char *pwd()
+/**
+ * Affiche le chemin absolu du répertoire courant.
+ *
+ * Cette fonction utilise `chemin_absolu` pour obtenir le chemin absolu du
+ * répertoire courant et l'affiche sur la sortie standard.
+ */
+int pwd(void)
 {
-    char path[PATH_MAX] = "";
-    return chemin_absolu(path, sizeof(path));
+    char *full_path = malloc(PATH_MAX);
+    if (full_path == NULL)
+    {
+        perror("malloc");
+        return 0;
+    }
+    full_path = chemin_absolu(full_path, PATH_MAX);
+    fprintf(stdout, "%s\n", full_path);
+    chdir(full_path); // au cas ou pendant le parcours un changement de rep a était effectué on reviens
+                      // au rep courant
+    if (full_path == NULL)
+    {
+        perror("pwd");
+        return 1;
+    }
+    else
+    {
+        free(full_path);
+    }
+    return 0;
 }

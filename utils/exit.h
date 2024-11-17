@@ -8,6 +8,7 @@ extern int dernier_exit ;
 
 *@param valeur Chaîne de caractères qui représente le code se sortie si NULL le programme quitte avec 'dernier_exit'
  */
-void commande_exit( char * valeur);
+int commande_exit(char * valeur);
+
 
 #endif
