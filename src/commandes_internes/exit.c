@@ -1,24 +1,30 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <limits.h>
 
 extern int dernier_exit;
 
-void commande_exit(char *valeur)
+int commande_exit(char *valeur)
 {
-    int code = valeur ? atoi(valeur) : dernier_exit;
-    printf("Exit avec le code %d\n", code);
-    exit(code);
-}
-
-void cmd_exit(char *arg)
-{
-    if (strlen(arg) >= 1)
+    int code;
+    if (strlen(valeur) == 0)
     {
-        commande_exit(arg);
+        code = dernier_exit;
     }
     else
     {
-        commande_exit(NULL);
+        code = atoi(valeur);
     }
+    char *msg = malloc(MAX_INPUT);
+    sprintf(msg, "Exit avec code %d\n", code);
+    write(2, msg, strlen(msg));
+    if (msg != NULL)
+    {
+        free(msg);
+    }
+    return code;
 }

@@ -14,7 +14,7 @@ int cd_commande(char * arg ){
     if (strlen(chemin) > 0) {
         char last_char = chemin[strlen(chemin) - 1];
         if(last_char == ' '){
-            snprintf(chemin,strlen(chemin) ,"%s",chemin);  
+            chemin[strlen(chemin) - 1] = '\0';
         }
     }
 
