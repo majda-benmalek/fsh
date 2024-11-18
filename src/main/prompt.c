@@ -29,7 +29,7 @@ int compter_chiffres(int nombre)
     return count;
 }
 
-void decoupe(char *chemin)
+char* decoupe(char *chemin)
 {
     // size_t size_path = strlen(chemin);
     // size_t size = ;
@@ -66,48 +66,54 @@ void decoupe(char *chemin)
     // new_prompt[strlen(new_prompt) - 1] = ' ';
 
     // return new_prompt;
-    if (strlen(chemin) > 25)
+    char * new_path = malloc(PATH_MAX);
+    strcpy(new_path,chemin);
+    if (strlen(new_path) > 25)
     {
-        chemin[strlen(chemin)] = '\0';
-        int len = strlen(chemin);
+        new_path[strlen(new_path)] = '\0';
+        int len = strlen(new_path);
         int enlever = len - 25;
-        strcpy(chemin, chemin + enlever);
-        chemin[25] = '\0';
+        strcpy(new_path, new_path + enlever);
+        new_path[25] = '\0';
         for (size_t i = 0; i < 3; i++)
         {
-            chemin[i] = '.';
+            new_path[i] = '.';
         }
     }
+    return new_path;
+
 }
 //}
 
 int prompt(char *chemin, char *input, int *ret)
 {
     input[0] = '\0';
+    // printf("%s\n",input);
     char readline_prompt[512];
     char *vert = "\001\033[32m\002";
     char *reset_color = "\001\033[00m\002";
     char *rouge = "\001\033[91m\002";
     char *bleu = "\001\033[34m\002";
-    decoupe(chemin);
+    char* new = decoupe(chemin);
     if (*ret == 0)
     {
-        sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", vert, reset_color, *(ret), chemin, bleu, reset_color);
+        sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", vert, reset_color, *(ret), new, bleu, reset_color);
     }
     else
     {
-        sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", rouge, reset_color, *(ret), chemin, bleu, reset_color);
+        sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", rouge, reset_color, *(ret), new, bleu, reset_color);
     }
-
+    rl_initialize();
     char *line = readline(readline_prompt);
+
+
     if (line != NULL)
     {
         sprintf(input, "%s", line);
+        input[strlen(input)] = '\0';
         add_history(input);
         write_history("history.txt");
-    }
-    else if (line == NULL)
-    {
+    }else{
         return 1;
     }
     return 0;

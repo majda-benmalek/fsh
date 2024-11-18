@@ -5,6 +5,19 @@
 extern int dernier_exit ; 
 
 int commande_exit(char* valeur){
-    int code = valeur ? atoi(valeur) : dernier_exit;
-    return code;
+    //int code =0;//= valeur ? atoi(valeur) : dernier_exit;
+    // printf("dernier_exit = %d\n",dernier_exit);
+    // printf("valeur = %s\n",valeur);
+    // printf("valeur = %d\n",atoi(valeur));
+    
+    //TODO : vérifier si la valeur est un nombre
+    
+    if(valeur[0] != '\0'){
+        return atoi(valeur);
+    }else{
+
+       return dernier_exit;
+    }
+    // printf("code = %d\n",code);
+    // return code;
 }

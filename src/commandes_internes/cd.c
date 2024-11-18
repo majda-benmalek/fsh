@@ -17,6 +17,8 @@ int cd_commande(char * chemin ){
         }
     }
 
+    
+
     if(strcmp(chemin , "") == 0 || strcmp(chemin , " ") == 0 ){
         chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
 
@@ -58,7 +60,6 @@ int cd_commande(char * chemin ){
     }
 
     if(chdir(chemin) < 0 ){
-        perror("cd :"); 
         return 1; 
     }
 

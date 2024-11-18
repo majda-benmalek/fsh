@@ -8,6 +8,8 @@
 
 #define ARG_MAX 512
 
+int child(char** arg);
+
 int cmd_extern(char *input)
 {
     char **arg = malloc(ARG_MAX * sizeof(char *));
@@ -46,17 +48,47 @@ int cmd_extern(char *input)
         token = strtok(NULL, " ");
     }
     arg[count] = NULL;
-    //affiché arg
-    // for (int i = 0; i < count; i++)
+    // affiché arg
+    //  for (int i = 0; i < count; i++)
+    //  {
+    //      printf("arg[%d] : %s\n", i, arg[i]);
+    //  }
+    // int child_pid;
+    // int status;
+    // switch (child_pid = fork())
     // {
-    //     printf("arg[%d] : %s\n", i, arg[i]);
+    // case -1:
+    //     perror("fork");
+    //     free(copy);
+    //     for (int i = 0; i < count; i++)
+    //     {
+    //         free(arg[i]);
+    //     }
+    //     free(arg);
+    //     return 1;
+    // case 0:
+    //     if (execvp(arg[0], arg) == -1)
+    //     {
+    //         perror("execvp");
+    //         free(copy);
+    //         for (int i = 0; i < count; i++)
+    //         {
+    //             free(arg[i]);
+    //         }
+    //         free(arg);
+    //         exit(EXIT_FAILURE);
+    //     }
+    // default:
+    //     waitpid(child_pid, &status, 0);
+    //     if (WIFEXITED(status))
+    //     {
+    //         int exit_status = WEXITSTATUS(status);
+    //         return exit_status;
+    //     }
     // }
-    int child_pid;
-    int status;
-    switch (child_pid = fork())
-    {
-    case -1:
-        perror("fork");
+
+    if(child(arg)>0){
+        perror("child");
         free(copy);
         for (int i = 0; i < count; i++)
         {
@@ -64,17 +96,31 @@ int cmd_extern(char *input)
         }
         free(arg);
         return 1;
+    }
+
+    free(copy);
+    for (int i = 0; i < count; i++)
+    {
+        free(arg[i]);
+    }
+    free(arg);
+    return 0;
+}
+
+int child( char** arg)
+{
+    int child_pid;
+    int status;
+    switch (child_pid = fork())
+    {
+    case -1:
+        perror("fork");
+        return 1;
     case 0:
         if (execvp(arg[0], arg) == -1)
         {
             perror("execvp");
-            free(copy);
-            for (int i = 0; i < count; i++)
-            {
-                free(arg[i]);
-            }
-            free(arg);
-            exit(EXIT_FAILURE);
+            return 1;
         }
     default:
         waitpid(child_pid, &status, 0);
@@ -84,12 +130,5 @@ int cmd_extern(char *input)
             return exit_status;
         }
     }
-
-    free(copy);
-    for (int i = 0; i < count; i++)
-    {
-        free(arg[i]);
-    }
-    free(arg);
     return 0;
 }
