@@ -111,6 +111,7 @@ int boucle_for(char* input){
             
                 while (cmd != NULL)
                 {
+                    
                     //printf("Commande à exécuter après séparation : %s\n", cmd);
                     pid_t pid = fork();
                    switch (pid){
