@@ -17,10 +17,12 @@ int ftype(char *name)
         perror("problème avec l'allocation de memoire ");
         goto error;
     }
+    memset(buf, 0, BUFFERSIZE);
     if (lstat(name,&st)!=0)
         {
             goto error;
         }
+
      switch (st.st_mode & S_IFMT) 
      {
         case S_IFREG : strcat(buf,"regular file\n");break;
