@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
-
+#define BUFFERSIZE 1024
 
 int redirection(char* input){
     char * args[1000]; // le tableau d'argument qu'on va utiliser dans excvp 
@@ -18,6 +18,7 @@ int redirection(char* input){
     // ls -l cmd > f1
     char *token = strtok(input, separateur);
     // token -> ls
+    int inverse=0;
 
     /*on va commencer par separer la chaine input selon les espaces pour extraire le fichier vers lequel redirigier + la commande à executer*/
 
@@ -28,6 +29,11 @@ int redirection(char* input){
         else if(strcmp(token,">>")==0){
             filename = strtok(NULL, separateur); //filname = f1
             append = 1 ; 
+        }
+        else if(strcmp(token,"<")==0){
+            filename=strtok(NULL,separateur);
+            inverse=1;
+
         }
         else{
             args[i] = token; /* [ls , -l] ici si c'est pas > ou >> on prend cmd et ses option */
@@ -41,10 +47,14 @@ int redirection(char* input){
     args[i] = NULL ;
 
     if(filename != NULL){
-        if(append){
-            fd = open(filename , O_WRONLY|O_CREAT|O_APPEND, 0644);
+        if (inverse){
+            fd = open(filename, O_WRONLY);
         }else{
-            fd = open(filename , O_WRONLY|O_CREAT|O_EXCL, 0644);
+            if(append){
+                fd = open(filename , O_WRONLY|O_CREAT|O_APPEND, 0644);
+            }else{
+                fd = open(filename , O_WRONLY|O_CREAT|O_EXCL, 0644);
+            }
         }
         if(fd<0){
             perror("erreur lors de l'ouverture du fichier");
@@ -55,17 +65,23 @@ int redirection(char* input){
         return 1;
     }
 
-    // garder le df de la sortie standard pour la rétablir aprés 
-    int sortie_avant = dup(STDOUT_FILENO);  // comme si sortie_avant = STDOUT_FILENO 
-
-    if(sortie_avant < 0){
-        perror("dup");
-        return 1; 
-    }
-    // faire en sorte que STDOUT_FILENO pointe vers le fichier fd
-    dup2(fd,STDOUT_FILENO); // comme si STDOUT_FILENO = fd 
-    close(fd);
-
+    int avant;
+    if (inverse){
+         avant=dup(STDIN_FILENO);
+        dup2(fd,STDIN_FILENO);
+        close(fd);
+    }else{
+        // garder le df de la sortie standard pour la rétablir aprés 
+        avant = dup(STDOUT_FILENO);  // comme si sortie_avant = STDOUT_FILENO 
+        if(avant < 0){
+            perror("dup");
+            return 1; 
+        }
+        // faire en sorte que STDOUT_FILENO pointe vers le fichier fd
+        dup2(fd,STDOUT_FILENO); // comme si STDOUT_FILENO = fd 
+        close(fd);
+        }
+    
     // creer un fils qui va executer la commande 
     if(args[0] != NULL){
 
@@ -82,12 +98,20 @@ int redirection(char* input){
             wait(NULL); // attends son fils
             //retablir la sortie
             if(filename != NULL){
-                if(dup2(sortie_avant, STDOUT_FILENO)<0){
+                if(inverse){
+                    if(dup2(avant,STDIN_FILENO)<0){
+                        perror("aaaaammmsss dup");
+                        close(avant);
+                        return 1;
+                    }
+                }else{
+                    if(dup2(avant, STDOUT_FILENO)<0){
                     perror("dup2");
-                    close(sortie_avant);
+                    close(avant);
                     return 1;
                 }
-                close(sortie_avant);
+                close(avant);
+                }
             }
     }
 }else{
@@ -97,3 +121,18 @@ int redirection(char* input){
 return 0;
 
 }
+
+
+
+
+
+    // char *buf=malloc(BUFFERSIZE);
+        //     if (buf==NULL){
+        //         perror("buffer nulle");
+        //         return 1;
+        // }
+        // int r=read(fd,buf,BUFFERSIZE);
+        // if (r<0){
+        //     perror("erreur lecture");
+        //     return 1;
+        // }

@@ -1,5 +1,5 @@
-SRC = src/main/main.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c  src/main/prompt.c
-EXEC = exec/main
+SRC = src/main/fsh.c src/commandes_internes/cd.c  src/commandes_internes/pwd.c src/commandes_internes/exit.c src/commandes_internes/redirection.c src/commandes_externes/for.c src/main/prompt.c src/main/gestion.c src/commandes_externes/extern.c src/commandes_internes/ftype.c
+EXEC = fsh
 
 all: $(EXEC)
 
@@ -10,27 +10,6 @@ clean:
 	rm -f $(EXEC)
 
 run: 
-	clear
-	gcc -Wall -o $(EXEC) $(SRC) -lreadline
-	exec/./main
+	./$(EXEC)
 
-cd : 
-	gcc -Wall -o exec/cd src/commandes_internes/cd.c
-
-run_cd : 
-	exec/./cd
-
-exit :
-	gcc -Wall -o exec/exit src/commandes_internes/exit.c
-
-run_exit :
-	exec/./exit
-
-prompt :
-	gcc -Wall -o exec/prompt src/main/prompt.c -lreadline
-
-run_prompt :
-	exec/./prompt
-
-
-.PHONY: all clean
+.PHONY: all clean 

@@ -1,0 +1,73 @@
+exit
+exit
+exit 0
+exit 0
+exit 0
+exit
+exit 0
+exit 
+exit
+exit 0
+exit
+ls
+cd src
+exit
+exit
+exit
+cd my_folder/
+exit
+exit
+exit 6
+exit
+cd src
+exit
+exit
+exit
+cd src
+exit 5
+exit
+exit 0
+cd src
+cd src
+cd src
+ls -i
+ls -all
+ls
+cat history.txt 
+ls -all
+exit 12
+cd src
+cd src
+s
+ls
+ls
+ls
+sl
+cd -
+ls
+ls -i
+exit
+cd src
+exit
+cd src
+cd src
+cd
+cd 
+cd
+cd -
+cd-
+cd sy5-2024-2025/Projet/fsh-benmalek-hounas-mushtaq/
+ls
+ls -a
+cd
+exit
+cd
+cd -
+cd
+cd -
+ls -a
+exit
+exit
+cd my_folder/
+cd z/y
+cd x
