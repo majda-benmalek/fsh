@@ -18,18 +18,17 @@ int ftype(char *name){
     }
     if (lstat(name,&st)!=0)
         {
-            perror("Nom invalide ");
             goto error;
         }
     buf=name;
      switch (st.st_mode & S_IFMT) 
      {
-        case S_IFREG : strcat(buf," : fichier ordinaire\n");break;
-        case S_IFDIR : strcat(buf," : repertoire\n"); break;
-        case S_IFIFO : strcat(buf," : tube\n"); break;
-        case S_IFLNK : strcat(buf," : lien\n"); break;
-        case S_IFCHR : strcat(buf," : fichier special\n");break;
-        default :buf=" : autre\n";
+        case S_IFREG : strcat(buf,"regular file\n");break;
+        case S_IFDIR : strcat(buf,"directory\n"); break;
+        case S_IFIFO : strcat(buf,"named pipe\n"); break;
+        case S_IFLNK : strcat(buf,"symbolic link\n"); break;
+        case S_IFCHR : strcat(buf,"other\n");break;
+        default :buf="\n";
     }
     
     int res=write(1,buf,strlen(buf));
