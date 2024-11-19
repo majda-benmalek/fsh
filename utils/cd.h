@@ -11,5 +11,4 @@
  * @return 0 en cas de succès, 1 en cas d'erreur.
  */
 int cd_commande(char *chemin);
-
 #endif // CD_H

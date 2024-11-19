@@ -4,7 +4,9 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-// Déclare la fonction nom_du_repertoire
-char *nom_du_repertoire();
+/**
+ * Affiche le chemin absolu du répertoire courant.
+ */
+int pwd(void);
 
 #endif // PWD_H

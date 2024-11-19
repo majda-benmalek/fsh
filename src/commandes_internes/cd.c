@@ -1,17 +1,24 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h> // n'est pas reconnu jcp prk
-#define PATH_MAX 4096
 
 
-int cd_commande(char * input ){
+
+int cd_commande(char * arg ){
     /*garder le chemin courant pour l'utiliser comme précedent */
-    char *chemin =  input + 3;
+    char *chemin = arg;
+    if (strlen(chemin) > 0) {
+        char last_char = chemin[strlen(chemin) - 1];
+        if(last_char == ' '){
+            chemin[strlen(chemin) - 1] = '\0';
+        }
+    }
 
-    if(strlen(input)==2 || strcmp(chemin , "") == 0 ){
+    if(strcmp(chemin , "") == 0 || strcmp(chemin , " ") == 0 ){
         chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
 
         if(chemin == NULL){
@@ -26,7 +33,6 @@ int cd_commande(char * input ){
     char chemin_courant[PATH_MAX];
 
 
-    ;
     if(getcwd(chemin_courant, sizeof(chemin_courant)) == NULL){ // doute sur ça 
         perror("chemin courant non trouvé ");
         return 1;
@@ -52,8 +58,8 @@ int cd_commande(char * input ){
         }
     }
 
-    if(chdir(chemin) <0 ){
-        perror("Impossible de se déplacer dans le dossier"); 
+    if(chdir(chemin) < 0 ){
+        perror("cd :"); 
         return 1; 
     }
 
