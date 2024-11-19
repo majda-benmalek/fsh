@@ -19,37 +19,52 @@
 #define ARG_MAX 512
 
 // TODO : documentation
-void gestion_cmd(char *input, char **arg, char **cmd)
+void gestion_cmd(char *input, char *arg, char *cmd)
 {
+    // printf("arg dans gestion_cmd = [%s]\n",*arg);
+    // printf("strlen(input) = %ld\n",strlen(input));
     char *espace = strchr(input, ' ');
+    int indice_espace = espace - input;
+    arg[0] = '\0';
+    cmd[0] = '\0';
     if (input[0] == '\0')
     {
-        sprintf(*cmd, "%c", '\0');
+        sprintf(cmd, "%c", '\0');
     }
-    if (espace != NULL)
+    if (espace != NULL && input[indice_espace + 1] != '\0') //ya un espace et un argument
     {
-        int indice_espace = espace - input;
-        *arg = (input + indice_espace + 1);
-    }
-    if (espace != NULL && strlen(*arg) == 0)
+        // printf("espace + arg\n");
+       //arg = input + indice_espace + 1;
+        snprintf(arg, strlen(input) - indice_espace, "%s", input + indice_espace + 1);
+        //sprintf(cmd, "%s", input+indice_espace+1);
+    } 
+    if (espace != NULL && strlen(arg) == 0) //ya un espace mais pas d'argument
     {
-        snprintf(*cmd, strlen(input), "%s", input);
+        // printf("espace + pas d'arg\n");
+        snprintf(cmd, strlen(input), "%s", input);
     }
-    else if (espace == NULL)
+    if (espace == NULL)
     {
-        snprintf(*cmd, strlen(input) + 1, "%s", input);
+        // printf("pas d'espace + pas d'arg \n");
+        snprintf(cmd, strlen(input)+2, "%s", input); //\0 
     }
-    else if (strlen(*arg) >= 1)
+    if (strlen(arg) >= 1)
     {
-        snprintf(*cmd, (strlen(input) - strlen(*arg)), "%s", input);
+        // printf("pas d'espace + arg\n");
+        snprintf(cmd, (strlen(input) - strlen(arg)), "%s", input);
     }
+    // printf("arg a la fin de gestion_cmd = [%s]\n",arg);
+    // printf("cmd a la fin de gestion_cmd = [%s]\n",cmd);
 }
 
 int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int ret)
 {
     // printf("ret dans début fsh = %d\n",ret);
+    // printf("arg dans début fsh = [%s]\n",arg);
+    // printf("cmd dans début fsh = [%s]\n",cmd);
     if (strcmp(cmd, "exit") == 0)
     {
+        printf("arg dans fsh = [%s]\n",arg);
         dernier_exit = commande_exit(arg);
         if (input != NULL)
         {

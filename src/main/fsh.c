@@ -59,7 +59,7 @@ int main(void)
     {
         // printf("\n");
         int r = prompt(chemin, input, &ret);
-        gestion_cmd(input, &arg, &cmd);
+        gestion_cmd(input, arg, cmd);
         // printf("arg = |%s|\n", arg);
         if (r == 1) // Ctrl-D pressed
         {
@@ -82,6 +82,8 @@ int main(void)
         // printf("dernier_exit avant : %d\n", dernier_exit);
 
         ret = fsh(cmd, arg, input, chemin, dernier_exit, ret);
+        // printf("arg dans main = [%s]\n", arg);
+        // printf("cmd dans main = [%s]\n", cmd);
         dernier_exit = ret;
         // printf("ret apres : %d\n", ret);
         // printf("dernier_exit apres : %d\n", dernier_exit);
