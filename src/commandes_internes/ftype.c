@@ -20,6 +20,7 @@ int ftype(char *name)
     memset(buf, 0, BUFFERSIZE);
     if (lstat(name,&st)!=0)
         {
+            perror("problème avec le lstat");
             goto error;
         }
 
@@ -30,7 +31,7 @@ int ftype(char *name)
         case S_IFIFO : strcat(buf,"named pipe\n"); break;
         case S_IFLNK : strcat(buf,"symbolic link\n"); break;
         case S_IFCHR : strcat(buf,"other\n");break;
-        default :buf="\n";
+        default : strcat(buf,"c riiiennnn \n"); break;
     }
 
     int res = write(1, buf, strlen(buf));

@@ -64,7 +64,7 @@ int main(void)
         if (r == 1) // Ctrl-D pressed
         {
             dernier_exit = commande_exit(arg);
-            printf("der = %d\n", dernier_exit);
+            // printf("der = %d\n", dernier_exit);
             if (input != NULL)
             {
                 free(input);

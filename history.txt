@@ -138,3 +138,63 @@ exit
 ftype src
 ftype history.txt
 exit
+for F in my_folder {ftype $F}
+for F in /my_folder {ftype $F}
+for F in /my_folder/ {ftype $F}
+for F in /my_folder {ftype $F}
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder/z  { ftype $F }
+for F in /my_folder/z  { ftype $F }
+for F in my_folder/z/  { ftype $F }
+for F in my_folder/z  { ftype $F }
+for F in my_folder  { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
