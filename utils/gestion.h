@@ -6,6 +6,8 @@
 #include <string.h>
 
 // Déclaration de la fonction gestion_cmd
-void gestion_cmd(char *input, char **arg, char **cmd);
+void gestion_cmd(char *input, char *arg, char *cmd);
+
+int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int ret);
 
 #endif // GESTION_H
