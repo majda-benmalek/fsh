@@ -9,6 +9,9 @@
 #include "../../utils/redirection.h"
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
+#include "../../utils/ftype.h"
+
+
 
 int boucle_for(char *input)
 {
@@ -43,7 +46,6 @@ int boucle_for(char *input)
         perror("in attendu");
         return 1;
     }
-
     // extraction de rep
     // for i in rep { ls -l $i ; echo $i ; }
     // rep avant le " {" et aprés le " in"
@@ -121,7 +123,7 @@ int boucle_for(char *input)
 
                 while (cmd != NULL)
                 {
-                    // printf("Commande à exécuter après séparation : %s\n", cmd);
+                    printf("Commande à exécuter après séparation : %s\n", cmd);
                     pid_t pid = fork();
                     switch (pid)
                     {
@@ -137,6 +139,8 @@ int boucle_for(char *input)
                             {
                                 // printf("Redirection échouée\n");
                             }
+                        }else if(strstr(cmd , "ftype")){
+                            int result = ftype(entry->d_name);
                         }
                         else
                         {
@@ -162,12 +166,6 @@ int boucle_for(char *input)
                                 perror("Erreur d'exécution");
                                 return 1;
                             }
-                            // if(cmd_extern(cmd)==1){
-                            //     perror("Erreur d'exécution");
-                            //     return 1;
-                            // }else{
-                            //     printf("Commande terminée : %s\n", cmd);
-                            // }
                         }
                         break;
 
@@ -175,6 +173,7 @@ int boucle_for(char *input)
                         waitpid(pid, NULL, 0);
                         // printf("Commande terminée : %s\n", cmd);
                     }
+                    // fsh(cmd,)
                     cmd = strtok(NULL, ";");
                 }
             }

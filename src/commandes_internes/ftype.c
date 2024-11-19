@@ -8,10 +8,11 @@
 #include "../../utils/tarutils.h"
 #define BUFFERSIZE 1024
 
-int ftype(char *name){
+int ftype(char *name)
+{
     struct stat st;
-    char *buf=malloc(BUFFERSIZE);
-    if (buf==NULL)
+    char *buf = malloc(BUFFERSIZE);
+    if (buf == NULL)
     {
         perror("problème avec l'allocation de memoire ");
         goto error;
@@ -20,7 +21,6 @@ int ftype(char *name){
         {
             goto error;
         }
-    buf=name;
      switch (st.st_mode & S_IFMT) 
      {
         case S_IFREG : strcat(buf,"regular file\n");break;
@@ -30,17 +30,17 @@ int ftype(char *name){
         case S_IFCHR : strcat(buf,"other\n");break;
         default :buf="\n";
     }
-    
-    int res=write(1,buf,strlen(buf));
-    if (res<1){
+
+    int res = write(1, buf, strlen(buf));
+    if (res < 1)
+    {
         perror("erreur write ");
         goto error;
     }
-    
-    return 1;
-    
-    error:
-        free(buf);
-        return 0;
 
+    return 0;
+
+error:
+    free(buf);
+    return 1;
 }

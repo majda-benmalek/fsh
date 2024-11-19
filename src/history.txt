@@ -128,13 +128,5 @@ cd src
 cd src
 cd src
 cd src
-cd
-cd 
-pwd
-cd -
-exit
-ftype src
-exit
-ftype src
-ftype history.txt
+exi
 exit
