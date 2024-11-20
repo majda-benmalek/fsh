@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 #include "../../utils/redirection.h"
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
@@ -85,9 +86,7 @@ int boucle_for(char *input)
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
-        // ignorer le . et ..
-        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
-        {
+        
             // pour ignorer les fichiers cachés
             if (entry->d_name[0] != '.')
             {
@@ -123,7 +122,7 @@ int boucle_for(char *input)
 
                 while (cmd != NULL)
                 {
-                    printf("Commande à exécuter après séparation : %s\n", cmd);
+                    /*//printf("Commande à exécuter après séparation : %s\n", cmd);
                     pid_t pid = fork();
                     switch (pid)
                     {
@@ -161,7 +160,7 @@ int boucle_for(char *input)
                                 printf("%s ", args[j]);
                             }
                             printf("\n");*/
-                            if (execvp(args[0], args) < 0)
+                            /*if (execvp(args[0], args) < 0)
                             {
                                 perror("Erreur d'exécution");
                                 return 1;
@@ -172,12 +171,34 @@ int boucle_for(char *input)
                     default:
                         waitpid(pid, NULL, 0);
                         // printf("Commande terminée : %s\n", cmd);
-                    }
+                    }*/
                     // fsh(cmd,)
+                    // variables pour les arguments de fsh 
+                    char arg[4096] = "";
+                    char commande_simple[4096] = "";
+
+
+                    // utilisation de gestion_cmd pour découper la commande 
+                    gestion_cmd(cmd , arg , commande_simple);
+                    int dernier_exit = 0 ;
+                    int ret = 0 ; 
+                    char chemin_fsh[4096] = "";
+                    if(getcwd(chemin_fsh,4096 ) == NULL){
+                        perror("Erreur de getcwd");
+                        closedir(dir);
+                        return 1;
+                    }
+
+                    ret = fsh(commande_simple, arg,cmd , chemin_fsh, dernier_exit,ret);
+                    if(ret != 0){
+                        perror("Erreur de fsh");
+                        closedir(dir);
+                        return 1;
+                    }
                     cmd = strtok(NULL, ";");
                 }
             }
-        }
+        
     }
 
     closedir(dir);
