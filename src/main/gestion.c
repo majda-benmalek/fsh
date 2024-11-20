@@ -64,7 +64,7 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
     // printf("cmd dans début fsh = [%s]\n",cmd);
     if (strcmp(cmd, "exit") == 0)
     {
-        printf("arg dans fsh = [%s]\n",arg);
+        // printf("arg dans fsh = [%s]\n",arg);
         dernier_exit = commande_exit(arg);
         if (input != NULL)
         {
@@ -130,13 +130,14 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
         ret = cmd_extern(input);
         if (ret >= 1)
         {
-            char *msg = malloc(MAX_INPUT);
-            sprintf(msg, "Commande non reconnue : %s\n", cmd);
-            write(2, msg, strlen(msg));
-            if (msg != NULL)
-            {
-                free(msg);
-            }
+            // char *msg = malloc(MAX_INPUT);
+            // sprintf(msg, "Commande non reconnue : %s\n", cmd);
+            perror("problème dans commande externe ");
+            // write(2, msg, strlen(msg));
+            // if (msg != NULL)
+            // {
+            //     free(msg);
+            // }
             ret=1;
             return ret;
         }

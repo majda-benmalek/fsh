@@ -342,7 +342,7 @@ int boucle_for(char *input)
                             if (c==NULL){
                                 perror("alloc");
                             }
-                            memset(c,0,sizeof(c));
+                            memset(c,0,sizeof(rep)+sizeof(entry->d_name));
                             strcat(c,rep);
                             strcat(c,"/");
                             strcat(c,entry->d_name);

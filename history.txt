@@ -198,3 +198,7 @@ for F in my_folder/z { ftype $F }
 exit
 for F in my_folder/z { ftype $F }
 exit
+ls
+ls -all
+cat history.txt
+exit

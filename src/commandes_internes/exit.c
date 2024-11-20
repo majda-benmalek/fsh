@@ -13,10 +13,10 @@ int commande_exit(char* valeur){
     //TODO : vérifier si la valeur est un nombre
     
     if(valeur[0] != '\0'){
-        printf("valeur = %d\n",atoi(valeur));
+        // printf("valeur = %d\n",atoi(valeur));
         return atoi(valeur);
     }else{
-        printf("dernier_exit = %d\n",dernier_exit);
+        // printf("dernier_exit = %d\n",dernier_exit);
        return dernier_exit;
     }
     // printf("code = %d\n",code);
