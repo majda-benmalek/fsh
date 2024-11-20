@@ -32,34 +32,9 @@ true
 false
 exit
 cd src
-make
-./fsh
-exit
-cd src
-ls -i
-cd -
-cd src
-cd -
-cd src
-cd -
-cd -
-cd hdshgs
-cd src
-exit
-ls 
-ls -i
-ps
-exit
-ls -R 
-ls -R  
-ps
-cd src
 ls
-ls -R -i
-ls
-ls -R -i
+ls -all
+cd commandes_
+cd commandes_externes/
+ls gdfgshdgf
 exit
-ls
-ls
-ls -R -i
-yes | head

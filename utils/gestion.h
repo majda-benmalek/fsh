@@ -8,6 +8,10 @@
 // Déclaration de la fonction gestion_cmd
 void gestion_cmd(char *input, char *arg, char *cmd);
 
-int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int ret);
+int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit);
+
+// int fsh(char **arg,char *chemin, int dernier_exit);
+
+char **ges2(char* input);
 
 #endif // GESTION_H
