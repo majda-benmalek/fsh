@@ -1,65 +1,204 @@
-_HiStOrY_V2_
+exit
+exit
+exit 0
+exit 0
+exit 0
+exit
+exit 0
+exit 
+exit
+exit 0
+exit
+ls
+cd src
+exit
+exit
+exit
+cd my_folder/
+exit
+exit
+exit 6
 exit
 cd src
 exit
-cd src
-cd src
+exit
 exit
 cd src
-cd src
-cd shshss
-cd hehjh
+exit 5
 exit
+exit 0
 cd src
+cd src
+cd src
+ls -i
+ls -all
+ls
+cat history.txt 
+ls -all
+exit 12
+cd src
+cd src
+s
+ls
+ls
+ls
+sl
+cd -
 ls
 ls -i
-ls -R -i
-exit
-ls -i
-ls -R -i
 exit
 cd src
+exit
+cd src
+cd src
+cd
+cd 
+cd
+cd -
+cd-
+cd sy5-2024-2025/Projet/fsh-benmalek-hounas-mushtaq/
 ls
-ftype history.txt 
+ls -a
+cd
+exit
+cd
+cd -
+cd
+cd -
+ls -a
+exit
+exit
+cd my_folder/
+cd hdfjhs
+cd hdfjhs
+exit
+cd hrhe
+exit
+cd hfghfd
+cd yzezu
+hfdhjfhjd
+exit
+jdfjdh
+exit
+cd ehhjhde
+sjhdkjhskdh
+exit
+exit
+exit
+cd my_folder/z
+∂d
+cd src
+cd src
+cd src
+cd src
+cd eruery
+exit
+exit
+cd ehehre
+exit
+cd hgeheg
+exit
+cd ehhehhe
+exit
+cd eheh
+exit
+cd hrhrh
+exit
+exit
+cd src
+exit
+exit
+exit
+exit
+exit
+cd src
+cd src
+cd src
+cd src
+exit
+cd src
+exit
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd
+cd 
+pwd
+cd -
+exit
+ftype src
+exit
+ftype src
 ftype history.txt
-cd src
-ls -i
+exit
+for F in my_folder {ftype $F}
+for F in /my_folder {ftype $F}
+for F in /my_folder/ {ftype $F}
+for F in /my_folder {ftype $F}
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder/z  { ftype $F }
+for F in /my_folder/z  { ftype $F }
+for F in my_folder/z/  { ftype $F }
+for F in my_folder/z  { ftype $F }
+for F in my_folder  { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
 ls
+ls -all
+cat history.txt
 exit
-cd src
-false
-true
-false
-exit
-cd src
-make
-./fsh
-exit
-cd src
-ls -i
-cd -
-cd src
-cd -
-cd src
-cd -
-cd -
-cd hdshgs
-cd src
-exit
-ls 
-ls -i
-ps
-exit
-ls -R 
-ls -R  
-ps
-cd src
-ls
-ls -R -i
-ls
-ls -R -i
-exit
-ls
-ls
-ls -R -i
-yes | head

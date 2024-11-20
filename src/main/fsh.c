@@ -49,9 +49,6 @@ int main(void)
 
     char *arg = malloc(ARG_MAX);
     char *cmd = malloc(ARG_MAX);
-    char *arg_initial = arg;
-    char *cmd_initial = cmd;
-
     if (arg == NULL || cmd == NULL)
     {
         perror("malloc");
@@ -60,10 +57,10 @@ int main(void)
 
     while (1)
     {
+        // printf("\n");
         int r = prompt(chemin, input, &ret);
         gestion_cmd(input, arg, cmd);
-        ges2(input);
-
+        // printf("arg = |%s|\n", arg);
         if (r == 1) // Ctrl-D pressed
         {
             dernier_exit = commande_exit(arg);
@@ -76,18 +73,19 @@ int main(void)
             {
                 free(chemin);
             }
-            if (arg_initial != NULL)
-            {
-                free(arg_initial);
-            }
-            if (cmd_initial != NULL)
-            {
-                free(cmd_initial);
-            }
-
             exit(dernier_exit);
         }
-        ret = fsh(cmd, arg, input, chemin, dernier_exit);
+
+        // gestion_cmd(input, &arg, &cmd);
+        // dernier_exit = ret;
+        // printf("ret avant : %d\n", ret);
+        // printf("dernier_exit avant : %d\n", dernier_exit);
+
+        ret = fsh(cmd, arg, input, chemin, dernier_exit, ret);
+        // printf("arg dans main = [%s]\n", arg);
+        // printf("cmd dans main = [%s]\n", cmd);
         dernier_exit = ret;
+        // printf("ret apres : %d\n", ret);
+        // printf("dernier_exit apres : %d\n", dernier_exit);
     }
 }
