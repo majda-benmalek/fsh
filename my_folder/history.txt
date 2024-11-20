@@ -1,72 +1,142 @@
+_HiStOrY_V2_
 exit
+cd src
 exit
-exit 0
-exit 0
-exit 0
+cd src
+cd src
 exit
-exit 0
-exit 
+cd src
+cd src
+cd shshss
+cd hehjh
 exit
-exit 0
-exit
+cd src
 ls
-cd src
+ls -i
+ls -R -i
 exit
-exit
-exit
-cd my_folder/
-exit
-exit
-exit 6
+ls -i
+ls -R -i
 exit
 cd src
-exit
-exit
-exit
-cd src
-exit 5
-exit
-exit 0
-cd src
-cd src
+ls
+ftype history.txt 
+ftype history.txt
 cd src
 ls -i
-ls -all
 ls
-cat history.txt 
-ls -all
-exit 12
+exit
 cd src
+false
+true
+false
+exit
 cd src
-s
-ls
-ls
-ls
-sl
+make
+./fsh
+exit
+cd src
+ls -i
 cd -
-ls
-ls -i
-exit
+cd src
+cd -
+cd src
+cd -
+cd -
+cd hdshgs
 cd src
 exit
+ls 
+ls -i
+ps
+exit
+ls -R 
+ls -R  
+ps
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
+cd src
 cd src
 cd src
 cd
 cd 
-cd
+pwd
 cd -
-cd-
-cd sy5-2024-2025/Projet/fsh-benmalek-hounas-mushtaq/
+exit
+ftype src
+exit
+ftype src
+ftype history.txt
+exit
+for F in my_folder {ftype $F}
+for F in /my_folder {ftype $F}
+for F in /my_folder/ {ftype $F}
+for F in /my_folder {ftype $F}
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder { ftype $F }
+exit
+for F in my_folder/z  { ftype $F }
+for F in /my_folder/z  { ftype $F }
+for F in my_folder/z/  { ftype $F }
+for F in my_folder/z  { ftype $F }
+for F in my_folder  { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
 ls
-ls -a
-cd
-exit
-cd
-cd -
-cd
-cd -
-ls -a
-exit
+ls -all
+cat history.txt
 exit
 cd my_folder/
-cd z/y
+ftype file5.txt 
+exit
