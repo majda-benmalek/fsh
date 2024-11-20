@@ -202,3 +202,34 @@ ls
 ls -all
 cat history.txt
 exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
+for F in my_folder/z { ftype $F }
+exit
