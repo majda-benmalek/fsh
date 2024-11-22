@@ -123,17 +123,9 @@ int boucle_for(char *input)
 
             while (cmd != NULL)
             {
-                // variables pour les arguments de fsh
-                // char arg[4096] = "";
-                // char commande_simple[4096] = "";
                 char *arg1 = malloc(ARG_MAX);
                 char *cmd1 = malloc(ARG_MAX);
-                // printf("commande modifie = %s\n", commandes_modifiee);
-                // printf("cmd = [%s]\n", cmd);
-                // utilisation de gestion_cmd pour découper la commande
                 gestion_cmd(cmd, arg1, cmd1);
-                // printf("arg1 apress gestion = %s\n", arg1);
-                // printf("cmd1 apres gestion = %s\n", cmd1);
                 int dernier_exit = 0;
                 int ret = 0;
                 char chemin_fsh[4096] = "";

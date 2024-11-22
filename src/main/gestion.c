@@ -56,6 +56,52 @@ void gestion_cmd(char *input, char *arg, char *cmd)
     // printf("arg a la fin de gestion_cmd = [%s]\n",arg);
     // printf("cmd a la fin de gestion_cmd = [%s]\n",cmd);
 }
+char **ges2(char *input)
+{
+    char **arg = malloc(ARG_MAX * sizeof(char *));
+    if (arg == NULL)
+    {
+        write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
+        return NULL;
+    }
+
+    char *copy = strdup(input);
+    if (copy == NULL)
+    {
+        write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
+        free(arg);
+        return NULL;
+    }
+
+    char *token = strtok(copy, " ");
+
+    int count = 0;
+    while (token != NULL)
+    {
+        arg[count] = strdup(token);
+        if (arg[count] == NULL)
+        {
+            write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
+            free(copy);
+            for (int i = 0; i < count; i++)
+            {
+                free(arg[i]);
+            }
+            free(arg);
+            return NULL;
+        }
+        count++;
+        token = strtok(NULL, " ");
+    }
+    arg[count] = NULL;
+    //affiché arg
+    for (int i = 0; i < count; i++)
+    {
+        printf("arg[%d] : %s\n", i, arg[i]);
+    }
+
+    return arg;
+}
 
 int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int ret)
 {
@@ -119,6 +165,95 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
             perror("boucle_for");
             return ret;
         };
+    }
+    // else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t') 
+    // {
+    //     ret=0;
+    //     write(2,"\n",1);
+    // }
+    else
+    {
+        ret = cmd_extern(input);
+        if (ret >= 1)
+        {
+            // char *msg = malloc(MAX_INPUT);
+            // sprintf(msg, "Commande non reconnue : %s\n", cmd);
+            perror("problème dans commande externe ");
+            // write(2, msg, strlen(msg));
+            // if (msg != NULL)
+            // {
+            //     free(msg);
+            // }
+            ret=1;
+            return ret;
+        }
+    }
+    return ret;
+}
+
+
+int fsh2(char **arg,char*input ,char *chemin, int dernier_exit,int ret)
+{
+    // printf("ret dans début fsh = %d\n",ret);
+    // printf("arg dans début fsh = [%s]\n",arg);
+    // printf("cmd dans début fsh = [%s]\n",cmd);
+    if (strcmp(arg[0], "exit") == 0)
+    {
+        // printf("arg dans fsh = [%s]\n",arg);
+        dernier_exit = commande_exit(arg[1]);
+        // if (input != NULL)
+        // {
+        //     free(input);
+        // }
+        // if (chemin != NULL)
+        // {
+        //     free(chemin);
+        // }
+        exit(dernier_exit);
+    }
+    //* Commande cd
+    else if (strcmp(arg[0], "cd") == 0)
+    {
+        ret = cd_commande(arg[1]);
+        if (getcwd(chemin, PATH_MAX) == NULL)
+        {
+            perror("getcwd");
+            return 1;
+        }
+        return ret;
+    }
+    //* Commande pwd
+    else if (strcmp(arg[0], "pwd") == 0)
+    {
+        ret = pwd();
+    }
+    //* Redirection > et >>
+    else if (strstr(input, ">>") || strstr(input, ">"))
+    {
+        ret = redirection(input);
+        if (ret != 0)
+        {
+           perror("Redirection");
+           return ret;
+        };
+    }
+    else if (strcmp(arg[0], "ftype") == 0)
+    {
+        ret = ftype(arg[1]);
+        if (ret > 0)
+        {
+            perror("ftype");
+            return ret;
+        }
+    }
+    else if (strcmp(arg[0], "for"))
+    {
+        ret = boucle_for(input);
+        if (ret != 0)
+        {
+            perror("boucle_for");
+            return ret;
+        }
     }
     // else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t') 
     // {

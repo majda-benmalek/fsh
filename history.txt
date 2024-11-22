@@ -233,3 +233,5 @@ for F in my_folder/z { ftype $F }
 exit
 for F in my_folder/z { ftype $F }
 exit
+cd src
+cd src
