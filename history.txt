@@ -202,36 +202,23 @@ ls
 ls -all
 cat history.txt
 exit
-for F in my_folder/z { ftype $F }
+cat &&&&
 exit
-for F in my_folder/z { ftype $F }
-for F in my_folder/z { ftype $F }
+true
+false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+ /tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+
+
+
+
+
+
+
+
+
+
+
 exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-for F in my_folder/z { ftype $F }
-exit
-cd src
-cd src

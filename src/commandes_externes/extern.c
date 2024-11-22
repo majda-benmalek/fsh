@@ -135,7 +135,6 @@
 
 
 
-
 #define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -146,15 +145,14 @@
 
 #define ARG_MAX 512
 
-// int child(char** arg);
-
 int cmd_extern(char *input)
 {
     char **arg = malloc(ARG_MAX * sizeof(char *));
     if (arg == NULL)
     {
         write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
-        return 1;
+        // return 1;
+        return -4;
     }
 
     char *copy = strdup(input);
@@ -162,7 +160,8 @@ int cmd_extern(char *input)
     {
         write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
         free(arg);
-        return 1;
+        // return 1;
+        return -4;
     }
 
     char * token = strtok(copy, " ");
@@ -170,38 +169,15 @@ int cmd_extern(char *input)
     while (token != NULL)
     {
         arg[count] = strdup(token);
-        // printf("token = %s \n",token);
-        // printf("argv[%u] = %s\n",count,arg[count]);
-        // printf("%s\n",token);
-        // printf("%s\n",arg[count]);
         if (arg[count] == NULL)
         {
             perror("erreur d'allocation de memoire pour count");
             goto error;
-            // write(2, "Erreur d'allocation de mémoire\n", strlen("Erreur d'allocation de mémoire\n"));
-            // free(copy);
-            // for (int i = 0; i < count; i++)
-            // {
-            //     free(arg[i]);
-            // }
-            // free(arg);
-            // return 1;
         }
         count++;
         token = strtok(NULL, " ");
     }
     arg[count] = NULL; 
-    // affiché arg
-    //  for (int i = 0; i < count; i++)
-    //  {
-    //      printf("%s\n", arg[i]);
-    //  }
-
-    // printf("arg[0]: '%s'\n", arg[0]);
-    // for (int i = 0; arg[i] != NULL; i++) {
-    //     printf("arg[%d]: '%s'\n", i, arg[i]);
-    //     }
-    // printf("Fin du tableau: %p\n", (void *)arg[count]);
 
     int child_pid;
     int status=0;
@@ -210,61 +186,44 @@ int cmd_extern(char *input)
     case -1:
         perror("fork");
         goto error;
-        // free(copy);
-        // for (int i = 0; i < count; i++)
-        // {
-        //     free(arg[i]);
-        // }
-        // free(arg);
-        // return 1;
+        break;
     case 0:
         if (execvp(arg[0], arg) == -1)
         {
             perror("execvp");
-            // goto error;
-            // free(copy);
-            // for (int i = 0; i < count; i++)
-            // {
-            //     free(arg[i]);
-            // }
-            // free(arg);
-            exit(EXIT_FAILURE);
+            goto error;
         }
+        break;
     default:
         waitpid(child_pid, &status, 0);
-        if (WIFEXITED(status))// SI JE COMMENTE 9A MARCHE
+        if (WIFEXITED(status)) //0 C TRUE 1 C FALSE
         {
             int exit_status = WEXITSTATUS(status);
+            // printf(" en gros c luiiii = %d \n",WEXITSTATUS(status));
+            // int exit_status = 0;
+            free(copy);
+            for (int i = 0; i < count; i++){
+                free(arg[i]);
+            }
+            free(arg);
             return exit_status;
+            // return 0;
+        }
+        else{
+            perror("erreur avec le processus enfant");
+            goto error;
         }
     }
-
-    // if(child(arg)>0){
-    //     perror("child");
-    //     free(copy);
-    //     for (int i = 0; i < count; i++)
-    //     {
-    //         free(arg[i]);
-    //     }
-    //     free(arg);
-    //     return 1;
-    // }
-
-    free(copy);
-    for (int i = 0; i < count; i++)
-    {
-        free(arg[i]);
-    }
-    free(arg);
-    return 0;
-
     error :
+        // printf("goto ERREUUUUUUUUUUUUUUUUUUUUUUR");
         free(copy);
-        // for (int i = 0; i < count; i++)
-        // {
-        //     free(arg[i]);
-        // }
-        // free(arg);
-        return 1;
+        for (int i = 0; i < count; i++)
+        {
+            free(arg[i]);
+        }
+        free(arg);
+        // exit(EXIT_FAILURE);
+        // return 1;
+        return -4;
 
 }
