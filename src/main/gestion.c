@@ -31,14 +31,14 @@ void gestion_cmd(char *input, char *arg, char *cmd)
     {
         sprintf(cmd, "%c", '\0');
     }
-    if (espace != NULL && input[indice_espace + 1] != '\0') //ya un espace et un argument
+    if (espace != NULL && input[indice_espace + 1] != '\0') // ya un espace et un argument
     {
         // printf("espace + arg\n");
-       //arg = input + indice_espace + 1;
+        // arg = input + indice_espace + 1;
         snprintf(arg, strlen(input) - indice_espace, "%s", input + indice_espace + 1);
-        //sprintf(cmd, "%s", input+indice_espace+1);
-    } 
-    if (espace != NULL && strlen(arg) == 0) //ya un espace mais pas d'argument
+        // sprintf(cmd, "%s", input+indice_espace+1);
+    }
+    if (espace != NULL && strlen(arg) == 0) // ya un espace mais pas d'argument
     {
         // printf("espace + pas d'arg\n");
         snprintf(cmd, strlen(input), "%s", input);
@@ -46,7 +46,7 @@ void gestion_cmd(char *input, char *arg, char *cmd)
     if (espace == NULL)
     {
         // printf("pas d'espace + pas d'arg \n");
-        snprintf(cmd, strlen(input)+2, "%s", input); //\0 
+        snprintf(cmd, strlen(input) + 2, "%s", input); //\0
     }
     if (strlen(arg) >= 1)
     {
@@ -94,7 +94,7 @@ char **ges2(char *input)
         token = strtok(NULL, " ");
     }
     arg[count] = NULL;
-    //affiché arg
+    // affiché arg
     for (int i = 0; i < count; i++)
     {
         printf("arg[%d] : %s\n", i, arg[i]);
@@ -103,7 +103,7 @@ char **ges2(char *input)
     return arg;
 }
 
-int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int ret)
+int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit, int ret)
 {
     // printf("ret dans début fsh = %d\n",ret);
     // printf("arg dans début fsh = [%s]\n",arg);
@@ -144,8 +144,8 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
         ret = redirection(input);
         if (ret != 0)
         {
-           perror("Redirection");
-           return ret;
+            perror("Redirection");
+            return ret;
         };
     }
     else if (strcmp(cmd, "ftype") == 0)
@@ -166,19 +166,19 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
             return ret;
         };
     }
-    // else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t') 
-    // {
-    //     ret=0;
-    //     write(2,"\n",1);
-    // }
+    else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t')
+    {
+        ret = dernier_exit;
+
+    }
     else
     {
         ret = cmd_extern(input);
-        if (ret < 0 )
+        if (ret < 0)
         {
             // char *msg = malloc(MAX_INPUT);
             // sprintf(msg, "Commande non reconnue : %s\n", cmd);
-            perror("problème dans commande externe ");
+            // perror("problème dans commande externe ");
             // write(2, msg, strlen(msg));
             // if (msg != NULL)
             // {
@@ -191,8 +191,7 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
     return ret;
 }
 
-
-int fsh2(char **arg,char*input ,char *chemin, int dernier_exit,int ret)
+int fsh2(char **arg, char *input, char *chemin, int dernier_exit, int ret)
 {
     // printf("ret dans début fsh = %d\n",ret);
     // printf("arg dans début fsh = [%s]\n",arg);
@@ -233,8 +232,8 @@ int fsh2(char **arg,char*input ,char *chemin, int dernier_exit,int ret)
         ret = redirection(input);
         if (ret != 0)
         {
-           perror("Redirection");
-           return ret;
+            perror("Redirection");
+            return ret;
         };
     }
     else if (strcmp(arg[0], "ftype") == 0)
@@ -255,7 +254,7 @@ int fsh2(char **arg,char*input ,char *chemin, int dernier_exit,int ret)
             return ret;
         }
     }
-    // else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t') 
+    // else if (cmd[0] == '\0' || cmd[0] == '\n' || cmd[0] == ' ' || cmd[0] == '\t')
     // {
     //     ret=0;
     //     write(2,"\n",1);
@@ -273,8 +272,8 @@ int fsh2(char **arg,char*input ,char *chemin, int dernier_exit,int ret)
             // {
             //     free(msg);
             // }
-            ret=1;
-            return ret;
+            ret = 1;
+            // return ret;
         }
     }
     return ret;

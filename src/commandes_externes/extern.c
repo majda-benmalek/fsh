@@ -210,7 +210,7 @@ int cmd_extern(char *input)
             // return 0;
         }
         else{
-            perror("erreur avec le processus enfant");
+            //perror("erreur avec le processus enfant");
             goto error;
         }
     }

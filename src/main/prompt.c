@@ -112,7 +112,7 @@ int prompt(char *chemin, char *input, int *ret)
         sprintf(input, "%s", line);
         input[strlen(input)] = '\0';
         add_history(input);
-        write_history("history.txt");
+        //write_history("history.txt");
     }else{
         return 1;
     }

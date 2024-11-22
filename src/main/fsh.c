@@ -42,8 +42,8 @@ int main(void)
         return 1;
     }
     rl_outstream = stderr;
-    using_history();
-    read_history("history.txt");
+    //using_history();
+    //read_history("history.txt");
 
     int ret = 0;
 
@@ -59,7 +59,6 @@ int main(void)
     {
         // printf("\n");
         int r = prompt(chemin, input, &ret);
-        gestion_cmd(input, arg, cmd);
         //arg=ges2(input);
         // printf("arg = |%s|\n", arg);
         if (r == 1) // Ctrl-D pressed
@@ -76,6 +75,7 @@ int main(void)
             }
             exit(dernier_exit);
         }
+        gestion_cmd(input, arg, cmd);
 
         // gestion_cmd(input, &arg, &cmd);
         // dernier_exit = ret;
