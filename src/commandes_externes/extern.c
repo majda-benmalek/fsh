@@ -133,8 +133,6 @@
 //     return 0;
 // }
 
-
-
 #define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,7 +162,7 @@ int cmd_extern(char *input)
         return -4;
     }
 
-    char * token = strtok(copy, " ");
+    char *token = strtok(copy, " ");
     int count = 0;
     while (token != NULL)
     {
@@ -177,10 +175,10 @@ int cmd_extern(char *input)
         count++;
         token = strtok(NULL, " ");
     }
-    arg[count] = NULL; 
+    arg[count] = NULL;
 
     int child_pid;
-    int status=0;
+    int status = 0;
     switch (child_pid = fork())
     {
     case -1:
@@ -190,40 +188,47 @@ int cmd_extern(char *input)
     case 0:
         if (execvp(arg[0], arg) == -1)
         {
-            perror("execvp");
-            goto error;
+            perror("redirect_exec");
+            free(copy);
+            for (int i = 0; i < count; i++)
+            {
+                free(arg[i]);
+            }
+            free(arg);
+            exit(1);
         }
         break;
     default:
         waitpid(child_pid, &status, 0);
-        if (WIFEXITED(status)) //0 C TRUE 1 C FALSE
+        if (WIFEXITED(status)) // 0 C TRUE 1 C FALSE
         {
             int exit_status = WEXITSTATUS(status);
             // printf(" en gros c luiiii = %d \n",WEXITSTATUS(status));
             // int exit_status = 0;
             free(copy);
-            for (int i = 0; i < count; i++){
+            for (int i = 0; i < count; i++)
+            {
                 free(arg[i]);
             }
             free(arg);
             return exit_status;
             // return 0;
         }
-        else{
-            //perror("erreur avec le processus enfant");
+        else
+        {
+            // perror("erreur avec le processus enfant");
             goto error;
         }
     }
-    error :
-        // printf("goto ERREUUUUUUUUUUUUUUUUUUUUUUR");
-        free(copy);
-        for (int i = 0; i < count; i++)
-        {
-            free(arg[i]);
-        }
-        free(arg);
-        // exit(EXIT_FAILURE);
-        // return 1;
-        return -4;
-
+error:
+    // printf("goto ERREUUUUUUUUUUUUUUUUUUUUUUR");
+    free(copy);
+    for (int i = 0; i < count; i++)
+    {
+        free(arg[i]);
+    }
+    free(arg);
+    // exit(EXIT_FAILURE);
+    // return 1;
+    return -4;
 }

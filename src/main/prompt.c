@@ -11,7 +11,14 @@
 
 int compter_chiffres(int nombre)
 {
-    int count = 0;
+    int count;
+    if (nombre > 0)
+    {
+        count = 0;
+    }else{
+        count = 1;
+    }
+
     if (nombre == 0)
     {
         return 1;
@@ -29,61 +36,25 @@ int compter_chiffres(int nombre)
     return count;
 }
 
-char* decoupe(char *chemin)
+char *decoupe(char *chemin, int *ret)
 {
-    // size_t size_path = strlen(chemin);
-    // size_t size = ;
-    // if (size <= 30)
-    // {
-    //     return NULL;
-    // }
-    // else
-    // {
-    // char *new_prompt = malloc(size * sizeof(char));
-    // if (new_prompt == NULL)
-    // {
-    //     perror("malloc");
-    //     return NULL;
-    // }
-    // int ouverture = 5;
-    // int fermeture = 4;
-    // int where = 0;
-    // snprintf(new_prompt, ouverture + 1 + fermeture + 1, "%s", prompt);
-    // where = ouverture + 1 + fermeture;
-    // int c = compter_chiffres(ret);
-    // snprintf(new_prompt + where, c + 2, "%s", prompt + where); //+2 pour ] et '\0'
-    // where += c + 1;
-
-    // size_t val = (ouverture + 1 + fermeture) * 2 + c + 1;
-    // char *new_path = chemin + (size_path - val);
-    // snprintf(new_prompt + where, strlen(new_path) + 4, "...%s", new_path); // pour ... et '\0'
-    // int where2 = where + size_path;
-    // where += strlen(new_path) + 3;
-    // snprintf(new_prompt + where, ouverture + 2, "%s", prompt + where2); //+2 pour $ et '\0'
-    // where2 += ouverture + 1;
-    // where += ouverture + 1;
-    // snprintf(new_prompt + where, fermeture + 2, "%s", prompt + where2);
-    // new_prompt[strlen(new_prompt) - 1] = ' ';
-
-    // return new_prompt;
-    char * new_path = malloc(PATH_MAX);
-    strcpy(new_path,chemin);
+    char *new_path = malloc(PATH_MAX);
+    strcpy(new_path, chemin);
     if (strlen(new_path) > 25)
     {
         new_path[strlen(new_path)] = '\0';
         int len = strlen(new_path);
-        int enlever = len - 25;
+        int out = compter_chiffres(*ret) + 4;
+        int enlever = len - (30 - out);
         strcpy(new_path, new_path + enlever);
-        new_path[25] = '\0';
+        new_path[30 - out] = '\0';
         for (size_t i = 0; i < 3; i++)
         {
             new_path[i] = '.';
         }
     }
     return new_path;
-
 }
-//}
 
 int prompt(char *chemin, char *input, int *ret)
 {
@@ -94,7 +65,7 @@ int prompt(char *chemin, char *input, int *ret)
     char *reset_color = "\001\033[00m\002";
     char *rouge = "\001\033[91m\002";
     char *bleu = "\001\033[34m\002";
-    char* new = decoupe(chemin);
+    char *new = decoupe(chemin, ret);
     if (*ret == 0)
     {
         sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", vert, reset_color, *(ret), new, bleu, reset_color);
@@ -106,14 +77,15 @@ int prompt(char *chemin, char *input, int *ret)
     rl_initialize();
     char *line = readline(readline_prompt);
 
-
     if (line != NULL)
     {
         sprintf(input, "%s", line);
         input[strlen(input)] = '\0';
         add_history(input);
-        //write_history("history.txt");
-    }else{
+        // write_history("history.txt");
+    }
+    else
+    {
         return 1;
     }
     return 0;
