@@ -202,3 +202,23 @@ ls
 ls -all
 cat history.txt
 exit
+cat &&&&
+exit
+true
+false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+ /tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+/tmp/tmp.Nir0sbxnN3/VaJznDHDqeC074PjOljJRTpbLMFIFmWc/main-dir/commands/false
+
+
+
+
+
+
+
+
+
+
+
+exit

@@ -128,7 +128,7 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
     else
     {
         ret = cmd_extern(input);
-        if (ret >= 1)
+        if (ret < 0 )
         {
             // char *msg = malloc(MAX_INPUT);
             // sprintf(msg, "Commande non reconnue : %s\n", cmd);
@@ -138,7 +138,7 @@ int fsh(char *cmd, char *arg, char *input, char *chemin, int dernier_exit,int re
             // {
             //     free(msg);
             // }
-            ret=1;
+            // ret=1;
             return ret;
         }
     }
