@@ -11,7 +11,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/extern.h"
 #include "../../utils/ftype.h"
-
+#include <linux/limits.h>
 #define ARG_MAX 512
 
 int boucle_for(char *input)
@@ -31,6 +31,7 @@ int boucle_for(char *input)
     char var;
     char *debut_variable = input + 4;
     char *fin_variable = strstr(debut_variable, " in");
+    int ret = 0;
 
     if (fin_variable != NULL)
     {
@@ -45,7 +46,8 @@ int boucle_for(char *input)
     else
     {
         perror("in attendu");
-        return 1;
+        ret=1;
+        return ret;
     }
     // extraction de rep
     // for i in rep { ls -l $i ; echo $i ; }
@@ -58,7 +60,8 @@ int boucle_for(char *input)
     if (fin_rep == NULL || fin_cmd == NULL || debut_rep == NULL)
     {
         perror("Erreur de syntaxe");
-        return 1;
+        ret=1;
+        return ret;
     }
 
     debut_rep += 3;
@@ -81,7 +84,8 @@ int boucle_for(char *input)
     if (dir == NULL)
     {
         perror("Erreur d'ouverture du repertoire");
-        return 1;
+        ret=1;
+        return ret;
     }
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
@@ -115,11 +119,11 @@ int boucle_for(char *input)
                     ptr++;
                 }
             }
-            // printf("Commande modifiée : %s\n", commandes_modifiee);
             //  séparer les cmd avec le separateur ;
             //  appliquer chaque commande
             char *cmd = strtok(commandes_modifiee, ";");
-            snprintf(cmd,strlen(cmd),"%s",cmd+1);
+            char *cmd1 = cmd;
+            snprintf(cmd, strlen(cmd1), "%s", cmd1 + 1);
 
             while (cmd != NULL)
             {
@@ -127,21 +131,25 @@ int boucle_for(char *input)
                 char *cmd1 = malloc(ARG_MAX);
                 gestion_cmd(cmd, arg1, cmd1);
                 int dernier_exit = 0;
-                int ret = 0;
                 char chemin_fsh[4096] = "";
                 if (getcwd(chemin_fsh, 4096) == NULL)
                 {
                     perror("Erreur de getcwd");
                     closedir(dir);
-                    return 1;
+                    free(arg1);
+                    free(cmd1);
+                    ret=1;
+                    return ret;
                 }
 
-                ret = fsh(cmd1, arg1, cmd, chemin_fsh, dernier_exit, ret);
-                if (ret != 0)
+                ret = fsh(cmd1, arg1, cmd, chemin_fsh, &dernier_exit);
+                if (ret < 0)
                 {
                     perror("Erreur de fsh");
                     closedir(dir);
-                    return 1;
+                    free(arg1);
+                    free(cmd1);
+                    return ret;
                 }
                 cmd = strtok(NULL, ";");
             }
@@ -150,37 +158,5 @@ int boucle_for(char *input)
 
     closedir(dir);
 
-    return 0;
+    return ret;
 }
-
-/*int main(){
-    char input[] = "for x in /home/moi/sabrina { ls -l $x ; echo $x ; }" ;
-
-    boucle_for(input);
-    return 0;
-}*/
-
-// for f in my_folder { cat $f; }
-
-//  }else if(strstr(cmd , "ftype")){
-//                             // printf("\nje rentre là\n");
-//                             // printf("\n");
-//                             // printf("\n");
-//                             // printf("-----------");
-//                             // printf(entry->d_name);
-//                             char *c = malloc(sizeof(rep)+sizeof(entry->d_name));
-//                             if (c==NULL){
-//                                 perror("alloc");
-//                             }
-//                             memset(c,0,sizeof(rep)+sizeof(entry->d_name));
-//                             strcat(c,rep);
-//                             strcat(c,"/");
-//                             strcat(c,entry->d_name);
-//                             ftype(c);
-//                             // strcat(c,"/");
-//                             // printf(c);
-//                             // printf("\n");
-//                             // printf("\n");
-//                             // printf("-----------");
-//                             // printf("\n");
-//                         }

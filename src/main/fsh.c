@@ -5,18 +5,11 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <string.h>
-#include "../../utils/cd.h"
-#include "../../utils/pwd.h"
 #include "../../utils/exit.h"
-#include "../../utils/redirection.h"
 #include "../../utils/prompt.h"
 #include <stdbool.h>
 #include "../../utils/gestion.h"
-#include "../../utils/extern.h"
-#include "../../utils/for.h"
-#include "../../utils/ftype.h"
-
-#define ARG_MAX 512
+#include <linux/limits.h>
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
@@ -39,11 +32,11 @@ int main(void)
     if (getcwd(chemin, PATH_MAX) == NULL)
     {
         perror("getcwd");
+        free(input);
+        free(chemin);
         return 1;
     }
     rl_outstream = stderr;
-    //using_history();
-    //read_history("history.txt");
 
     int ret = 0;
 
@@ -57,14 +50,10 @@ int main(void)
 
     while (1)
     {
-        // printf("\n");
         int r = prompt(chemin, input, &ret);
-        //arg=ges2(input);
-        // printf("arg = |%s|\n", arg);
         if (r == 1) // Ctrl-D pressed
         {
             dernier_exit = commande_exit(arg);
-            // printf("der = %d\n", dernier_exit);
             if (input != NULL)
             {
                 free(input);
@@ -73,21 +62,18 @@ int main(void)
             {
                 free(chemin);
             }
+            if (arg != NULL)
+            {
+                free(arg);
+            }
+            if (cmd != NULL)
+            {
+                free(cmd);
+            }
             exit(dernier_exit);
         }
         gestion_cmd(input, arg, cmd);
-
-        // gestion_cmd(input, &arg, &cmd);
-        // dernier_exit = ret;
-        // printf("ret avant : %d\n", ret);
-        // printf("dernier_exit avant : %d\n", dernier_exit);
-
-        ret = fsh(cmd, arg, input, chemin, dernier_exit, ret);
-       // ret = fsh2(arg,input, chemin, dernier_exit, ret);
-        // printf("arg dans main = [%s]\n", arg);
-        // printf("cmd dans main = [%s]\n", cmd);
+        ret = fsh(cmd, arg, input, chemin, &dernier_exit);
         dernier_exit = ret;
-        // printf("ret apres : %d\n", ret);
-        // printf("dernier_exit apres : %d\n", dernier_exit);
     }
 }

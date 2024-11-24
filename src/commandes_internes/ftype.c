@@ -40,7 +40,8 @@ int ftype(char *name)
         perror("erreur write ");
         goto error;
     }
-
+    
+    free(buf);
     return 0;
 
 error:

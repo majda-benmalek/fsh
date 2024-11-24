@@ -40,7 +40,7 @@ char *decoupe(char *chemin, int *ret)
 {
     char *new_path = malloc(PATH_MAX);
     strcpy(new_path, chemin);
-    if (strlen(new_path) > 25)
+    if (strlen(new_path) > (30 - compter_chiffres(*ret) + 4))
     {
         new_path[strlen(new_path)] = '\0';
         int len = strlen(new_path);
@@ -59,7 +59,6 @@ char *decoupe(char *chemin, int *ret)
 int prompt(char *chemin, char *input, int *ret)
 {
     input[0] = '\0';
-    // printf("%s\n",input);
     char readline_prompt[512];
     char *vert = "\001\033[32m\002";
     char *reset_color = "\001\033[00m\002";
@@ -74,6 +73,7 @@ int prompt(char *chemin, char *input, int *ret)
     {
         sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", rouge, reset_color, *(ret), new, bleu, reset_color);
     }
+    free(new);
     rl_initialize();
     char *line = readline(readline_prompt);
 
@@ -82,7 +82,7 @@ int prompt(char *chemin, char *input, int *ret)
         sprintf(input, "%s", line);
         input[strlen(input)] = '\0';
         add_history(input);
-        // write_history("history.txt");
+        free(line);
     }
     else
     {
