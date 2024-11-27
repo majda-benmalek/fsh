@@ -5,7 +5,6 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include "../../utils/tarutils.h"
 #define BUFFERSIZE 1024
 
 int ftype(char *name)
@@ -18,6 +17,11 @@ int ftype(char *name)
         goto error;
     }
     memset(buf, 0, BUFFERSIZE);
+
+    char last_char = name[strlen(name) - 1];
+    if(last_char == ' '){
+        name[strlen(name) - 1] = '\0';
+    }
     if (lstat(name,&st)!=0)
         {
             perror("problème avec le lstat");
@@ -31,7 +35,6 @@ int ftype(char *name)
         case S_IFIFO : strcat(buf,"named pipe\n"); break;
         case S_IFLNK : strcat(buf,"symbolic link\n"); break;
         case S_IFCHR : strcat(buf,"other\n");break;
-        default : strcat(buf,"c riiiennnn \n"); break;
     }
 
     int res = write(1, buf, strlen(buf));
