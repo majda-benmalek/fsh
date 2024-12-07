@@ -16,7 +16,7 @@
  * @param arg Un pointeur vers un tampon de caractères où les arguments seront stockés.
  * @param cmd Un pointeur vers un tampon de caractères où la commande principale sera stockée.
  */
-void gestion_cmd(char *input, char *arg, char *cmd);
+void gestion_cmd(char *input, commandeStruct *cmdstruct);
 
 /**
  * @brief Exécute une commande shell en fonction de la commande et des arguments fournis.
@@ -33,6 +33,6 @@ void gestion_cmd(char *input, char *arg, char *cmd);
  * @param dernier_exit Un pointeur vers un entier représentant la valeur de retour de la dernière commande exécutée.
  * @return La valeur de retour de la commande exécutée.
  */
-int fsh(char *cmd, char *arg, char *input, char *chemin, int *dernier_exit);
+int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct);
 
 #endif // GESTION_H
