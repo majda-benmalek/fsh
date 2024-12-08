@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "commande.h"
 
 /**
  * @brief Analyse une commande utilisateur pour séparer la commande et ses arguments.

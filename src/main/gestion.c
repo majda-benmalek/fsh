@@ -134,7 +134,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
         }
         exit(*dernier_exit);
     }
-    //* Commande cd
+    // Commande cd
     else if (strcmp(cmd, "cd") == 0)
     {
         ret = cd_commande(arg);
@@ -145,12 +145,12 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
         }
         return ret;
     }
-    //* Commande pwd
+    // Commande pwd
     else if (strcmp(cmd, "pwd") == 0)
     {
         ret = pwd();
     }
-    //* Redirection > et >>
+    // Redirection > et >>
     else if (strstr(input, ">>") || strstr(input, ">"))
     {
         ret = redirection(input);

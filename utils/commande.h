@@ -1,6 +1,7 @@
 #ifndef COMMANDE_H
 #define COMMANDE_H
 
+typedef struct commandeStruct commandeStruct;
 
 typedef enum {
     CMD_EXTERNE,
@@ -21,11 +22,11 @@ typedef struct{
     Type type;
     cmd_simple ** commandes ;
     int nbCommandes;
-} pipe;
+} cmd_pipe;
 
 typedef struct {
     Type type ; 
-    pipe* test ; 
+    cmd_pipe* test ; 
     commandeStruct ** commandeIf ;
     commandeStruct ** commandeElse ;
 } cmdIf ;
@@ -39,15 +40,23 @@ typedef struct{
     commandeStruct** cmd;
 } cmdFor;
 
-typedef struct{
+// typedef struct{
+//     Type type;
+//     cmd_simple* cmdSimple;
+//     cmd_pipe* pipe;
+//     cmdIf * cmdIf;
+//     cmdFor * cmdFor;
+//     int nbCommandes;
+// } commandeStruct;
+
+struct commandeStruct{
     Type type;
     cmd_simple* cmdSimple;
-    pipe* pipe;
+    cmd_pipe* pipe;
     cmdIf * cmdIf;
     cmdFor * cmdFor;
     int nbCommandes;
-} commandeStruct;
-
+} ;
 
 
 
