@@ -51,13 +51,28 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
         perror("Erreur Structure");
         return;
     }
+    
+
+
+    char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+
+    if (strcmp(token,"for") == 0){
+        cmdstruct->cmdFor=malloc(sizeof(cmdFor));
+        int ret = make_for(input,cmdstruct->cmdFor);
+        if (ret != 0){
+            
+            perror("make for");
+            return;
+        };
+    } else {
     cmdstruct->cmdSimple = malloc(sizeof(cmd_simple));
     if(!cmdstruct->cmdSimple){
         perror("Erreur allocation mémoire de la commande simple");
         return;
     }
 
-    char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+    cmdstruct->cmdSimple->args = malloc(1);//TODO A CHANGER MAYBE MAIS LE PB C EST QU IL EST PAS ALLOUE
+
     int nb_args= 0 ; 
     while(token != NULL && nb_args < ARG_MAX-1){
         cmdstruct->cmdSimple->args = realloc( cmdstruct->cmdSimple->args , sizeof(char*) * (nb_args +1)); // le tab args va etre aggrandit dynamiquement selon le nbargs
@@ -72,7 +87,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
         cmdstruct->cmdSimple->args[nb_args] = strdup(token);
 
         if(!cmdstruct->cmdSimple->args[nb_args]){
-            perror("Erreur lors de laDuplication de la commande");
+            perror("Erreur lors de la Duplication de la commande");
             for(int i = 0 ; i < nb_args ; i++){
                 free(cmdstruct->cmdSimple->args[i]);
             }
@@ -98,7 +113,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
             cmdstruct->cmdSimple->type = CMD_EXTERNE;
         }
     }
-
+    }
     
 
 }
@@ -262,7 +277,7 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
         }
         else if (strstr(input, "for"))
         {
-            ret = boucle_for(input);
+            ret = boucle_for(cmdstruct->cmdFor);
             if (ret != 0)
             {
                 perror("boucle_for");
@@ -280,9 +295,6 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
             ret = *dernier_exit;
         }
         
-
-
-
     }else{
         ret = cmd_extern(cmdstruct->cmdSimple);
         if (ret < 0)
