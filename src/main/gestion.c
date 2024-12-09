@@ -26,11 +26,73 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
         return;
     }
 
-    make_cmdSimple(input,cmdstruct);
-
+    make_cmdSimple(input, cmdstruct);
+    if (strstr(input, " | "))
+    {
+        make_cmdPipe(cmdstruct);
+    }
 }
 
-int fsh(char* input,char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
+//Devrai renvoyé une commande simple
+void make_cmdSimple(char *input, commandeStruct *cmdstruct)
+{
+    cmdstruct->cmdSimple = malloc(sizeof(cmd_simple));
+    if (!cmdstruct->cmdSimple)
+    {
+        perror("Erreur allocation mémoire de la commande simple");
+        return;
+    }
+
+    char *token = strtok(input, " \t"); // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+    int nb_args = 0;
+    while (token != NULL && nb_args < ARG_MAX - 1)
+    {
+        cmdstruct->cmdSimple->args = realloc(cmdstruct->cmdSimple->args, sizeof(char *) * (nb_args + 1)); // le tab args va etre aggrandit dynamiquement selon le nbargs
+        if (!cmdstruct->cmdSimple->args)
+        {
+            perror("Erreur allocation mémoire de la commande simple");
+            for (int i = 0; i < nb_args; i++)
+            {
+                free(cmdstruct->cmdSimple->args[i]);
+            }
+            free(cmdstruct->cmdSimple);
+            return;
+        }
+        cmdstruct->cmdSimple->args[nb_args] = strdup(token);
+
+        if (!cmdstruct->cmdSimple->args[nb_args])
+        {
+            perror("Erreur lors de laDuplication de la commande");
+            for (int i = 0; i < nb_args; i++)
+            {
+                free(cmdstruct->cmdSimple->args[i]);
+            }
+            free(cmdstruct->cmdSimple->args);
+            free(cmdstruct->cmdSimple);
+            return;
+        }
+        token = strtok(NULL, " \t");
+        nb_args++;
+    }
+
+    cmdstruct->cmdSimple->args = realloc(cmdstruct->cmdSimple->args, sizeof(char *) * (nb_args + 1));
+    cmdstruct->cmdSimple->args[nb_args] = NULL;
+    if (cmdstruct->cmdSimple->args[0])
+    {
+        if (strcmp(cmdstruct->cmdSimple->args[0], "exit") == 0 ||
+            strcmp(cmdstruct->cmdSimple->args[0], "cd") == 0 ||
+            strcmp(cmdstruct->cmdSimple->args[0], "pwd") == 0 ||
+            strcmp(cmdstruct->cmdSimple->args[0], "ftype") == 0)
+        {
+            cmdstruct->cmdSimple->type = CMD_INTERNE;
+        }
+        else
+        {
+            cmdstruct->cmdSimple->type = CMD_EXTERNE;
+        }
+    }
+}
+int fsh(char *input, char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
     int ret = 0;
     if (!cmdstruct || !cmdstruct->cmdSimple || !cmdstruct->cmdSimple->args[0])
@@ -126,12 +188,6 @@ int fsh(char* input,char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 
     return ret;
 }
-
-
-
-
-
-
 
 /*int fsh(char *cmd, char *arg, char *input, char *chemin, int *dernier_exit)
 {

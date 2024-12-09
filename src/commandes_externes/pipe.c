@@ -8,6 +8,7 @@
 #include <wait.h>
 #include "../../utils/commande.h"
 #include "../../utils/extern.h"
+#include "../../utils/gestion.h"
 
 int cmdpipe(cmd_pipe *p)
 {
@@ -65,6 +66,7 @@ int cmdpipe(cmd_pipe *p)
         }
     }
 
+    //Fermeture de tout les pipes dans le père
     for (int i = 0; i < n - 1; i++)
     {
         close(tpipe[i][0]);
@@ -76,6 +78,20 @@ int cmdpipe(cmd_pipe *p)
     {
         waitpid(pid_fils[i], NULL, 0);
     }
+
+    return 0;
+}
+
+void make_cmdpipe(char* input, commandeStruct* cmd){
+    int i=0;
+    cmd->pipe->type = PIPE;
+    char* copy = malloc(sizeof(input));
+    strcpy(copy,input);
+
+    while((strtok(copy,"|")!=NULL)){
+        cmd->pipe->commandes[0]= make_cmdSimple(copy);
+    }
+
 }
 
 int main()

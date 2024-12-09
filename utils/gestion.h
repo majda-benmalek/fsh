@@ -36,4 +36,6 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct);
  */
 int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct);
 
+void make_cmdSimple(char *input, commandeStruct *cmdstruct);
+
 #endif // GESTION_H
