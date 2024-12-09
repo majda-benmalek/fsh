@@ -11,6 +11,7 @@
 #include "../../utils/gestion.h"
 #include <linux/limits.h>
 #include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
@@ -113,8 +114,6 @@ int main(void){
             if (chemin != NULL) free(chemin);
             exit(dernier_exit);
         }
-
-
         commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
         if (cmdstruct == NULL){
             perror("erreur malloc cmdStruct");
@@ -123,21 +122,8 @@ int main(void){
             exit(1);
         }
         gestion_cmd(input,cmdstruct);
-
         ret = fsh(input, chemin, &dernier_exit , cmdstruct);
-
-        if(cmdstruct->cmdSimple){
-            if(cmdstruct->cmdSimple->args){
-                for(int i = 0 ; cmdstruct->cmdSimple->args && cmdstruct->cmdSimple->args[i] ; i++ ){
-                free(cmdstruct->cmdSimple->args[i]);
-            }
-            free(cmdstruct->cmdSimple->args);
-            }
-            
-            free(cmdstruct->cmdSimple);
-        }
-        free(cmdstruct);
-
+        freeCmdStruct(cmdstruct);
         dernier_exit = ret;
     }
 }

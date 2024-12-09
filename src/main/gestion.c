@@ -16,6 +16,7 @@
 #include "../../utils/for.h"
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
 #define ARG_MAX 512
 
 /*void gestion_cmd(char *input, char *arg, char *cmd)
@@ -47,45 +48,26 @@
 }*/
 
 void gestion_cmd(char *input, commandeStruct *cmdstruct){
+
     if(!cmdstruct){
         perror("Erreur Structure");
         return;
-    }
-    cmdstruct->cmdSimple = malloc(sizeof(cmd_simple));
-    if(!cmdstruct->cmdSimple){
-        perror("Erreur allocation mémoire de la commande simple");
-        return;
-    }
-
-    char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+    }  
+    /*gerer les autres commandes */ 
+    char*args[ARG_MAX] = {NULL};
     int nb_args= 0 ; 
-    while(token != NULL && nb_args < ARG_MAX-1){
-        cmdstruct->cmdSimple->args = realloc( cmdstruct->cmdSimple->args , sizeof(char*) * (nb_args +1)); // le tab args va etre aggrandit dynamiquement selon le nbargs
-        if(!cmdstruct->cmdSimple->args){
-            perror("Erreur allocation mémoire de la commande simple");
-            for(int i = 0 ; i < nb_args ; i++){
-                free(cmdstruct->cmdSimple->args[i]);
-            }
-            free(cmdstruct->cmdSimple);
-            return;
-        }
-        cmdstruct->cmdSimple->args[nb_args] = strdup(token);
-
-        if(!cmdstruct->cmdSimple->args[nb_args]){
-            perror("Erreur lors de laDuplication de la commande");
-            for(int i = 0 ; i < nb_args ; i++){
-                free(cmdstruct->cmdSimple->args[i]);
-            }
-            free(cmdstruct->cmdSimple->args);
-            free(cmdstruct->cmdSimple);
-            return;
-        }
+    char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+    while(token && nb_args < ARG_MAX-1){
+        args[nb_args++] = token;
         token = strtok(NULL," \t");
-        nb_args++;
-
     }
+    cmdstruct->cmdSimple = remplissage_cmdSimple(args);
+    if(!cmdstruct->cmdSimple){
+        perror("Erreur cmdSimple");
+    }
+}
 
-    cmdstruct->cmdSimple->args = realloc( cmdstruct->cmdSimple->args , sizeof(char*) * (nb_args +1));
+    /*cmdstruct->cmdSimple->args = realloc( cmdstruct->cmdSimple->args , sizeof(char*) * (nb_args +1));
     cmdstruct->cmdSimple->args[nb_args] = NULL;
     if(cmdstruct->cmdSimple->args[0]){
         if(strcmp(cmdstruct->cmdSimple->args[0], "exit") == 0 || 
@@ -97,11 +79,11 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
         }else{
             cmdstruct->cmdSimple->type = CMD_EXTERNE;
         }
-    }
+    }*/
 
     
 
-}
+
 
 /*int fsh(char *cmd, char *arg, char *input, char *chemin, int *dernier_exit)
 {
@@ -196,38 +178,45 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct){
 
 int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct){
     int ret = 0;
+
+    /*gestion de la commande Simple pour l'instant cad CMD_INTERNE && CMD_EXTERNE*/
     if(!cmdstruct || !cmdstruct->cmdSimple || !cmdstruct->cmdSimple->args[0]){
         perror("Structure commande");
         return -1 ;
     }
+
     //exit
     if(cmdstruct->cmdSimple->type == CMD_INTERNE){
-        if(strcmp(cmdstruct->cmdSimple->args[0],"exit") == 0){
-            *dernier_exit = commande_exit(cmdstruct->cmdSimple->args[1]);
+        char* cmd = cmdstruct->cmdSimple->args[0];
+        char premierchar = cmdstruct->cmdSimple->args[0][0];
+        char * arg = cmdstruct->cmdSimple->args[1];
+        if(strcmp(cmd,"exit") == 0){
+            *dernier_exit = commande_exit(arg);
             if (*dernier_exit == -5)
         {
             ret = -5;
             *dernier_exit = 0;
             if(input) free(input);
             if(chemin) free(chemin);
-            free(cmdstruct->cmdSimple->args);
+            /*free(cmdstruct->cmdSimple->args);
             free(cmdstruct->cmdSimple);
-            free(cmdstruct);
+            free(cmdstruct);*/
+            freeCmdStruct(cmdstruct);
             return ret;
         }
         if(input) free(input);
         if(chemin) free(chemin);
-        free(cmdstruct->cmdSimple->args);
+        /*free(cmdstruct->cmdSimple->args);
         free(cmdstruct->cmdSimple);
-        free(cmdstruct);
+        free(cmdstruct);*/
+        freeCmdStruct(cmdstruct);
         exit(*dernier_exit);
-
 
         }
 
         // gestion de cd 
-        else if(strcmp(cmdstruct->cmdSimple->args[0],"cd") == 0){
-            ret = cd_commande(cmdstruct->cmdSimple->args[1]);
+        else if(strcmp(cmd,"cd") == 0){
+            ret = cd_commande(arg);
             if (getcwd(chemin, PATH_MAX) == NULL)
             {
                 perror("getcwd");
@@ -238,7 +227,7 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
 
          // gestion de pwd
 
-        else if(strcmp(cmdstruct->cmdSimple->args[0],"pwd") == 0){
+        else if(strcmp(cmd,"pwd") == 0){
             ret = pwd();
         }
         //* Redirection > et >>
@@ -251,9 +240,9 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
                 return ret;
             };
         }
-        else if (strcmp(cmdstruct->cmdSimple->args[0],"ftype") == 0)
+        else if (strcmp(cmd,"ftype") == 0)
         {
-            ret = ftype(cmdstruct->cmdSimple->args[1]);
+            ret = ftype(arg);
             if (ret > 0)
             {
                 perror("ftype");
@@ -269,20 +258,10 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
                 return ret;
             };
     }
-        else if (cmdstruct->cmdSimple == NULL ||
-                cmdstruct->cmdSimple->args == NULL||
-                cmdstruct->cmdSimple->args[0] == NULL|| 
-                cmdstruct->cmdSimple->args[0][0] == '\0'||
-                cmdstruct->cmdSimple->args[0][0] == '\n' ||
-                cmdstruct->cmdSimple->args[0][0] == ' ' || 
-                cmdstruct->cmdSimple->args[0][0] == '\t')
+        else if (premierchar == '\0'|| premierchar == '\n' ||premierchar== ' ' || premierchar == '\t')
         {
             ret = *dernier_exit;
         }
-        
-
-
-
     }else{
         ret = cmd_extern(cmdstruct->cmdSimple);
         if (ret < 0)
@@ -290,6 +269,5 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
             return ret;
         }
     }
-
     return ret;
 }
