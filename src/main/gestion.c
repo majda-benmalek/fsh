@@ -15,6 +15,7 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/gestionStruct.h"
 #define ARG_MAX 512
 
 void gestion_cmd(char *input, commandeStruct *cmdstruct)
