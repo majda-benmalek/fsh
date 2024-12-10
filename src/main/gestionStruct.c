@@ -6,11 +6,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "../../utils/commande.h"
 #define ARG_MAX 512
 
-
-commandeStruct *remplissage_cmdStruct(Type type , cmd_simple * cmdSimple , pipe* pipestruct , cmdIf* cmdIfStruct , cmdFor * cmdForStruct , int nbcommandes ){
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, int nbcommandes)
+{
 
     commandeStruct *cmd = malloc(sizeof(commandeStruct));
 
@@ -23,66 +24,87 @@ commandeStruct *remplissage_cmdStruct(Type type , cmd_simple * cmdSimple , pipe*
 
     return cmd;
 }
-void freeCmdSimple(cmd_simple* cmd){
-    if(!cmd) return ;
-  
-        if(cmd->args){
-            for ( char**arg = cmd->args ; *arg ; ++arg ){
-                free(*arg);
-            }
-            free(cmd->args);
+void freeCmdSimple(cmd_simple *cmd)
+{
+    if (!cmd)
+        return;
+
+    if (cmd->args)
+    {
+        for (char **arg = cmd->args; *arg; ++arg)
+        {
+            free(*arg);
         }
-        free(cmd);
+        free(cmd->args);
+    }
+    free(cmd);
 }
 
-
-void freePipe(pipe* pipeStruct){
-    if(!pipeStruct) return ;
-        for(int i = 0 ; i < pipeStruct->nbCommandes ; i++){
-            free(pipeStruct->commandes[i]);
-        }
-        free(pipeStruct->commandes);
-        free(pipeStruct);
+void freePipe(cmd_pipe *pipeStruct)
+{
+    if (!pipeStruct)
+        return;
+    for (int i = 0; i < pipeStruct->nbCommandes; i++)
+    {
+        free(pipeStruct->commandes[i]);
+    }
+    free(pipeStruct->commandes);
+    free(pipeStruct);
 }
 
-void freeCmdStruct(commandeStruct* cmd){
-    if(!cmd ) return;
-    if(cmd->cmdSimple){
+void freeCmdStruct(commandeStruct *cmd)
+{
+    if (!cmd)
+        return;
+    if (cmd->cmdSimple)
+    {
         freeCmdSimple(cmd->cmdSimple);
     }
 
-    if(cmd->pipe){
+    if (cmd->pipe)
+    {
         freePipe(cmd->pipe);
     }
-    if(cmd->cmdIf){
-        if(cmd->cmdIf->commandeIf){
-            for(int i = 0 ; cmd->cmdIf->commandeIf[i] != NULL ; i++){
+    if (cmd->cmdIf)
+    {
+        if (cmd->cmdIf->commandeIf)
+        {
+            for (int i = 0; cmd->cmdIf->commandeIf[i] != NULL; i++)
+            {
                 freeCmdStruct(cmd->cmdIf->commandeIf[i]);
             }
             free(cmd->cmdIf->commandeIf);
         }
-        if(cmd->cmdIf->commandeElse){
-            for(int i = 0 ; cmd->cmdIf->commandeElse[i] != NULL ; i++){
+        if (cmd->cmdIf->commandeElse)
+        {
+            for (int i = 0; cmd->cmdIf->commandeElse[i] != NULL; i++)
+            {
                 freeCmdStruct(cmd->cmdIf->commandeElse[i]);
             }
             free(cmd->cmdIf->commandeElse);
         }
-        if(cmd->cmdIf->test){
+        if (cmd->cmdIf->test)
+        {
             freePipe(cmd->cmdIf->test);
         }
 
         free(cmd->cmdIf);
     }
 
-    if(cmd->cmdFor){
-        if(cmd->cmdFor->op){
-            for(char**op = cmd->cmdFor->op ; *op ; ++op){
+    if (cmd->cmdFor)
+    {
+        if (cmd->cmdFor->op)
+        {
+            for (char **op = cmd->cmdFor->op; *op; ++op)
+            {
                 free(*op);
             }
             free(cmd->cmdFor->op);
         }
-        if(cmd->cmdFor->cmd){
-            for(int i = 0 ; i < cmd->cmdFor->nbCommandes ; i++){
+        if (cmd->cmdFor->cmd)
+        {
+            for (int i = 0; i < cmd->cmdFor->nbCommandes; i++)
+            {
                 freeCmdStruct(cmd->cmdFor->cmd[i]);
             }
             free(cmd->cmdFor->cmd);
@@ -92,34 +114,39 @@ void freeCmdStruct(commandeStruct* cmd){
     }
 
     free(cmd);
-
 }
 
-
-
-
-cmd_simple *remplissage_cmdSimple(char ** args ){
+cmd_simple *remplissage_cmdSimple(char **args)
+{
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
 
-    if(!cmd){
+    if (!cmd)
+    {
         perror("malloc CommandSimple");
         return NULL;
     }
 
     int nbargs = 0;
-    while(args[nbargs]){nbargs++;}
-    cmd->args = malloc((nbargs+1) * sizeof(char*));
-    if(!cmd->args){
+    while (args[nbargs])
+    {
+        nbargs++;
+    }
+    cmd->args = malloc((nbargs + 1) * sizeof(char *));
+    if (!cmd->args)
+    {
         perror("malloc args");
         free(cmd);
         return NULL;
     }
 
-    for (int i = 0 ; i < nbargs; i++) {
+    for (int i = 0; i < nbargs; i++)
+    {
         cmd->args[i] = strdup(args[i]);
-        if(!cmd->args[i]){
+        if (!cmd->args[i])
+        {
             perror("strdup");
-            for(int j = 0 ; j < i ; j++){
+            for (int j = 0; j < i; j++)
+            {
                 free(cmd->args[j]);
             }
             free(cmd->args);
@@ -128,18 +155,115 @@ cmd_simple *remplissage_cmdSimple(char ** args ){
         }
     }
 
-    cmd->args[nbargs]  = NULL;
+    cmd->args[nbargs] = NULL;
 
-    if(strcmp(args[0] , "cd") == 0 || strcmp(args[0] , "pwd") == 0 || strcmp(args[0] , "ftype") == 0 || strcmp(args[0] , "exit") == 0 ) {
+    if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "pwd") == 0 || strcmp(args[0], "ftype") == 0 || strcmp(args[0], "exit") == 0)
+    {
         cmd->type = CMD_INTERNE;
     }
-    else if(strstr(args[0] , ">") ||strstr(args[0] , ">>")  || strstr(args[0] , "2>") || strstr(args[0] , "2>>") || strstr(args[0] , "<") || strstr(args[0] , ">|") ){
-        cmd->type = REDIRECTION;
-    }else{
+    else
+    {
         cmd->type = CMD_EXTERNE;
     }
     return cmd;
 }
 
+size_t tailleArgs(char **args)
+{
+    size_t taille = 0;
+    while (args[taille] != NULL)
+    {
+        taille++;
+    }
+    return taille;
+}
 
+char **arg_cmdsimple_redirection(char **args)
+{
+    char *commande[8];
+    memset(commande, 0, sizeof(commande));
+    size_t size = tailleArgs(args) - 2;
+    for (int i = 0; i < size; i++)
+    {
+        commande[i] = args[i];
+    }
+    return commande;
+}
 
+cmd_redirection *remplissageCmdRedirection(char **args)
+{
+    size_t taille = tailleArgs(args);
+    cmd_redirection *cmd = malloc(sizeof(cmd_redirection));
+    if (cmd == NULL)
+    {
+        perror("malloc");
+        return NULL;
+    }
+
+    cmd->type = REDIRECTION;
+
+    if (strstr(args[1], "<") != NULL)
+    {
+        cmd->fichier = args[0];
+        cmd->separateur = "<";
+        char *commande[8];
+        size_t size = taille - 2;
+        for (int i = 0; i < size; i++)
+        {
+            commande[i] = args[taille - size + i];
+        }
+        cmd->cmd = remplissage_cmdSimple(&commande);
+    }
+    else
+    {
+        char *commande = arg_cmdsimple_redirection(args);
+        size_t pos_sep = tailleArgs(commande);
+        cmd->cmd = remplissage_cmdSimple(&commande);
+        if (strstr(args[pos_sep], ">") != NULL)
+        {
+            cmd->fichier = args[taille - 1]; // l'avant dernier élement vu que le dernier est NULL
+            cmd->separateur = ">";
+        }
+        else if (strstr(args[pos_sep], " >> ") != NULL)
+        {
+            cmd->fichier = args[taille - 1];
+            cmd->separateur = ">>";
+        }
+        else if (strstr(args[pos_sep], " 2> ") != NULL)
+        {
+            cmd->fichier = args[taille - 1];
+            cmd->separateur = "2>";
+        }
+        else if (strstr(args[pos_sep], " >| ") != NULL)
+        {
+            cmd->fichier = args[taille - 1];
+            cmd->separateur = " >| ";
+        }
+        else if (strstr(args[pos_sep], "2>|") != NULL)
+        {
+            cmd->fichier = args[taille - 1];
+            cmd->separateur = "2>|";
+        }
+        else if (strstr(args[pos_sep], " 2>> ") != NULL)
+        {
+            cmd->fichier = args[taille - 1];
+            cmd->separateur = "2>>";
+        }
+    }
+    return cmd;
+}
+
+void free_redirection(cmd_redirection *cmd)
+{
+    if (!cmd)
+    {
+        return;
+    }
+    else
+    {
+        // free(cmd->fichier); pas de malloc donc normalement pas de free
+        // free(cmd->separateur); pareil a voir
+        freeCmdSimple(cmd->cmd);
+        free(cmd);
+    }
+}

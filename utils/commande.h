@@ -3,61 +3,66 @@
 
 typedef struct commandeStruct commandeStruct;
 
-typedef enum {
+typedef enum
+{
     CMD_EXTERNE,
     CMD_INTERNE,
+    REDIRECTION,
     CMD_STRUCT,
     FOR,
     IF,
-    REDIRECTION,
     PIPE
 } Type;
 
-typedef struct{
+typedef struct
+{
     Type type;
-    char** args;
+    char **args;
 } cmd_simple;
 
-typedef struct{
+typedef struct
+{
     Type type;
-    cmd_simple ** commandes ;
+    cmd_simple **commandes;
     int nbCommandes;
 } cmd_pipe;
 
-typedef struct {
-    Type type ; 
-    cmd_pipe* test ; 
-    commandeStruct ** commandeIf ;
-    commandeStruct ** commandeElse ;
-} cmdIf ;
-
-typedef struct{
+typedef struct
+{
     Type type;
-    char* rep;
-    char** op;
-    char variable ; 
+    cmd_pipe *test;
+    commandeStruct **commandeIf;
+    commandeStruct **commandeElse;
+} cmdIf;
+
+typedef struct
+{
+    Type type;
+    char *rep;
+    char **op;
+    char variable;
     int nbCommandes;
-    commandeStruct** cmd;
+    commandeStruct **cmd;
 } cmdFor;
 
-// typedef struct{
-//     Type type;
-//     cmd_simple* cmdSimple;
-//     cmd_pipe* pipe;
-//     cmdIf * cmdIf;
-//     cmdFor * cmdFor;
-//     int nbCommandes;
-// } commandeStruct;
-
-struct commandeStruct{
+typedef struct
+{
     Type type;
-    cmd_simple* cmdSimple;
-    cmd_pipe* pipe;
-    cmdIf * cmdIf;
-    cmdFor * cmdFor;
-    int nbCommandes;
-} ;
+    cmd_simple *cmd;
+    char *fichier;
+    char *separateur;
+} cmd_redirection;
 
+struct commandeStruct
+{
+    Type type;
+    cmd_simple *cmdSimple;
+    cmd_pipe *pipe;
+    cmdIf *cmdIf;
+    cmdFor *cmdFor;
+    cmd_redirection *cmdRed;
+    int nbCommandes;
+};
 
 
 
