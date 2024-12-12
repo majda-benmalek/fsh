@@ -51,4 +51,6 @@ void freeCmdStruct(commandeStruct* cmd);
 */
 cmd_simple *remplissage_cmdSimple(char ** args );
 
+cmdFor* make_for(char ** args);
+
 #endif

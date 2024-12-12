@@ -44,7 +44,8 @@ int main(void){
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
-            dernier_exit = commande_exit(NULL);
+            // dernier_exit = commande_exit(NULL);
+            dernier_exit = commande_exit(dernier_exit);
             if (input != NULL) free(input);
             if (chemin != NULL) free(chemin);
             exit(dernier_exit);
@@ -56,10 +57,25 @@ int main(void){
             free(chemin);
             exit(1);
         }
-        gestion_cmd(input,cmdstruct);
-        ret = fsh(input, chemin, &dernier_exit , cmdstruct);
-        freeCmdStruct(cmdstruct);
-        dernier_exit = ret;
+
+        /*gerer les autres commandes */ 
+        char*args[ARG_MAX] = {NULL};
+        int nb_args= 0 ; 
+        char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+        while(token && nb_args < ARG_MAX-1){
+            args[nb_args++] = token;
+            token = strtok(NULL," \t");
+        }
+        gestion_cmd(args,cmdstruct);
+        if (cmdstruct == NULL){
+            dernier_exit=ret;
+        }
+        else{
+            ret = fsh(input, chemin, &dernier_exit , cmdstruct);
+            freeCmdStruct(cmdstruct);
+            dernier_exit = ret;
+        }
+        
     }
 }
 

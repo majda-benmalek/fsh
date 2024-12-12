@@ -7,7 +7,7 @@
  * @return 0 en cas de succès, 1 en cas d'erreur
  */
 
-int make_for(char *input, cmdFor *cmdFor);
+// int make_for(char *input, cmdFor *cmdFor);
 
 // int boucle_for(char* input);
 int boucle_for(cmdFor *cmdFor);

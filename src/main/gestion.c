@@ -19,19 +19,30 @@
 #include "../../utils/gestionStruct.h"
 #define ARG_MAX 512
 
-void gestion_cmd(char *input, commandeStruct *cmdstruct){
+/*gerer les autres commandes */ 
+// * code qui était 
+    // char*args[ARG_MAX] = {NULL};
+    // int nb_args= 0 ; 
+    // char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+    // while(token && nb_args < ARG_MAX-1){
+    //     args[nb_args++] = token;
+    //     token = strtok(NULL," \t");
+    // }
 
+
+void gestion_cmd(char **args,commandeStruct *cmdstruct){
     if(!cmdstruct){
         perror("Erreur Structure");
         return;
     }  
-    /*gerer les autres commandes */ 
-    char*args[ARG_MAX] = {NULL};
-    int nb_args= 0 ; 
-    char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
-    while(token && nb_args < ARG_MAX-1){
-        args[nb_args++] = token;
-        token = strtok(NULL," \t");
+    // * là
+
+    else if (strcmp(args[0],"\0") == 0 || strcmp(args[0],"\n") == 0 || strcmp(args[0]," ") == 0 ||strcmp(args[0],"\t") == 0){
+            return;
+    }
+
+    if (strcmp(args[0],"for") == 0 ){
+        cmdstruct ->cmdFor = make_for(args);
     }
     cmdstruct->cmdSimple = remplissage_cmdSimple(args);
     if(!cmdstruct->cmdSimple){
@@ -48,11 +59,19 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
         perror("Structure commande");
         return -1 ;
     }
-
+    
+    if (cmdstruct->type == FOR){
+            ret = boucle_for(cmdstruct->cmdFor);
+            if (ret != 0)
+            {
+                perror("boucle_for");
+                return ret;
+            };
+    }
     //exit
     if(cmdstruct->cmdSimple->type == CMD_INTERNE){
         char* cmd = cmdstruct->cmdSimple->args[0];
-        char premierchar = cmdstruct->cmdSimple->args[0][0];
+        // char premierchar = cmdstruct->cmdSimple->args[0][0];
         char * arg = cmdstruct->cmdSimple->args[1];
         if(strcmp(cmd,"exit") == 0){
             *dernier_exit = commande_exit(arg);
@@ -113,19 +132,10 @@ int fsh(char *input, char *chemin, int *dernier_exit , commandeStruct *cmdstruct
                 return ret;
             }
         }
-        else if (strstr(input, "for"))
-        {
-            ret = boucle_for(cmdstruct->cmdFor);
-            if (ret != 0)
-            {
-                perror("boucle_for");
-                return ret;
-            };
-    }
-        else if (premierchar == '\0'|| premierchar == '\n' ||premierchar== ' ' || premierchar == '\t')
-        {
-            ret = *dernier_exit;
-        }
+        // else if (premierchar == '\0'|| premierchar == '\n' ||premierchar== ' ' || premierchar == '\t')
+        // {
+        //     ret = *dernier_exit;
+        // }
     }else{
         ret = cmd_extern(cmdstruct->cmdSimple);
         if (ret < 0)
