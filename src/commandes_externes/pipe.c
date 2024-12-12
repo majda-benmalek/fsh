@@ -9,6 +9,8 @@
 #include "../../utils/commande.h"
 #include "../../utils/extern.h"
 #include "../../utils/gestion.h"
+#include "../../utils/gestionStruct.h"
+#include "../../utils/exit.h"
 
 int cmdpipe(cmd_pipe *p)
 {
@@ -18,8 +20,8 @@ int cmdpipe(cmd_pipe *p)
 
     for (int i = 0; i < n; i++)
     {
-        int p = pipe(tpipe[i]);
-        if (i < 0)
+        int p=pipe(tpipe[i]);
+        if (p < 0)
         {
             perror("pipe");
             return 1;
@@ -54,14 +56,13 @@ int cmdpipe(cmd_pipe *p)
                 close(tpipe[j][1]);
             }
 
-            //Exécution des commandes
-            if (p->commandes[i]->type == CMD_INTERNE)
-            {
+            char* chemin = malloc(PATH_MAX);
+            if(getcwd(chemin,PATH_MAX)==NULL){
+                perror("getcwd");
+                free(chemin);
+                return 1;
             }
-            else if (p->commandes[i]->type == CMD_EXTERNE)
-            {
-                cmd_extern(p->commandes[i]);
-            }
+            fsh(NULL,chemin,&dernier_exit,remplissage_cmdStruct(p->commandes[i]->type,p->commandes[i],NULL,NULL,NULL,1,NULL));
             exit(0);
         }
     }
@@ -73,64 +74,12 @@ int cmdpipe(cmd_pipe *p)
         close(tpipe[i][1]);
     }
 
+    //TODO récupérer les valeurs de retour des fils 
     // Attendre la fin de tous les processus enfants
     for (int i = 0; i < n; i++)
     {
         waitpid(pid_fils[i], NULL, 0);
     }
-
-    return 0;
-}
-
-void make_cmdpipe(char* input, commandeStruct* cmd){
-    int i=0;
-    cmd->pipe->type = PIPE;
-    char* copy = malloc(sizeof(input));
-    strcpy(copy,input);
-
-    while((strtok(copy,"|")!=NULL)){
-        cmd->pipe->commandes[0]= make_cmdSimple(copy);
-    }
-
-}
-
-int main()
-{
-    // Commande ls -l
-    cmd_simple *ls = malloc(sizeof(cmd_simple));
-    ls->type = CMD_EXTERNE;
-    char *argls[] = {"ls", "-l", NULL};
-    ls->args = argls;
-
-    // Commande grep <pattern>
-    cmd_simple *grep = malloc(sizeof(cmd_simple));
-    grep->type = CMD_EXTERNE;
-    char *arggrep[] = {"grep", "3", NULL}; // Remplacez "pattern" par le motif que vous voulez chercher
-    grep->args = arggrep;
-
-    // Commande wc -l
-    cmd_simple *wc = malloc(sizeof(cmd_simple));
-    wc->type = CMD_EXTERNE;
-    char *argwc[] = {"wc", "-l", NULL};
-    wc->args = argwc;
-
-    // Tableau de commandes
-    cmd_simple *cmd[] = {ls, grep, wc};
-
-    // Structure cmd_pipe
-    cmd_pipe *p = malloc(sizeof(cmd_pipe));
-    p->type = PIPE;
-    p->nbCommandes = 3;
-    p->commandes = cmd;
-
-    // Exécution des commandes
-    cmdpipe(p);
-
-    // Libération de la mémoire allouée
-    free(ls);
-    free(grep);
-    free(wc);
-    free(p);
 
     return 0;
 }

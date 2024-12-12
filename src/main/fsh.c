@@ -16,7 +16,8 @@
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
-int main(void){
+int main(void)
+{
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
     {
@@ -38,36 +39,43 @@ int main(void){
         return 1;
     }
     rl_outstream = stderr;
-
+    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
     int ret = 0;
     while (1)
     {
-        int r = prompt(chemin, input, &ret);
-        if (r == 1) // Ctrl-D pressed
+
+        if (cmdstruct == NULL)
         {
-            dernier_exit = commande_exit(NULL);
-            if (input != NULL) free(input);
-            if (chemin != NULL) free(chemin);
-            exit(dernier_exit);
-        }
-        commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
-        if (cmdstruct == NULL){
             perror("erreur malloc cmdStruct");
             free(input);
             free(chemin);
             exit(1);
         }
-        gestion_cmd(input,cmdstruct);
-        ret = fsh(input, chemin, &dernier_exit , cmdstruct);
-        freeCmdStruct(cmdstruct);
+        int r = prompt(chemin, input, &ret);
+        if (r == 1) // Ctrl-D pressed
+        {
+            dernier_exit = commande_exit("0");
+            if (input != NULL)
+                free(input);
+            if (chemin != NULL)
+                free(chemin);
+            if (cmdstruct != NULL)
+                freeCmdStruct(cmdstruct);
+            exit(dernier_exit);
+        }
+        remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, 0,cmdstruct); // faut tout initialiser a null a chaque fois
+        gestion_cmd(input, cmdstruct);
+        ret = fsh(input, chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
     }
+    // dernier_exit = commande_exit("0");
+    // if (input != NULL)
+    //     free(input);
+    // if (chemin != NULL)
+    //     free(chemin);
+    // freeCmdStruct(cmdstruct);
+    // exit(dernier_exit);
 }
-
-
-
-
-
 
 /*int main(void)
 {
