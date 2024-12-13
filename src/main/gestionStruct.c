@@ -10,8 +10,11 @@
 #include "../../utils/commande.h"
 #define ARG_MAX 512
 size_t tailleArgs(char **args);
+void free_redirection(cmd_redirection *cmd);
+void free_pipe(cmd_pipe *cmd);
+void freeCmdSimple(cmd_simple *cmd);
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -25,7 +28,6 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdFor = cmdForStruct;
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
-
     return cmd;
 }
 void freeCmdSimple(cmd_simple *cmd)
@@ -250,7 +252,7 @@ int arg_cmdsimple_pipe(char **args, char **commande, int i, int j)
             return 1;
         }
     }
-    commande[i-j] = NULL; // pour le dernier élementp
+    commande[i - j] = NULL; // pour le dernier élementp
     return 0;
 }
 
@@ -319,6 +321,6 @@ cmd_pipe *remplissageCmdPipe(char **args)
     cmd->commandes = (cmd_simple **)realloc(cmd->commandes, cmd->nbCommandes * sizeof(cmd_simple *));
     return cmd;
 }
-// si vous voulez teste les pipes 
+// si vous voulez teste les pipes
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5

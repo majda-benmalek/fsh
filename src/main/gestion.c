@@ -51,10 +51,10 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
     }
     args[nb_args] = NULL;
     // print args
-    for (int i = 0; i <= nb_args; i++)
-    {
-        printf("args[%d] : %s\n", i, args[i]);
-    }
+    // for (int i = 0; i <= nb_args; i++)
+    // {
+    //     printf("args[%d] : %s\n", i, args[i]);
+    // }
 
     if (args[0] == NULL)
     {
