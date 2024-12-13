@@ -118,7 +118,7 @@ int boucle_for(cmdFor *cmdFor)
             int nbr_cmd = cmdFor->nbCommandes;
             while (nbr_cmd>0)
             {
-                ret = fsh((*cmdFor->cmd)->cmdSimple->args,cmdFor->rep,&dernier_exit,cmdFor->cmd);
+                // ret = fsh((*cmdFor->cmd)->cmdSimple->args,cmdFor->rep,&dernier_exit,cmdFor->cmd);
                 if (ret < 0)
                 {
                     perror("Erreur de fsh");

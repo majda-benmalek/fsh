@@ -62,7 +62,7 @@ int cmdpipe(cmd_pipe *p)
                 free(chemin);
                 return 1;
             }
-            fsh(NULL,chemin,&dernier_exit,remplissage_cmdStruct(p->commandes[i]->type,p->commandes[i],NULL,NULL,NULL,1,NULL));
+            fsh(chemin,&dernier_exit,remplissage_cmdStruct(p->commandes[i]->type,p->commandes[i],NULL,NULL,NULL,1,NULL));
             exit(0);
         }
     }
