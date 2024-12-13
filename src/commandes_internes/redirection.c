@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h> 
@@ -13,6 +14,7 @@
 
 
 int redirection(cmd_redirection *cmdredirect){
+    
     if (cmdredirect ==  NULL ) {
         perror("Structure redirection vide");
         return -1;
@@ -32,10 +34,12 @@ int redirection(cmd_redirection *cmdredirect){
     if(strcmp(separateur , ">") == 0)
     {
         fd = open(fichier , O_WRONLY | O_CREAT | O_TRUNC , 0644);
-    }else if(strcmp(separateur , ">>") == 0)
+    }
+    else if(strcmp(separateur , ">>") == 0)
     {
         fd = open(fichier , O_WRONLY | O_CREAT | O_APPEND , 0644);
-    }else if(strcmp(separateur , "<") == 0)
+    }
+    else if(strcmp(separateur , "<") == 0)
     {
         fd = open(fichier , O_RDONLY);
     }
@@ -48,6 +52,19 @@ int redirection(cmd_redirection *cmdredirect){
 
     int copie = -1 ; 
 
+    if(strcmp(separateur , ">>") == 0 || strcmp(separateur , ">") == 0)
+    {
+        copie = dup(STDOUT_FILENO);
+        dup2(fd , STDOUT_FILENO);
+    }
+    else if(strcmp(separateur , "<") == 0)
+    {
+        copie = dup(STDIN_FILENO);
+        dup2(fd,STDIN_FILENO);
+    }
+
+    close(fd);
+    
 
     
     
