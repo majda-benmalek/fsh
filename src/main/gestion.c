@@ -57,7 +57,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
     }
     else
         // REDIRECTION
-        if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
+        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
         {
             cmdstruct->cmdRed = remplissageCmdRedirection(args);
             cmdstruct->type = REDIRECTION;
@@ -65,7 +65,15 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
             {
                 perror("Erreur remplissage redirection");
             }
-        }
+        }*/
+       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
+       }
         else if (rechercheDansArgs("|", args))
         {
             cmdstruct->pipe = remplissageCmdPipe(args);
