@@ -16,24 +16,13 @@
 
 int redirection(cmd_redirection *cmdredirect){
     
-    if (cmdredirect ==  NULL ) {
-        perror("Structure redirection vide");
-        return -1;
-    }
-    if(cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
+    if(cmdredirect ==  NULL||cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
     {
        perror("Arguments pour la redirection manquants");
        return -1;
     }
 
-    int copie_stdout = dup(STDOUT_FILENO);
-    int copie_stdin = dup(STDIN_FILENO);
-    if (copie_stdout < 0 || copie_stdin < 0) {
-        perror("dup");
-        return -1;
-    }
 
-    //cmd_simple*  commande =  cmdredirect->cmd;
     char *fichier = cmdredirect->fichier;
     char *separateur = cmdredirect->separateur;
 
@@ -56,8 +45,6 @@ int redirection(cmd_redirection *cmdredirect){
 
     if(fd<0){
         perror("Erreur lors de l'ouverture du fichier");
-        close(copie_stdin);
-        close(copie_stdout);
         return -1;
     }
 
@@ -66,8 +53,6 @@ int redirection(cmd_redirection *cmdredirect){
        if(dup2(fd , STDOUT_FILENO) < 0){
         perror("Erreur lors de la duplication du fd");
         close(fd);
-        close(copie_stdin);
-        close(copie_stdout);
         return -1;
        } 
     }
@@ -76,8 +61,6 @@ int redirection(cmd_redirection *cmdredirect){
         if(dup2(fd,STDIN_FILENO)<0){
             perror("Erreur lors de la duplication du fd");
             close(fd);
-            close(copie_stdin);
-        close(copie_stdout);
             return -1;
         }
     }
@@ -87,19 +70,12 @@ int redirection(cmd_redirection *cmdredirect){
     char* chemin = malloc(PATH_MAX);
     if (chemin == NULL) {
         perror("malloc");
-        dup2(copie_stdin, STDIN_FILENO);
-        dup2(copie_stdout, STDOUT_FILENO);
-        close(copie_stdin);
-        close(copie_stdout);
         return -1;
     }
     if(getcwd(chemin,PATH_MAX)==NULL){
         perror("getcwd");
+        close(fd);
         free(chemin);
-        dup2(copie_stdin, STDIN_FILENO);
-        dup2(copie_stdout, STDOUT_FILENO);
-        close(copie_stdin);
-        close(copie_stdout);
         return 1;
     }
     int dernier_exit = 0;
