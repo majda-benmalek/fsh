@@ -15,6 +15,7 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #define ARG_MAX 512
 
@@ -95,7 +96,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
 int exec_redirection(cmd_redirection *cmd)
 {
     // tester les cmd->separateur et appelé les fonctions approriés et retourné la valeur de retour de ses fonctions
-    return 0;
+    return redirection(cmd);
 }
 
 int exec_pipe(cmd_pipe *cmd)

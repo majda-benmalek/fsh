@@ -10,7 +10,7 @@
 #include "../../utils/commande.h"
 #define ARG_MAX 512
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -22,6 +22,7 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->pipe = pipestruct;
     cmd->cmdIf = cmdIfStruct;
     cmd->cmdFor = cmdForStruct;
+    cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
 
     return cmd;
@@ -125,13 +126,11 @@ void freeCmdStruct(commandeStruct *cmd)
 cmd_simple *remplissage_cmdSimple(char **args)
 {
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
-
     if (!cmd)
     {
         perror("malloc CommandSimple");
         return NULL;
     }
-
     int nbargs = 0;
     while (args[nbargs])
     {
@@ -144,7 +143,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
         free(cmd);
         return NULL;
     }
-
     for (int i = 0; i < nbargs; i++)
     {
         cmd->args[i] = strdup(args[i]);

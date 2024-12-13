@@ -13,6 +13,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
+#include "commande.h"
+
 
 /**
  * Redirige la sortie de la commande vers un fichier spécifié avec ecrasement ou en append.
@@ -22,7 +24,7 @@
  * @return 0 si la commande est exécutée avec succès, 1 sinon.
  */
 
-int redirection(char* input);
+int redirection(cmd_redirection *cmdredirect);
 
 
 
