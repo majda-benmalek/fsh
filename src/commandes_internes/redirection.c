@@ -9,11 +9,11 @@
 #include <errno.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
-#define BUFFERSIZE 1024
 #define PATH_MAX 1024
 
 
 int redirection(cmd_redirection *cmdredirect){
+    int fd = -1  , copie_stdout = -1 , copie_stdin = -1;
     
     if (cmdredirect ==  NULL ) {
         perror("Structure redirection vide");
@@ -25,14 +25,9 @@ int redirection(cmd_redirection *cmdredirect){
        return 1;
     }
 
-    int copie_stdout = dup(STDOUT_FILENO);
-    int copie_stdin = dup(STDIN_FILENO);
-
     char *fichier = cmdredirect->fichier;
     char *separateur = cmdredirect->separateur;
 
-
-    int fd = -1 ;
 
     if(strcmp(separateur , ">") == 0)
     {
@@ -52,6 +47,16 @@ int redirection(cmd_redirection *cmdredirect){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
     }
+
+    copie_stdout = dup(STDOUT_FILENO);
+    copie_stdin = dup(STDIN_FILENO);
+
+    if (copie_stdout < 0 || copie_stdin < 0) {
+        perror("Erreur lors de la sauvegarde des descripteurs");
+        close(fd);
+        return 1;
+    }
+
 
     if(strcmp(separateur , ">>") == 0 || strcmp(separateur , ">") == 0)
     {
@@ -80,6 +85,12 @@ int redirection(cmd_redirection *cmdredirect){
     int dernier_exit = 0;
 
     char* chemin = malloc(PATH_MAX);
+    if(chemin == NULL){
+        perror("Erreur lors de l'allocation de mémoire");
+        close(copie_stdin);
+        close(copie_stdout);
+        return 1;
+    }
     if(getcwd(chemin,PATH_MAX)==NULL){
         perror("getcwd");
         free(chemin);
@@ -92,8 +103,20 @@ int redirection(cmd_redirection *cmdredirect){
 
     //retablir les fds
 
-    dup2(copie_stdin, STDIN_FILENO);
-    dup2(copie_stdout, STDOUT_FILENO);
+     if (dup2(copie_stdout, STDOUT_FILENO) < 0) {
+        perror("Erreur lors de la restauration de la sortie standard");
+        close(copie_stdout);
+        close(copie_stdin);
+        return 1;
+    }
+    if (dup2(copie_stdin, STDIN_FILENO) < 0) {
+        perror("Erreur lors de la restauration de l'entrée standard");
+        close(copie_stdout);
+        close(copie_stdin);
+        return 1;
+    }
+
+
     close(copie_stdin);
     close(copie_stdout);
     free(chemin);
