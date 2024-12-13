@@ -28,6 +28,10 @@ int redirection(cmd_redirection *cmdredirect){
 
     int copie_stdout = dup(STDOUT_FILENO);
     int copie_stdin = dup(STDIN_FILENO);
+    if (copie_stdout < 0 || copie_stdin < 0) {
+        perror("dup");
+        return -1;
+    }
 
     //cmd_simple*  commande =  cmdredirect->cmd;
     char *fichier = cmdredirect->fichier;
@@ -52,6 +56,8 @@ int redirection(cmd_redirection *cmdredirect){
 
     if(fd<0){
         perror("Erreur lors de l'ouverture du fichier");
+        close(copie_stdin);
+        close(copie_stdout);
         return -1;
     }
 
@@ -60,6 +66,8 @@ int redirection(cmd_redirection *cmdredirect){
        if(dup2(fd , STDOUT_FILENO) < 0){
         perror("Erreur lors de la duplication du fd");
         close(fd);
+        close(copie_stdin);
+        close(copie_stdout);
         return -1;
        } 
     }
@@ -68,20 +76,34 @@ int redirection(cmd_redirection *cmdredirect){
         if(dup2(fd,STDIN_FILENO)<0){
             perror("Erreur lors de la duplication du fd");
             close(fd);
+            close(copie_stdin);
+        close(copie_stdout);
             return -1;
         }
     }
     close(fd);
-    int dernier_exit = 0;
+    //int dernier_exit = 0;
 
     char* chemin = malloc(PATH_MAX);
+    if (chemin == NULL) {
+        perror("malloc");
+        dup2(copie_stdin, STDIN_FILENO);
+        dup2(copie_stdout, STDOUT_FILENO);
+        close(copie_stdin);
+        close(copie_stdout);
+        return -1;
+    }
     if(getcwd(chemin,PATH_MAX)==NULL){
         perror("getcwd");
         free(chemin);
+        dup2(copie_stdin, STDIN_FILENO);
+        dup2(copie_stdout, STDOUT_FILENO);
+        close(copie_stdin);
+        close(copie_stdout);
         return 1;
     }
-    
-    int ret = fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
+    int dernier_exit = 0;
+    fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
 
     //retablir les fds
 
@@ -92,7 +114,9 @@ int redirection(cmd_redirection *cmdredirect){
     if(fd>0){
         close(fd);
     }
-    return ret;
+    /*return ret;*/
+
+    exit(0);
     
 
     
@@ -212,17 +236,3 @@ return 0;
 
 }*/
 
-
-
-
-
-    // char *buf=malloc(BUFFERSIZE);
-        //     if (buf==NULL){
-        //         perror("buffer nulle");
-        //         return 1;
-        // }
-        // int r=read(fd,buf,BUFFERSIZE);
-        // if (r<0){
-        //     perror("erreur lecture");
-        //     return 1;
-        // }

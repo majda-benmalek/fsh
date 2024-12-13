@@ -191,9 +191,13 @@ int arg_cmdsimple_redirection(char **args, char **commande)
         if (commande[i] == NULL)
         {
             perror("strdup arg_cmdsimple_redirection ");
+            for (int i = 0; i < size; i++) {
+                free(commande[i]); 
+            }
             return 1;
         }
     }
+    commande[size] = NULL;
     return 0;
 }
 
