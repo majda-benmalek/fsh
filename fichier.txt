@@ -1,0 +1,13 @@
+banane
+pomme
+orange
+ananas
+cerise
+kiwi
+fraise
+tomate
+melon
+citron
+mangue
+prune
+poire

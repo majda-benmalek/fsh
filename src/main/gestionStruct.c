@@ -9,6 +9,7 @@
 #include <limits.h>
 #include "../../utils/commande.h"
 #define ARG_MAX 512
+size_t tailleArgs(char **args);
 
 commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, int nbcommandes, commandeStruct *cmd)
 {
@@ -28,10 +29,10 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
 }
 void freeCmdSimple(cmd_simple *cmd)
 {
-    if (!cmd)
+    if (cmd == NULL)
         return;
 
-    if (cmd->args)
+    if (cmd->args != NULL)
     {
         for (char **arg = cmd->args; *arg; ++arg)
         {
@@ -61,7 +62,6 @@ void freeCmdStruct(commandeStruct *cmd)
 {
     if (cmd != NULL)
     {
-
         if (cmd->cmdSimple != NULL)
         {
             freeCmdSimple(cmd->cmdSimple);
@@ -71,53 +71,6 @@ void freeCmdStruct(commandeStruct *cmd)
         {
             freePipe(cmd->pipe);
         }
-        // if (cmd->cmdIf != NULL)
-        // {
-        //     if (cmd->cmdIf->commandeIf)
-        //     {
-        //         for (int i = 0; cmd->cmdIf->commandeIf[i] != NULL; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdIf->commandeIf[i]);
-        //         }
-        //         free(cmd->cmdIf->commandeIf);
-        //     }
-        //     if (cmd->cmdIf->commandeElse != NULL)
-        //     {
-        //         for (int i = 0; cmd->cmdIf->commandeElse[i] != NULL; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdIf->commandeElse[i]);
-        //         }
-        //         free(cmd->cmdIf->commandeElse);
-        //     }
-        //     if (cmd->cmdIf->test)
-        //     {
-        //         freePipe(cmd->cmdIf->test);
-        //     }
-
-        //     free(cmd->cmdIf);
-        // }
-
-        // if (cmd->cmdFor != NULL)
-        // {
-        //     if (cmd->cmdFor->op)
-        //     {
-        //         for (char **op = cmd->cmdFor->op; *op; ++op)
-        //         {
-        //             free(*op);
-        //         }
-        //         free(cmd->cmdFor->op);
-        //     }
-        //     if (cmd->cmdFor->cmd)
-        //     {
-        //         for (int i = 0; i < cmd->cmdFor->nbCommandes; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdFor->cmd[i]);
-        //         }
-        //         free(cmd->cmdFor->cmd);
-        //     }
-        //     free(cmd->cmdFor->rep);
-        //     free(cmd->cmdFor);
-        // }
         free(cmd);
     }
 }
@@ -126,7 +79,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
 {
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
 
-    if (!cmd)
+    if (cmd == NULL)
     {
         perror("malloc CommandSimple");
         return NULL;
@@ -138,7 +91,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
         nbargs++;
     }
     cmd->args = malloc((nbargs + 1) * sizeof(char *));
-    if (!cmd->args)
+    if (cmd->args == NULL)
     {
         perror("malloc args");
         free(cmd);
@@ -160,7 +113,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
             return NULL;
         }
     }
-
     cmd->args[nbargs] = NULL;
 
     if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "pwd") == 0 || strcmp(args[0], "ftype") == 0 || strcmp(args[0], "exit") == 0)
@@ -207,8 +159,6 @@ void free_redirection(cmd_redirection *cmd)
     }
     else
     {
-        // free(cmd->fichier); pas de malloc donc normalement pas de free
-        // free(cmd->separateur); pareil a voir
         if (cmd->cmd != NULL)
         {
             freeCmdSimple(cmd->cmd);
@@ -301,7 +251,7 @@ int arg_cmdsimple_pipe(char **args, char **commande, int i, int j)
             return 1;
         }
     }
-    commande[i] = NULL; // pour le dernier élementp
+    commande[i-j] = NULL; // pour le dernier élementp
     return 0;
 }
 
@@ -326,9 +276,10 @@ cmd_pipe *remplissageCmdPipe(char **args)
 
     // TODO tableau dynamique
     char *commande[10];
-
+    memset(commande, 0, sizeof(commande));
     for (size_t i = 0; i <= tailleArgs(args); i++)
     {
+        memset(commande, 0, sizeof(commande));
         if (args[i] == NULL)
         {
             if (arg_cmdsimple_pipe(args, commande, i, j) == 1)
@@ -344,7 +295,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             nb += 1;
-            j = i+1;
+            j = i + 1;
         }
         else if (strcmp(args[i], "|") == 0)
         {
@@ -361,7 +312,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             nb += 1;
-            j = i+1;
+            j = i + 1;
         }
     }
     cmd->type = PIPE;
@@ -369,3 +320,6 @@ cmd_pipe *remplissageCmdPipe(char **args)
     cmd->commandes = (cmd_simple **)realloc(cmd->commandes, cmd->nbCommandes * sizeof(cmd_simple *));
     return cmd;
 }
+// si vous voulez teste les pipes 
+// cat fichier.txt | sort | head -n 5 | ftype fichier.txt
+//  cat fichier.txt | sort | head -n 5
