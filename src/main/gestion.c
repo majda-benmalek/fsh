@@ -15,6 +15,7 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #define ARG_MAX 512
 
@@ -61,7 +62,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
     }
     else
         // REDIRECTION
-        if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
+        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
         {
             cmdstruct->cmdRed = remplissageCmdRedirection(args);
             cmdstruct->type = REDIRECTION;
@@ -69,7 +70,15 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
             {
                 perror("Erreur remplissage redirection");
             }
-        }
+        }*/
+       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
+       }
         else if (rechercheDansArgs("|", args))
         {
             cmdstruct->pipe = remplissageCmdPipe(args);
@@ -100,7 +109,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
 int exec_redirection(cmd_redirection *cmd)
 {
     // tester les cmd->separateur et appelé les fonctions approriés et retourné la valeur de retour de ses fonctions
-    return 0;
+    return redirection(cmd);
 }
 
 int exec_pipe(cmd_pipe *cmd)

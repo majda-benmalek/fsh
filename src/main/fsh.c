@@ -50,7 +50,7 @@ int main(void)
     int ret = 0;
     while (1)
     {
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, 0, cmdstruct); //tout initialisé a NULL
+        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, 0, cmdstruct); //tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {

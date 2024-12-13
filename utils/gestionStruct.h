@@ -15,7 +15,7 @@
  * @param nbcommandes Nombre de commandes dans la structure.
  * @return Pointeur vers la structure commandeStruct allouée, ou NULL en cas d'échec. */
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, int nbcommandes,commandeStruct* cmd);
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, int nbcommandes, commandeStruct *cmd);
 
 /**
  * @brief Libère la mémoire allouée pour une structure cmd_simple.
