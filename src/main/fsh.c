@@ -12,79 +12,11 @@
 #include <linux/limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/gestionStruct.h"
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
-int main(void){
-    char *input = malloc(MAX_INPUT);
-    if (input == NULL)
-    {
-        perror("malloc");
-        return 1;
-    }
-    char *chemin = malloc(PATH_MAX);
-    if (chemin == NULL)
-    {
-        perror("malloc");
-        return 1;
-    }
-
-    if (getcwd(chemin, PATH_MAX) == NULL)
-    {
-        perror("getcwd");
-        free(input);
-        free(chemin);
-        return 1;
-    }
-    rl_outstream = stderr;
-
-    int ret = 0;
-    while (1)
-    {
-        int r = prompt(chemin, input, &ret);
-        if (r == 1) // Ctrl-D pressed
-        {
-            // dernier_exit = commande_exit(NULL);
-            dernier_exit = commande_exit(dernier_exit);
-            if (input != NULL) free(input);
-            if (chemin != NULL) free(chemin);
-            exit(dernier_exit);
-        }
-        commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
-        if (cmdstruct == NULL){
-            perror("erreur malloc cmdStruct");
-            free(input);
-            free(chemin);
-            exit(1);
-        }
-
-        /*gerer les autres commandes */ 
-        char*args[ARG_MAX] = {NULL};
-        int nb_args= 0 ; 
-        char *token = strtok(input," \t") ; // pour gerer le cas ou l'utilisateur separe les arguments avec tab
-        while(token && nb_args < ARG_MAX-1){
-            args[nb_args++] = token;
-            token = strtok(NULL," \t");
-        }
-        gestion_cmd(args,cmdstruct);
-        if (cmdstruct == NULL){
-            dernier_exit=ret;
-        }
-        else{
-            ret = fsh(input, chemin, &dernier_exit , cmdstruct);
-            freeCmdStruct(cmdstruct);
-            dernier_exit = ret;
-        }
-        
-    }
-}
-
-
-
-
-
-
-/*int main(void)
+int main(void)
 {
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
@@ -92,7 +24,6 @@ int main(void){
         perror("malloc");
         return 1;
     }
-
     char *chemin = malloc(PATH_MAX);
     if (chemin == NULL)
     {
@@ -108,43 +39,38 @@ int main(void){
         return 1;
     }
     rl_outstream = stderr;
-
-    int ret = 0;
-
-    char *arg = malloc(ARG_MAX);
-    char *cmd = malloc(ARG_MAX);
-    if (arg == NULL || cmd == NULL)
+    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
+    if (cmdstruct == NULL)
     {
-        perror("malloc");
-        return 1;
+        perror("erreur malloc cmdStruct");
+        free(input);
+        free(chemin);
+        exit(1);
     }
-
+    int ret = 0;
     while (1)
     {
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
-            dernier_exit = commande_exit(arg);
+            char *v_exit = malloc(2);
+            sprintf(v_exit, "%d", dernier_exit);
+            dernier_exit = commande_exit(v_exit);
             if (input != NULL)
-            {
                 free(input);
-            }
             if (chemin != NULL)
-            {
                 free(chemin);
-            }
-            if (arg != NULL)
-            {
-                free(arg);
-            }
-            if (cmd != NULL)
-            {
-                free(cmd);
-            }
+            if (cmdstruct != NULL)
+                freeCmdStruct(cmdstruct);
+            if (v_exit != NULL)
+                free(v_exit);
+            if (cmdstruct != NULL)
+                freeCmdStruct(cmdstruct);
             exit(dernier_exit);
         }
-        gestion_cmd(input, arg, cmd);
-        ret = fsh(cmd, arg, input, chemin, &dernier_exit);
+        remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, 0, cmdstruct); // faut tout initialiser a null a chaque fois
+        gestion_cmd(input, cmdstruct);
+        ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
     }
-}*/
+}

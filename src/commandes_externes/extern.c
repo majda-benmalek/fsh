@@ -31,7 +31,7 @@ int cmd_extern(cmd_simple *cmd){
         
     case 0 :
         if(execvp(cmd->args[0] , cmd->args) == -1){
-            perror("erreur lors de l'execution de la commande");
+            perror("redirect_exec");
             exit(1);
         }
         break;
