@@ -18,9 +18,12 @@
 #include "../../utils/pipe.h"
 #define ARG_MAX 512
 
-int rechercheDansArgs(char* tofind, char** args){
-    for(int i=0; i<tailleArgs(args)-1;i++){
-        if(strcmp(args[i],tofind)==0){
+int rechercheDansArgs(char *tofind, char **args)
+{
+    for (int i = 0; i < tailleArgs(args) - 1; i++)
+    {
+        if (strcmp(args[i], tofind) == 0)
+        {
             return 1;
         }
     }
@@ -46,38 +49,47 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
         token = strtok(NULL, " \t");
     }
     args[nb_args] = NULL;
-    // REDIRECTION
-    if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
+
+    if (args[0] == NULL)
     {
-        cmdstruct->cmdRed = remplissageCmdRedirection(args);
-        cmdstruct->type = REDIRECTION;
-        if (cmdstruct->cmdRed == NULL)
-        {
-            perror("Erreur remplissage redirection");
-        }
-    }
-    else if (rechercheDansArgs("|",args))
-    {
-        cmdstruct->pipe = remplissageCmdPipe(args);
-        cmdstruct->type = PIPE;
-        if (cmdstruct->pipe == NULL)
-        {
-            perror("erreur remplissage pipe");
-        }
+        return;
     }
     else
-    {
-        cmdstruct->cmdSimple = remplissage_cmdSimple(args);
-        if(cmdstruct->cmdSimple->type){
-            cmdstruct->type = CMD_INTERNE;
-        }else{
-            cmdstruct->type = CMD_EXTERNE;
-        }
-        if (!cmdstruct->cmdSimple)
+        // REDIRECTION
+        if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
         {
-            perror("Erreur cmdSimple");
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
         }
-    }
+        else if (rechercheDansArgs("|", args))
+        {
+            cmdstruct->pipe = remplissageCmdPipe(args);
+            cmdstruct->type = PIPE;
+            if (cmdstruct->pipe == NULL)
+            {
+                perror("erreur remplissage pipe");
+            }
+        }
+        else
+        {
+            cmdstruct->cmdSimple = remplissage_cmdSimple(args);
+            if (cmdstruct->cmdSimple->type)
+            {
+                cmdstruct->type = CMD_INTERNE;
+            }
+            else
+            {
+                cmdstruct->type = CMD_EXTERNE;
+            }
+            if (!cmdstruct->cmdSimple)
+            {
+                perror("Erreur cmdSimple");
+            }
+        }
 }
 
 int exec_redirection(cmd_redirection *cmd)
@@ -91,9 +103,9 @@ int exec_pipe(cmd_pipe *cmd)
     return cmdpipe(cmd);
 }
 
-int fsh(char *input, char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
+int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
-    int ret = 0;
+    int ret = *dernier_exit;
 
     /*gestion de la commande Simple pour l'instant cad CMD_INTERNE && CMD_EXTERNE*/
     if (cmdstruct == NULL)
@@ -103,70 +115,80 @@ int fsh(char *input, char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
 
     // exit
-    // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur 
+    // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
     if (cmdstruct->type == CMD_INTERNE)
     {
         char *cmd = cmdstruct->cmdSimple->args[0];
-        char premierchar = cmdstruct->cmdSimple->args[0][0];
+        // char premierchar = cmdstruct->cmdSimple->args[0][0]; //gérer dans gestion
         char *arg = cmdstruct->cmdSimple->args[1];
         if (strcmp(cmd, "exit") == 0)
         {
-            *dernier_exit = commande_exit(arg); // TODO : donné a ces fonctions directe la strcuture??
-            if (*dernier_exit == -5)
+            // printf("arg de exit : %s\n",arg);
+            if (cmdstruct->cmdSimple->args[2] != NULL)
             {
-                ret = -5;
-                *dernier_exit = 0;
-                if (input)
-                    free(input);
-                if (chemin)
-                    free(chemin);
-                /*free(cmdstruct->cmdSimple->args);
-                free(cmdstruct->cmdSimple);
-                free(cmdstruct);*/
-                freeCmdStruct(cmdstruct);
+                write(2, "exit: too many arguments\n", strlen("exit: too many arguments\n"));
+                ret = 1;
                 return ret;
             }
-            if (input)
-                free(input);
+            *dernier_exit = commande_exit(arg); // TODO : donné a ces fonctions directe la strcuture??
+            //! je me rappel c'etait pourquoi cette partie pardon
+            // if (*dernier_exit == -4)
+            // {
+            //     ret = -4;
+            //     *dernier_exit = 0;
+            // if (input)
+            //     free(input);
+            // if (chemin)
+            //     free(chemin);
+            // freeCmdStruct(cmdstruct);
+            //     return ret;
+            // }
+            // if (input)
+            //     free(input);
             if (chemin)
                 free(chemin);
-            /*free(cmdstruct->cmdSimple->args);
-            free(cmdstruct->cmdSimple);
-            free(cmdstruct);*/
-            freeCmdStruct(cmdstruct);
+            if (cmdstruct)
+                freeCmdStruct(cmdstruct);
             exit(*dernier_exit);
         }
 
         // gestion de cd
         else if (strcmp(cmd, "cd") == 0)
         {
+            if (cmdstruct->cmdSimple->args[2] != NULL)
+            {
+                write(2, "cd: too many arguments\n", strlen("cd: too many arguments\n"));
+                ret = 1;
+                return ret;
+            }
             ret = cd_commande(arg);
             if (getcwd(chemin, PATH_MAX) == NULL)
             {
                 perror("getcwd");
-                return 1;
+                ret = 1;
+                return ret;
             }
             return ret;
         }
-
         // gestion de pwd
-
         else if (strcmp(cmd, "pwd") == 0)
         {
-            ret = pwd();
-        }
-        //* Redirection > et >>
-        else if (strstr(input, ">>") || strstr(input, ">"))
-        {
-            ret = redirection(input);
-            if (ret != 0)
+            if (cmdstruct->cmdSimple->args[1] != NULL)
             {
-                perror("Redirection");
+                write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
+                ret = 1;
                 return ret;
-            };
+            }
+            ret = pwd();
         }
         else if (strcmp(cmd, "ftype") == 0)
         {
+            if (cmdstruct->cmdSimple->args[2] != NULL)
+            {
+                write(2, "ftype: too many arguments\n", strlen("ftype: too many arguments\n"));
+                ret = 1;
+                return ret;
+            }
             ret = ftype(arg);
             if (ret > 0)
             {
@@ -174,30 +196,16 @@ int fsh(char *input, char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
                 return ret;
             }
         }
-        else if (strstr(input, "for"))
-        {
-            ret = boucle_for(cmdstruct->cmdFor);
-            if (ret != 0)
-            {
-                perror("boucle_for");
-                return ret;
-            };
-        }
-        else if (premierchar == '\0' || premierchar == '\n' || premierchar == ' ' || premierchar == '\t')
-        {
-            ret = *dernier_exit;
-        }
     }
     else if (cmdstruct->type == REDIRECTION)
-    { // Pas sur de celle la mais ca me parait logique
-        // Alternatif = cmdstruct->cmdRed !=NULL ou cmdstrcut->cmdRed->type == REDIRECTION
+    {
         ret = exec_redirection(cmdstruct->cmdRed);
     }
     else if (cmdstruct->type == PIPE)
     {
         ret = exec_pipe(cmdstruct->pipe);
     }
-    else if(cmdstruct->type == CMD_EXTERNE)
+    else if (cmdstruct->type == CMD_EXTERNE)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
         if (ret < 0)

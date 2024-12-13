@@ -9,17 +9,9 @@
 
 
 int cd_commande(char* chemin ){
-    /*garder le chemin courant pour l'utiliser comme précedent */
-    if (strlen(chemin) > 0) {
-        char last_char = chemin[strlen(chemin) - 1];
-        if(last_char == ' '){
-            chemin[strlen(chemin) - 1] = '\0';
-        }
-    }
 
-    
-
-    if(strcmp(chemin , "") == 0 || strcmp(chemin , " ") == 0 ){
+      // if(strcmp(chemin , "") == 0 || strcmp(chemin , " ") == 0 ){
+    if(chemin==NULL){
         chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
 
         if(chemin == NULL){
@@ -28,7 +20,13 @@ int cd_commande(char* chemin ){
         }
     }
 
-    
+    /*garder le chemin courant pour l'utiliser comme précedent */
+    if (strlen(chemin) > 0) {
+        char last_char = chemin[strlen(chemin) - 1];
+        if(last_char == ' '){
+            chemin[strlen(chemin) - 1] = '\0';
+        }
+    }
 
     static char chemin_precedent[PATH_MAX] = "";
     char chemin_courant[PATH_MAX];
