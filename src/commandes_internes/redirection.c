@@ -6,9 +6,53 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
+#include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
 #define BUFFERSIZE 1024
 
-int redirection(char* input){
+
+
+int redirection(cmd_redirection *cmdredirect){
+    if (cmdredirect ==  NULL ) {
+        perror("Structure redirection vide");
+        return -1;
+    }
+    if(cmdredirect->cmd = NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
+    {
+       perror("Arguments pour la redirection manquants");
+    }
+
+    cmd_simple*  commande =  cmdredirect->cmd;
+    char *fichier = cmdredirect->fichier;
+    char *separateur = cmdredirect->separateur;
+
+
+    int fd = -1 ;
+
+    if(strcmp(separateur , ">") == 0)
+    {
+        fd = open(fichier , O_WRONLY | O_CREAT | O_TRUNC , 0644);
+    }else if(strcmp(separateur , ">>") == 0)
+    {
+        fd = open(fichier , O_WRONLY | O_CREAT | O_APPEND , 0644);
+    }else if(strcmp(separateur , "<") == 0)
+    {
+        fd = open(fichier , O_RDONLY);
+    }
+
+
+    if(fd<0){
+        perror("Erreur lors de l'ouverture du fichier");
+        return -1;
+    }
+
+    int copie = -1 ; 
+
+
+    
+    
+}
+/*int redirection(char* input){
     char * args[1000]; // le tableau d'argument qu'on va utiliser dans excvp 
     char * filename = NULL ; 
     int fd ; 
@@ -20,7 +64,7 @@ int redirection(char* input){
     // token -> ls
     int inverse=0;
 
-    /*on va commencer par separer la chaine input selon les espaces pour extraire le fichier vers lequel redirigier + la commande à executer*/
+    /*on va commencer par separer la chaine input selon les espaces pour extraire le fichier vers lequel redirigier + la commande à executer
 
     while(token != NULL){
         if(strcmp(token,">")==0){  // token -> f1
@@ -36,7 +80,7 @@ int redirection(char* input){
 
         }
         else{
-            args[i] = token; /* [ls , -l] ici si c'est pas > ou >> on prend cmd et ses option */
+            args[i] = token; /* [ls , -l] ici si c'est pas > ou >> on prend cmd et ses option 
             i++; 
         }
 
@@ -120,7 +164,7 @@ int redirection(char* input){
 
 return 0;
 
-}
+}*/
 
 
 
