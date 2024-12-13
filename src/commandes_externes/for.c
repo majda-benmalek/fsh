@@ -56,7 +56,7 @@ int boucle_for(cmdFor *cmdFor)
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {
-                // ret = fsh("",cmdFor->rep,&dernier_exit,cmdFor->cmd[nbr_cmd]);
+                ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
                 if (ret < 0)
                 {
                     perror("Erreur de fsh");

@@ -392,7 +392,7 @@ cmdFor* make_for(char ** args){
     //TODO j'ai commenté
     if (tailleArgs(args) < 8){
         perror("problème de syntaxe");
-        printf("la taille de l'argument = %d\n",tailleArgs(args));
+        printf("la taille de l'argument = %ld\n",tailleArgs(args));
         for (size_t i = 0; i<tailleArgs(args);i++){
             printf("%s\n",args[i]);
         }
@@ -450,7 +450,7 @@ cmdFor* make_for(char ** args){
         k++;
         i++;
     }
-    gestion_cmd(tab,*(cmdFor->cmd));
+    gestion_cmd(*tab,*(cmdFor->cmd));
     return cmdFor;
 }
 
