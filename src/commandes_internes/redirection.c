@@ -80,21 +80,14 @@ int redirection(cmd_redirection *cmdredirect){
         free(chemin);
         return 1;
     }
-    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
-    if (cmdstruct == NULL)
-    {
-        perror("erreur malloc cmdStruct");
-        free(chemin);
-        exit(1);
-    }
-    cmdstruct = remplissage_cmdStruct(REDIRECTION,NULL,NULL,NULL,NULL,cmdredirect,1,cmdstruct);
-    int ret = fsh(chemin , &dernier_exit, cmdstruct);
+    
+    int ret = fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
 
     //retablir les fds
 
-    dup2(copie_stdin, STDIN_FILENO);
-    dup2(copie_stdout, STDOUT_FILENO);
-    close(copie_stdin);
+    //dup2(copie_stdin, STDIN_FILENO);
+    //dup2(copie_stdout, STDOUT_FILENO);
+    //close(copie_stdin);
 
     if(fd>0){
         close(fd);
