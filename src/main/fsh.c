@@ -28,6 +28,7 @@ int main(void)
     if (chemin == NULL)
     {
         perror("malloc");
+        free(input);
         return 1;
     }
 

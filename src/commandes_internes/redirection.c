@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <errno.h>
 #include "../../utils/commande.h"
-#include "../../utils/gestion.h"
 #include "../../utils/gestionStruct.h"
 #define BUFFERSIZE 1024
 #define PATH_MAX 1024
@@ -16,12 +15,18 @@
 
 int redirection(cmd_redirection *cmdredirect){
     
-    if(cmdredirect ==  NULL||cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
+    if (cmdredirect ==  NULL ) {
+        perror("Structure redirection vide");
+        return 1;
+    }
+    if(cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
     {
        perror("Arguments pour la redirection manquants");
-       return -1;
+       return 1;
     }
 
+    int copie_stdout = dup(STDOUT_FILENO);
+    int copie_stdin = dup(STDIN_FILENO);
 
     char *fichier = cmdredirect->fichier;
     char *separateur = cmdredirect->separateur;
@@ -45,7 +50,7 @@ int redirection(cmd_redirection *cmdredirect){
 
     if(fd<0){
         perror("Erreur lors de l'ouverture du fichier");
-        return -1;
+        return 1;
     }
 
     if(strcmp(separateur , ">>") == 0 || strcmp(separateur , ">") == 0)
@@ -53,7 +58,9 @@ int redirection(cmd_redirection *cmdredirect){
        if(dup2(fd , STDOUT_FILENO) < 0){
         perror("Erreur lors de la duplication du fd");
         close(fd);
-        return -1;
+        close(copie_stdin);
+        close(copie_stdout);
+        return 1;
        } 
     }
     else if(strcmp(separateur , "<") == 0)
@@ -61,41 +68,37 @@ int redirection(cmd_redirection *cmdredirect){
         if(dup2(fd,STDIN_FILENO)<0){
             perror("Erreur lors de la duplication du fd");
             close(fd);
-            return -1;
+            close(copie_stdin);
+            close(copie_stdout);
+            return 1;
         }
     }
+
     close(fd);
-    //int dernier_exit = 0;
+
+
+    int dernier_exit = 0;
 
     char* chemin = malloc(PATH_MAX);
-    if (chemin == NULL) {
-        perror("malloc");
-        return -1;
-    }
     if(getcwd(chemin,PATH_MAX)==NULL){
         perror("getcwd");
-        close(fd);
         free(chemin);
+        close(fd);
+        close(copie_stdin);
+        close(copie_stdout);
         return 1;
     }
-    int dernier_exit = 0;
     fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
 
     //retablir les fds
 
-    //dup2(copie_stdin, STDIN_FILENO);
-    //dup2(copie_stdout, STDOUT_FILENO);
-    //close(copie_stdin);
+    dup2(copie_stdin, STDIN_FILENO);
+    dup2(copie_stdout, STDOUT_FILENO);
+    close(copie_stdin);
+    close(copie_stdout);
+    free(chemin);
 
-    if(fd>0){
-        close(fd);
-    }
-    /*return ret;*/
-
-    exit(0);
-    
-
-    
+    return 0;
     
 }
 /*int redirection(char* input){
@@ -212,3 +215,17 @@ return 0;
 
 }*/
 
+
+
+
+
+    // char *buf=malloc(BUFFERSIZE);
+        //     if (buf==NULL){
+        //         perror("buffer nulle");
+        //         return 1;
+        // }
+        // int r=read(fd,buf,BUFFERSIZE);
+        // if (r<0){
+        //     perror("erreur lecture");
+        //     return 1;
+        // }
