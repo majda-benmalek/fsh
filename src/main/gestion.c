@@ -15,6 +15,7 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #define ARG_MAX 512
 
@@ -49,14 +50,25 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
         token = strtok(NULL, " \t");
     }
     args[nb_args] = NULL;
+    // print args
+    // for (int i = 0; i <= nb_args; i++)
+    // {
+    //     printf("args[%d] : %s\n", i, args[i]);
+    // }
 
     if (args[0] == NULL)
     {
         return;
     }
+    else if (strcmp(args[0],"for") == 0){
+        cmdstruct->cmdFor = make_for(args);
+        if (cmdstruct->cmdFor == NULL){
+            perror("Erreur remplissage de for");
+        }
+    }
     else
         // REDIRECTION
-        if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
+        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
         {
             cmdstruct->cmdRed = remplissageCmdRedirection(args);
             cmdstruct->type = REDIRECTION;
@@ -64,7 +76,15 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
             {
                 perror("Erreur remplissage redirection");
             }
-        }
+        }*/
+       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
+       }
         else if (rechercheDansArgs("|", args))
         {
             cmdstruct->pipe = remplissageCmdPipe(args);
@@ -77,11 +97,11 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
         else
         {
             cmdstruct->cmdSimple = remplissage_cmdSimple(args);
-            if (cmdstruct->cmdSimple->type)
+            if (cmdstruct->cmdSimple->type==CMD_INTERNE)
             {
                 cmdstruct->type = CMD_INTERNE;
             }
-            else
+            else if(cmdstruct->cmdSimple->type==CMD_EXTERNE)
             {
                 cmdstruct->type = CMD_EXTERNE;
             }
@@ -95,7 +115,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
 int exec_redirection(cmd_redirection *cmd)
 {
     // tester les cmd->separateur et appelé les fonctions approriés et retourné la valeur de retour de ses fonctions
-    return 0;
+    return redirection(cmd);
 }
 
 int exec_pipe(cmd_pipe *cmd)
@@ -131,8 +151,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         char *arg = cmdstruct->cmdSimple->args[1];
         if (strcmp(cmd, "exit") == 0)
         {
-            // printf("arg de exit : %s\n",arg);
-            if (cmdstruct->cmdSimple->args[2] != NULL)
+            if (cmdstruct->cmdSimple->args[1] != NULL && cmdstruct->cmdSimple->args[2] != NULL) // le && c'est pour evité d'essaye de lire une partie de la mémoire qui existe pas
             {
                 write(2, "exit: too many arguments\n", strlen("exit: too many arguments\n"));
                 ret = 1;
@@ -163,7 +182,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // gestion de cd
         else if (strcmp(cmd, "cd") == 0)
         {
-            if (cmdstruct->cmdSimple->args[2] != NULL)
+            if (cmdstruct->cmdSimple->args[1] != NULL && cmdstruct->cmdSimple->args[2] != NULL)
             {
                 write(2, "cd: too many arguments\n", strlen("cd: too many arguments\n"));
                 ret = 1;
@@ -191,7 +210,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         }
         else if (strcmp(cmd, "ftype") == 0)
         {
-            if (cmdstruct->cmdSimple->args[2] != NULL)
+            if (cmdstruct->cmdSimple->args[1] != NULL && cmdstruct->cmdSimple->args[2] != NULL)
             {
                 write(2, "ftype: too many arguments\n", strlen("ftype: too many arguments\n"));
                 ret = 1;
