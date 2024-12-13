@@ -50,6 +50,7 @@ int main(void)
     int ret = 0;
     while (1)
     {
+        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, 0, cmdstruct); //tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
@@ -66,7 +67,6 @@ int main(void)
                 free(v_exit);
             exit(dernier_exit);
         }
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, 0, cmdstruct); // faut tout initialiser a null a chaque fois
         gestion_cmd(input, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
