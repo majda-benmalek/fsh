@@ -119,8 +119,8 @@ void freeCmdStruct(commandeStruct *cmd)
         //     free(cmd->cmdFor->rep);
         //     free(cmd->cmdFor);
         // }
+        free(cmd);
     }
-    free(cmd);
 }
 
 cmd_simple *remplissage_cmdSimple(char **args)
