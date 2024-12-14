@@ -69,7 +69,19 @@ int main(void)
                 free(v_exit);
             exit(dernier_exit);
         }
-        gestion_cmd(input, cmdstruct);
+
+        // Mettre input sous forme de tableau
+        char *args[ARG_MAX] = {NULL};
+        int nb_args = 0;
+        char *token = strtok(input, " \t"); // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+        while (token && nb_args < ARG_MAX - 1)
+        {
+            args[nb_args++] = token;
+            token = strtok(NULL, " \t");
+        }
+        args[nb_args] = NULL;
+
+        gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
         if (cmdstruct != NULL)

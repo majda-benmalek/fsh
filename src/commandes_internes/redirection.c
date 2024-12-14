@@ -81,13 +81,13 @@ int redirection(cmd_redirection *cmdredirect){
         return 1;
     }
     
-    int ret = fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
+    int ret = fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,cmdredirect->cmd,NULL,NULL,NULL,NULL,1,NULL));
 
     //retablir les fds
 
-    //dup2(copie_stdin, STDIN_FILENO);
-    //dup2(copie_stdout, STDOUT_FILENO);
-    //close(copie_stdin);
+    dup2(copie_stdin, STDIN_FILENO);
+    dup2(copie_stdout, STDOUT_FILENO);
+    close(copie_stdin);
 
     if(fd>0){
         close(fd);
