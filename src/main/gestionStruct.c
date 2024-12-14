@@ -8,9 +8,34 @@
 #include <stdbool.h>
 #include <limits.h>
 #include "../../utils/commande.h"
+#include "../../utils/gestion.h"
+#include "../../utils/for.h"
+#include "../../utils/freeStruct.h"
 #define ARG_MAX 512
+size_t tailleArgs(char **args)
+{
+    size_t taille = 0;
+    while (args[taille] != NULL)
+    {
+        taille++;
+    }
+    return taille + 1; // inclure la derniere case NULL
+}
+int arg_cmdsimple(char **args, char **commande, int i, int j)
+{
+    for (int h = 0; h < (i - j); h++)
+    {
+        commande[h] = strdup(args[h + j]);
+        if (commande[h] == NULL)
+        {
+            return 1;
+        }
+    }
+    commande[i - j] = NULL; // pour le dernier élementp
+    return 0;
+}
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -24,109 +49,15 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdFor = cmdForStruct;
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
-
     return cmd;
-}
-void freeCmdSimple(cmd_simple *cmd)
-{
-    if (!cmd)
-        return;
-
-    if (cmd->args)
-    {
-        for (char **arg = cmd->args; *arg; ++arg)
-        {
-            if (*arg != NULL)
-            {
-                free(*arg);
-            }
-        }
-        free(cmd->args);
-    }
-    free(cmd);
-}
-
-void freePipe(cmd_pipe *pipeStruct)
-{
-    if (!pipeStruct)
-        return;
-    for (int i = 0; i < pipeStruct->nbCommandes; i++)
-    {
-        free(pipeStruct->commandes[i]);
-    }
-    free(pipeStruct->commandes);
-    free(pipeStruct);
-}
-
-void freeCmdStruct(commandeStruct *cmd)
-{
-    if (cmd != NULL)
-    {
-
-        if (cmd->cmdSimple != NULL)
-        {
-            freeCmdSimple(cmd->cmdSimple);
-        }
-
-        if (cmd->pipe != NULL)
-        {
-            freePipe(cmd->pipe);
-        }
-        // if (cmd->cmdIf != NULL)
-        // {
-        //     if (cmd->cmdIf->commandeIf)
-        //     {
-        //         for (int i = 0; cmd->cmdIf->commandeIf[i] != NULL; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdIf->commandeIf[i]);
-        //         }
-        //         free(cmd->cmdIf->commandeIf);
-        //     }
-        //     if (cmd->cmdIf->commandeElse != NULL)
-        //     {
-        //         for (int i = 0; cmd->cmdIf->commandeElse[i] != NULL; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdIf->commandeElse[i]);
-        //         }
-        //         free(cmd->cmdIf->commandeElse);
-        //     }
-        //     if (cmd->cmdIf->test)
-        //     {
-        //         freePipe(cmd->cmdIf->test);
-        //     }
-
-        //     free(cmd->cmdIf);
-        // }
-
-        // if (cmd->cmdFor != NULL)
-        // {
-        //     if (cmd->cmdFor->op)
-        //     {
-        //         for (char **op = cmd->cmdFor->op; *op; ++op)
-        //         {
-        //             free(*op);
-        //         }
-        //         free(cmd->cmdFor->op);
-        //     }
-        //     if (cmd->cmdFor->cmd)
-        //     {
-        //         for (int i = 0; i < cmd->cmdFor->nbCommandes; i++)
-        //         {
-        //             freeCmdStruct(cmd->cmdFor->cmd[i]);
-        //         }
-        //         free(cmd->cmdFor->cmd);
-        //     }
-        //     free(cmd->cmdFor->rep);
-        //     free(cmd->cmdFor);
-        // }
-        free(cmd);
-    }
 }
 
 cmd_simple *remplissage_cmdSimple(char **args)
 {
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
-    if (!cmd)
+    // printf("dans remplissage cmd simple \n");
+
+    if (cmd == NULL)
     {
         perror("malloc CommandSimple");
         return NULL;
@@ -134,10 +65,11 @@ cmd_simple *remplissage_cmdSimple(char **args)
     int nbargs = 0;
     while (args[nbargs])
     {
+        // printf("args[%d] = %s\n",nbargs,args[nbargs]);
         nbargs++;
     }
     cmd->args = malloc((nbargs + 1) * sizeof(char *));
-    if (!cmd->args)
+    if (cmd->args == NULL)
     {
         perror("malloc args");
         free(cmd);
@@ -146,6 +78,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
     for (int i = 0; i < nbargs; i++)
     {
         cmd->args[i] = strdup(args[i]);
+        // printf("args[%d] = %s\n",i,cmd->args[i]);
         if (!cmd->args[i])
         {
             perror("strdup");
@@ -158,7 +91,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
             return NULL;
         }
     }
-
     cmd->args[nbargs] = NULL;
 
     if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "pwd") == 0 || strcmp(args[0], "ftype") == 0 || strcmp(args[0], "exit") == 0)
@@ -170,53 +102,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
         cmd->type = CMD_EXTERNE;
     }
     return cmd;
-}
-
-size_t tailleArgs(char **args)
-{
-    size_t taille = 0;
-    while (args[taille] != NULL)
-    {
-        taille++;
-    }
-    return taille;
-}
-
-int arg_cmdsimple_redirection(char **args, char **commande)
-{
-    size_t size = tailleArgs(args) - 2;
-    for (int i = 0; i < size; i++)
-    {
-        commande[i] = strdup(args[i]);
-        if (commande[i] == NULL)
-        {
-            perror("strdup arg_cmdsimple_redirection ");
-            for (int i = 0; i < size; i++) {
-                free(commande[i]); 
-            }
-            return 1;
-        }
-    }
-    commande[size] = NULL;
-    return 0;
-}
-
-void free_redirection(cmd_redirection *cmd)
-{
-    if (!cmd)
-    {
-        return;
-    }
-    else
-    {
-        // free(cmd->fichier); pas de malloc donc normalement pas de free
-        // free(cmd->separateur); pareil a voir
-        if (cmd->cmd != NULL)
-        {
-            freeCmdSimple(cmd->cmd);
-        }
-        free(cmd);
-    }
 }
 
 cmd_redirection *remplissageCmdRedirection(char **args)
@@ -233,97 +118,61 @@ cmd_redirection *remplissageCmdRedirection(char **args)
     // TODO tableau dynmaique
     char *commande[10];
     memset(commande, 0, sizeof(commande));
-    if (strstr(args[1], "<") != NULL)
+    if (arg_cmdsimple(args, commande, taille - 3, 0) == 1)
     {
-        cmd->fichier = args[2];
+        perror("strdup cmd_redirection");
+        free_redirection(cmd);
+        return NULL;
+    }
+    // TODO : erreur sur la pos du separateur
+    size_t pos_sep = tailleArgs(commande) -1;
+    cmd->cmd = remplissage_cmdSimple(commande);
+    if (cmd->cmd == NULL)
+    {
+        perror("remplissage cmd simple");
+        free_redirection(cmd);
+        return NULL;
+    }
+    if (strstr(args[pos_sep], ">") != NULL)
+    {
+        cmd->fichier = args[taille - 2]; // l'avant dernier élement vu que le dernier est NULL
+        cmd->separateur = ">";
+    }
+    else if (strstr(args[pos_sep], " >> ") != NULL)
+    {
+        cmd->fichier = args[taille - 2];
+        cmd->separateur = ">>";
+    }
+    else if (strstr(args[pos_sep], " 2> ") != NULL)
+    {
+        cmd->fichier = args[taille - 2];
+        cmd->separateur = "2>";
+    }
+    else if (strstr(args[pos_sep], " >| ") != NULL)
+    {
+        cmd->fichier = args[taille - 2];
+        cmd->separateur = " >| ";
+    }
+    else if (strstr(args[pos_sep], "2>|") != NULL)
+    {
+        cmd->fichier = args[taille - 1];
+        cmd->separateur = "2>|";
+    }
+    else if (strstr(args[pos_sep], " 2>> ") != NULL)
+    {
+        cmd->fichier = args[taille - 2];
+        cmd->separateur = "2>>";
+    }
+    else if (strstr(args[pos_sep], "<") != NULL)
+    {
+        cmd->fichier = args[taille - 2];
         cmd->separateur = "<";
-        size_t size = taille - 2;
-        for (int i = 0; i < size; i++)
-        {
-            commande[i] = strdup(args[i]);
-            printf("commande [%d] = %s\n", i, commande[i]);
-           
-            if (commande[i] == NULL)
-            {
-                free_redirection(cmd);
-                return NULL;
-            }
-        }
-        cmd->cmd = remplissage_cmdSimple(commande);
+    }else{
+        perror("Erreur de syntaxe");
+        free_redirection(cmd);
+        return NULL;
     }
-    else
-    {
-        if (arg_cmdsimple_redirection(args, commande) == 1)
-        {
-            perror("strdup cmd_redirection");
-            free_redirection(cmd);
-            return NULL;
-        }
-        size_t pos_sep = tailleArgs(commande);
-        cmd->cmd = remplissage_cmdSimple(commande);
-        if (strstr(args[pos_sep], ">>") != NULL)
-        {
-            cmd->fichier = args[taille - 1];
-            cmd->separateur = ">>";
-        }
-        else if (strstr(args[pos_sep], ">") != NULL)
-        {
-            cmd->fichier = args[taille - 1]; // l'avant dernier élement vu que le dernier est NULL
-            cmd->separateur = ">";
-        }
-        
-        else if (strstr(args[pos_sep], " 2> ") != NULL)
-        {
-            cmd->fichier = args[taille - 1];
-            cmd->separateur = "2>";
-        }
-        else if (strstr(args[pos_sep], " >| ") != NULL)
-        {
-            cmd->fichier = args[taille - 1];
-            cmd->separateur = " >| ";
-        }
-        else if (strstr(args[pos_sep], "2>|") != NULL)
-        {
-            cmd->fichier = args[taille - 1];
-            cmd->separateur = "2>|";
-        }
-        else if (strstr(args[pos_sep], " 2>> ") != NULL)
-        {
-            cmd->fichier = args[taille - 1];
-            cmd->separateur = "2>>";
-        }
-    }
-
-
- 
-
     return cmd;
-}
-
-int arg_cmdsimple_pipe(char **args, char **commande, int i, int j)
-{
-    for (int h = 0; h < (i - j); h++)
-    {
-        commande[h] = strdup(args[j + h]);
-        if (commande[h] == NULL)
-        {
-            return 1;
-        }
-    }
-    commande[i] = NULL; // pour le dernier élementp
-    return 0;
-}
-
-void free_pipe(cmd_pipe *cmd)
-{
-    for (int i = 0; i < cmd->nbCommandes; i++)
-    {
-        if (cmd->commandes[i] != NULL)
-        {
-            freeCmdSimple(cmd->commandes[i]);
-        }
-    }
-    free(cmd);
 }
 
 cmd_pipe *remplissageCmdPipe(char **args)
@@ -335,12 +184,13 @@ cmd_pipe *remplissageCmdPipe(char **args)
 
     // TODO tableau dynamique
     char *commande[10];
-
+    memset(commande, 0, sizeof(commande));
     for (size_t i = 0; i <= tailleArgs(args); i++)
     {
+        memset(commande, 0, sizeof(commande));
         if (args[i] == NULL)
         {
-            if (arg_cmdsimple_pipe(args, commande, i, j) == 1)
+            if (arg_cmdsimple(args, commande, i, j) == 1)
             {
                 free_pipe(cmd);
                 return NULL;
@@ -353,11 +203,11 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             nb += 1;
-            j = i+1;
+            j = i + 1;
         }
         else if (strcmp(args[i], "|") == 0)
         {
-            if (arg_cmdsimple_pipe(args, commande, i, j) == 1)
+            if (arg_cmdsimple(args, commande, i, j) == 1)
             {
                 free_pipe(cmd);
                 return NULL;
@@ -370,11 +220,160 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             nb += 1;
-            j = i+1;
+            j = i + 1;
         }
     }
     cmd->type = PIPE;
     cmd->nbCommandes = nb;
     cmd->commandes = (cmd_simple **)realloc(cmd->commandes, cmd->nbCommandes * sizeof(cmd_simple *));
     return cmd;
+}
+// si vous voulez teste les pipes
+// cat fichier.txt | sort | head -n 5 | ftype fichier.txt
+//  cat fichier.txt | sort | head -n 5
+
+cmdFor *make_for(char **args)
+{
+    // ! for i in src { ftype $i }
+    cmdFor *cmdFor = malloc(sizeof(*cmdFor));
+    if (cmdFor == NULL)
+    {
+        perror("problème d'allocation de mémoire pour for");
+        return NULL;
+    }
+    printf("Adresse de cmdFor %p\n", cmdFor);
+    // TODO j'ai commenté
+    if (tailleArgs(args) < 8)
+    {
+        perror("problème de syntaxe");
+        printf("la taille de l'argument = %ld\n", tailleArgs(args));
+        for (size_t i = 0; i < tailleArgs(args); i++)
+        {
+            printf("%s\n", args[i]);
+        }
+        free_for(cmdFor);
+        return NULL;
+    }
+    cmdFor->rep = NULL;
+    cmdFor->op = NULL;
+    cmdFor->variable = NULL;
+    cmdFor->cmd = NULL;
+    cmdFor->nbCommandes = 0;
+
+    //* --------- option----------
+    // cmdFor->op = NULL;
+    // cmdFor->nbCommandes = malloc(sizeof(int));
+    // if (cmdFor->nbCommandes == NULL){
+    //     free_for(cmdFor);
+    // }
+
+    printf("Adresse de cmdFor->nbCommandes %p\n", &cmdFor->nbCommandes);
+    cmdFor->nbCommandes = tailleArgs(args);
+    // ? -------- Type ---------
+    cmdFor->type = FOR;
+
+    // * ------------------ variable ---------------
+    if (strlen(args[1]) != 1)
+    {
+        perror("Erreur de syntaxe, la variabme doit contenir un seul caractère");
+        free_for(cmdFor);
+        return NULL;
+    }
+
+    size_t taille = tailleArgs(args);
+    for (size_t i = 0; i < taille; i++)
+    {
+        printf("args[%ld] = %s \n", i, args[i]);
+    }
+    cmdFor->variable = strdup(args[1]);
+    perror("strdup variable");
+    if (cmdFor->variable == NULL)
+    {
+        perror("erreur de duuuup");
+        free_for(cmdFor);
+        return NULL;
+    }
+
+    cmdFor->rep = strdup(args[3]);
+    perror("strdup rep");
+    if (cmdFor->rep == NULL)
+    {
+        perror("erreur de duuuuuuuup");
+        free_for(cmdFor);
+        return NULL;
+    }
+    cmdFor->op = malloc(ARG_MAX * sizeof(char *));
+    if (cmdFor->op == NULL)
+    {
+        perror("aie aie aie");
+        free_for(cmdFor);
+        return NULL;
+    }
+    // ? ----------------- option-----------
+    int i = 4;
+    int j = 0;
+    while (strcmp(args[i], "{") != 0)
+    {
+        printf("chui dans le while \n");
+        if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
+        {
+            cmdFor->op[j] = args[i]; // TODO utiliser strdup
+            i++;
+            j++;
+        }
+        else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
+        {
+            if (args[i + 1][0] != '-')
+            {
+                cmdFor->op[j] = args[i]; // TODO a changer
+                i = i + 2;
+                j++;
+            }
+            else
+            {
+                perror("il manque un argument");
+                free_for(cmdFor);
+                return NULL;
+            }
+        }
+        // TODO j'ai commenté
+        //  else{
+        //      perror("ce n'est pas un argument valide");
+        //      return NULL;
+        //  }
+    }
+    if (strcmp(args[i], "{") == 0)
+    {
+        // printf("args[%d] = %s\n",i,args[i]);
+        // printf("chui laaaa\n");
+        i++; // pour sauter l'{
+    }
+
+    printf("args[%d] = %s\n", i, args[i]);
+    cmdFor->cmd = malloc(40 * sizeof(commandeStruct));
+    if (cmdFor->cmd == NULL)
+    {
+        perror("pb d'alloc de sous cmd de for");
+        free_for(cmdFor);
+        // TODO APPELER LES FREE
+        return NULL;
+    }
+
+    char *tab[ARG_MAX];
+    unsigned int k = 0;
+    while (args[i] != NULL && i < taille && strcmp(args[i], "}") != 0)
+    { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
+        tab[k] = args[i];
+        k = k + 1;
+        i = i + 1;
+    }
+    perror("print tab");
+    for (int i = 0; i < k; i++)
+    {
+        printf(tab[i]);
+        printf("\n");
+    }
+    tab[k] = NULL;
+    gestion_cmd(tab, cmdFor->cmd);
+    return cmdFor;
 }

@@ -17,29 +17,6 @@
 
 commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, int nbcommandes, commandeStruct *cmd);
 
-/**
- * @brief Libère la mémoire allouée pour une structure cmd_simple.
- *
- * @param cmd Pointeur vers la structure cmd_simple à libérer.
- */
-
-void freeCmdSimple(cmd_simple *cmd);
-
-/**
- * @brief Libère la mémoire allouée pour une structure pipe.
- *
- * @param cmd Pointeur vers la structure pipe à libérer.
- */
-
-void freePipe(cmd_pipe *pipeStruct);
-
-/**
- * @brief Libère la mémoire allouée pour une structure commandeStruct et ses sous-structures.
- *
- * @param cmd Pointeur vers la structure commandeStruct à libérer.
- */
-
-void freeCmdStruct(commandeStruct *cmd);
 
 /**
  * @brief Alloue et remplit une structure cmd_simple à partir d'une liste d'arguments.
@@ -49,20 +26,14 @@ void freeCmdStruct(commandeStruct *cmd);
  */
 cmd_simple *remplissage_cmdSimple(char **args);
 
-/**
- * @brief Alloue et remplit une structure cmd_redirection à partir d'une liste d'arguments.
- *
- * @param args tableau de chaîne de caractères représentant la commande ses arguments,
- * le type de la redirection ainsi que le fichier d'entrée ou de sortie
- * @return Un pointeur vers la stucture cmd_redirection crée ou NULL en cas d'échec.
- */
 cmd_redirection *remplissageCmdRedirection(char **args);
-
-void free_pipe(cmd_pipe *cmd);
 
 cmd_pipe *remplissageCmdPipe(char **args);
 
 size_t tailleArgs(char **args);
+
+
+cmdFor* make_for(char ** args);
 
 
 #endif

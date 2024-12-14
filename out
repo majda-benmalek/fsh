@@ -1,0 +1,10 @@
+total 104
+-rwxr-xr-x 1 benmalem Info   113 10 déc.  20:55 AUTHORS.md
+drwxr-xr-x 2 benmalem Info  4096 28 nov.  22:06 exec
+-rwxr-xr-x 1 benmalem Info 70664 14 déc.  17:16 fsh
+-rwxr-xr-x 1 benmalem Info   498 14 déc.  17:00 Makefile
+-rw-r--r-- 1 benmalem Info     0 14 déc.   2024 out
+-rwxr-xr-x 1 benmalem Info   220 10 déc.  20:55 README.md
+drwxr-xr-x 5 benmalem Info  4096 14 déc.  13:22 src
+-rwxr-xr-x 1 benmalem Info  1272 20 nov.  21:48 test.sh
+drwxr-xr-x 2 benmalem Info  4096 14 déc.  17:00 utils

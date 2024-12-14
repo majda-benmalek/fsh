@@ -12,7 +12,7 @@
 #include <linux/limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
-#include "../../utils/gestionStruct.h"
+#include "../../utils/freeStruct.h"
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
@@ -40,18 +40,20 @@ int main(void)
         return 1;
     }
     rl_outstream = stderr;
-    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
-    if (cmdstruct == NULL)
-    {
-        perror("erreur malloc cmdStruct");
-        free(input);
-        free(chemin);
-        exit(1);
-    }
     int ret = 0;
     while (1)
     {
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, 0, cmdstruct); //tout initialisé a NULL
+        commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
+        if (cmdstruct == NULL)
+        {
+            perror("erreur malloc cmdStruct");
+            free(input);
+            free(chemin);
+            if (cmdstruct != NULL)
+                freeCmdStruct(cmdstruct);
+            exit(1);
+        }
+        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
@@ -68,8 +70,22 @@ int main(void)
                 free(v_exit);
             exit(dernier_exit);
         }
-        gestion_cmd(input, cmdstruct);
+
+        // Mettre input sous forme de tableau
+        char *args[ARG_MAX] = {NULL};
+        int nb_args = 0;
+        char *token = strtok(input, " \t"); // pour gerer le cas ou l'utilisateur separe les arguments avec tab
+        while (token && nb_args < ARG_MAX - 1)
+        {
+            args[nb_args++] = token;
+            token = strtok(NULL, " \t");
+        }
+        args[nb_args] = NULL;
+        
+        gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
+        if (cmdstruct != NULL)
+            freeCmdStruct(cmdstruct);
     }
 }
