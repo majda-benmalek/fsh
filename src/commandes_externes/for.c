@@ -17,23 +17,68 @@
 
 
 
-void change_var(char * name,char * variable ,commandeStruct *cmd){
-    printf("dans  change var");
+void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName){
+    // printf("dans  change var\n");
+    // fflush(NULL);
+    // if (cmd ->type == NULL){
+    //     printf("le type  bien null hein ds change var\n");
+    //     fflush(NULL);
+    // }
+    // else{
+    //     printf(" ah bah my bad le type est pas nul = %d\n",cmd->type);
+    //     fflush(NULL);
+    // }
+    // printf("variable = %s\n",variable);
+    char * inter=malloc(strlen(variable)+2);// ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+    strcpy(inter,"$");
+    strcat(inter,variable);
+    // printf("inter = %s\n",inter);
     switch (cmd->type)
     {
+    case CMD_EXTERNE:
+    // printf("chui ds cmd externe \n");
+    int k = 0;
+        while (cmd->cmdSimple->args[k]!=NULL){
+            // if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
+            if (strcmp(cmd->cmdSimple->args[k],inter) == 0){
+                // realloc(cmd->cmdSimple->args[i],sizeof(name));
+                // Pr avoir le chemin complet faut mettre le nom du répertoire
+                char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
+                strcpy(nom_complet,repName);
+                strcat(nom_complet,"/");
+                strcat(nom_complet,name);
+                // printf("nom complet = %s",nom_complet);
+                strcpy(cmd->cmdSimple->args[k],nom_complet);
+                // strcpy(cmd->cmdSimple->args[i],name);
+                // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[i]);
+            }
+            k++;
+        }
+        break;
     case CMD_INTERNE:
-        printf("change var cmd interne \n");
+        // printf("change var cmd interne \n");
+        // fflush(NULL);
         int i = 0;
         while (cmd->cmdSimple->args[i]!=NULL){
-            if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
-                strcpy(cmd->cmdSimple->args[i],name);
+            // if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
+            if (strcmp(cmd->cmdSimple->args[i],inter) == 0){
+                // realloc(cmd->cmdSimple->args[i],sizeof(name));
+                // Pr avoir le chemin complet faut mettre le nom du répertoire
+                char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
+                strcpy(nom_complet,repName);
+                strcat(nom_complet,"/");
+                strcat(nom_complet,name);
+                // printf("nom complet = %s",nom_complet);
+                strcpy(cmd->cmdSimple->args[i],nom_complet);
+                // strcpy(cmd->cmdSimple->args[i],name);
+                // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[i]);
             }
             i++;
         }
         break;
     
     default:
-        printf("change var default \n");
+        // printf("change var default \n");
         break;
     }
 }
@@ -50,7 +95,6 @@ int boucle_for(cmdFor *cmdFor)
     // else{
     //     printf("cmd for var = %s\n",cmdFor->variable);
     //     printf("rep = %s\n",cmdFor->rep);
-    //     printf("nbr cmd = %d\n",cmdFor->nbCommandes);
     // }
     // if (cmdFor->cmd[0]== NULL){
     //     printf("cmd for-> cmd est null\n");
@@ -73,22 +117,32 @@ int boucle_for(cmdFor *cmdFor)
         // printf("dans le while\n");
         if (entry->d_name[0] != '.')
         {
-            printf("entry->d_name ... = %s \n",entry->d_name);
+            // printf("entry->d_name ... = %s \n",entry->d_name);
             //? ici
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {
-                printf("entry->d_name ... = %s \n",entry->d_name);
-                printf("cmd for var = %s\n",cmdFor->variable);
-                if (cmdFor->cmd[nbr_cmd] == NULL){
-                    printf("cmd for-> cmd est null\n");
-                    return ret;
-                }
-                else{
-                    printf(" c pas null\n");
-                }
-                change_var(entry->d_name,cmdFor->variable,cmdFor->cmd[nbr_cmd]);
-                // // ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
+                // printf("dans while entry->d_name ... = %s \n",entry->d_name);
+                // printf(" dans while cmd for var = %s\n",cmdFor->variable);
+                // if (cmdFor->cmd[nbr_cmd] == NULL){
+                //     // printf("cmd for-> cmd est null\n");
+                //     return ret;
+                // }
+                // else{
+                //     printf(" c pas null le cmdfor -> cmd [nbr_cmd] \n");
+                //     printf("type = %d\n",cmdFor->cmd[nbr_cmd]->type);
+                // }
+                // printf("avant le change var \n");
+                // printf("entry->d_name ... = %s \n",entry->d_name);
+                // printf("cmd for var = %s\n",cmdFor->variable);
+                // if (cmdFor->cmd[nbr_cmd] == NULL){
+                //     printf("c lui le pb\n");
+                // }
+                // else{
+                //     printf("bh jsp c pas lui\n");
+                // }
+                change_var(entry->d_name,cmdFor->variable, cmdFor->cmd[nbr_cmd],cmdFor->rep);
+                ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
                 // if (ret < 0)
                 // {
                 //     perror("Erreur de fsh");

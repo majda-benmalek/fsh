@@ -341,7 +341,9 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // //  op
 
 cmdFor* make_for(char ** args){
-    cmdFor *cmdFor = malloc(sizeof(cmdFor));
+    // cmdFor *cmdFor = malloc(sizeof(*cmdFor));
+
+    cmdFor *cmdFor = malloc(sizeof(*cmdFor));
     if (cmdFor == NULL){
         perror("problème d'allocation de mémoire pour for");
         return NULL;
@@ -353,9 +355,14 @@ cmdFor* make_for(char ** args){
         for (size_t i = 0; i<tailleArgs(args);i++){
             printf("%s\n",args[i]);
         }
-        free_for(cmdFor);
+        // free_for(cmdFor);
         return NULL;
     }
+    
+    cmdFor->rep = NULL;
+    cmdFor->op = NULL;
+    cmdFor->variable = NULL;
+    cmdFor->cmd = NULL;
 
     //* --------- option----------
     // cmdFor->op = NULL;
@@ -363,14 +370,14 @@ cmdFor* make_for(char ** args){
     // if (cmdFor->nbCommandes == NULL){
     //     free_for(cmdFor);
     // }
-    cmdFor->nbCommandes = 0;
+    // cmdFor->nbCommandes = 0;
     // ? -------- Type ---------
     cmdFor->type = FOR;
 
     // * ------------------ variable ---------------
     if (strlen(args[1]) != 1){
         perror("Erreur de syntaxe, la variabme doit contenir un seul caractère");
-        free_for(cmdFor);
+        // free_for(cmdFor);
         return NULL;
     }
     
@@ -380,23 +387,24 @@ cmdFor* make_for(char ** args){
     //     printf("taille %d \n",sizeof(args[i]));
 
     // }
+    
     cmdFor->variable = strdup(args[1]);
     if (cmdFor->variable == NULL) {
         perror("erreur de duuuup");
-        free_for(cmdFor);
+        // free_for(cmdFor);
         return NULL;
     }
     
     cmdFor->rep = strdup(args[3]);
-    if (cmdFor->rep == NULL) {
-        perror("erreur de duuuuuuuup");
-        free_for(cmdFor);
-        return NULL;
-    }
+    // if (cmdFor->rep == NULL) {
+    //     perror("erreur de duuuuuuuup");
+    //     // free_for(cmdFor);
+    //     return NULL;
+    // }
     cmdFor->op = malloc(ARG_MAX*sizeof(char));
     if (cmdFor->op == NULL) {
         perror("aie aie aie");
-        free_for(cmdFor);
+        // free_for(cmdFor);
         return NULL;
     }
     // ? ----------------- option-----------
@@ -417,7 +425,7 @@ cmdFor* make_for(char ** args){
             }
             else{
                 perror("il manque un argument");
-                free_for(cmdFor);
+                // free_for(cmdFor);
                 return NULL;
             }
         }
@@ -435,9 +443,9 @@ cmdFor* make_for(char ** args){
     
     // printf("args[%d] = %s\n",i,args[i]);
     cmdFor->cmd = malloc(sizeof(commandeStruct));
-    if (cmdFor->cmd ==NULL){
+    if (cmdFor->cmd == NULL){
         perror("pb d'alloc de sous cmd de for");
-        free_for(cmdFor);
+        // free_for(cmdFor);
         //TODO APPELER LES FREE
         return NULL;
     }
@@ -453,20 +461,36 @@ cmdFor* make_for(char ** args){
         // printf("tab[%d] = %s et i = %d \n",k,tab[k],i);
         // printf("args[%d] = %s et i = %d \n",i,args[i],i);
     }
-    char *inter=strdup(tab[0]);//TODO A CHANGER
-    strcat(inter," ");
+    char *inter=NULL;
+    inter=strdup(tab[0]);//TODO A CHANGER
+    if (tab[1] == NULL){
+        printf("chui null tab un\n");
+    }
+    char *c = " ";
+    size_t len = strlen(inter) + strlen(c) + strlen(tab[1]) + 1;
+    char *temp = realloc(inter,len);
+    inter = temp;
+    strcat(inter,c);
     strcat(inter,tab[1]);
-    // for (int i = 0; i <k;i++){
-    //     printf(tab[i]);
-    //     printf("\n");
-    // }
-    // printf("inter = %s\n",inter);
-    gestion_cmd(inter,cmdFor->cmd);
-    // if (cmdFor->cmd[0]==NULL){
+    // // for (int i = 0; i <k;i++){
+    // //     printf(tab[i]);
+    // //     printf("\n");
+    // // }
+    // // printf("inter = %s\n",inter);
+    // // printf("dans make for var = %s\n",cmdFor->variable);
+    cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
+    cmdFor->cmd[1] = NULL; // TODO A CHANGER
+    gestion_cmd(inter,cmdFor->cmd[0]);
+    // if (cmdFor->cmd==NULL){
     //     printf("chui BIEN NULLLE\n");
     //     return NULL;
+    // }else{
+    //     printf("chui pas null le bebe cdm du for\n");
+    //     printf("le type dans make for du bébé cmd de for = %d\n",cmdFor->cmd[0]->type);
+    //     // fflush(NULL);
     // }
-    
+
+
     // boucle_for(cmdFor);
     return cmdFor;
 }

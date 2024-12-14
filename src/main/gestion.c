@@ -103,6 +103,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
             if (cmdstruct->cmdSimple->type==CMD_INTERNE)
             {
                 cmdstruct->type = CMD_INTERNE;
+                // printf("je donne bien un type au bebe cmd du for \n");
             }
             else if(cmdstruct->cmdSimple->type==CMD_EXTERNE)
             {
@@ -139,7 +140,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     
     if (cmdstruct->type == FOR){
-            printf("remontada du for\n");
+            // printf("remontada du for\n");
             ret = boucle_for(cmdstruct->cmdFor);
             if (ret != 0)
             {
@@ -226,6 +227,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret > 0)
             {
                 perror("ftype");
+                // printf("pb ftype arg = %s\n",arg);
                 return ret;
             }
         }

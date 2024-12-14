@@ -68,13 +68,15 @@ int main(void)
             exit(dernier_exit);
         }
         gestion_cmd(input, cmdstruct);
+        // if (cmdstruct->cmdFor == NULL){
+        //     printf("aie aie aie ...\n");
+        //     printf("cmdfor -> var = %s\n",cmdstruct->cmdFor->variable);
+        //     printf("rep = %s\n",cmdstruct->cmdFor->rep);
+        // }
+        // else{
+        //     printf("cmdFor!= null dans main \n");
+        // }
         ret = fsh(chemin, &dernier_exit, cmdstruct);
-        if (cmdstruct->cmdFor == NULL){
-            // printf("aie aie aie ...\n");
-        }
-        else{
-            // printf("cmdFor!= null dans main \n");
-        }
         dernier_exit = ret;
     }
 }
