@@ -26,8 +26,8 @@ int redirection(cmd_redirection *cmdredirect){
        return -1;
     }
 
-    int copie_stdout = dup(STDOUT_FILENO);
-    int copie_stdin = dup(STDIN_FILENO);
+    // int copie_stdout = dup(STDOUT_FILENO); //! j'ai commenté
+    // int copie_stdin = dup(STDIN_FILENO);
 
     //cmd_simple*  commande =  cmdredirect->cmd;
     char *fichier = cmdredirect->fichier;

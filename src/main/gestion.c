@@ -44,40 +44,59 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         return;
     }
-    else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
-    {
-        cmdstruct->cmdRed = remplissageCmdRedirection(args);
-        cmdstruct->type = REDIRECTION;
-        if (cmdstruct->cmdRed == NULL)
-        {
-            perror("Erreur remplissage redirection");
-        }
-    }
-    else if (rechercheDansArgs("|", args))
-    {
-        cmdstruct->pipe = remplissageCmdPipe(args);
-        cmdstruct->type = PIPE;
-        if (cmdstruct->pipe == NULL)
-        {
-            perror("erreur remplissage pipe");
+    else if (strcmp(args[0],"for") == 0){
+        // cmdstruct->cmdFor = malloc(sizeof(cmdFor));
+        cmdstruct->cmdFor = make_for(args);
+        cmdstruct->type = FOR;
+        if (cmdstruct->cmdFor == NULL){
+            freeCmdStruct(cmdstruct);
+            perror("Erreur remplissage de for");
         }
     }
     else
-    {
-        cmdstruct->cmdSimple = remplissage_cmdSimple(args);
-        if (cmdstruct->cmdSimple->type)
+        // REDIRECTION
+        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
         {
-            cmdstruct->type = CMD_INTERNE;
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
+        }*/
+       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
+            cmdstruct->cmdRed = remplissageCmdRedirection(args);
+            cmdstruct->type = REDIRECTION;
+            if (cmdstruct->cmdRed == NULL)
+            {
+                perror("Erreur remplissage redirection");
+            }
+       }
+        else if (rechercheDansArgs("|", args))
+        {
+            cmdstruct->pipe = remplissageCmdPipe(args);
+            cmdstruct->type = PIPE;
+            if (cmdstruct->pipe == NULL)
+            {
+                perror("erreur remplissage pipe");
+            }
         }
         else
         {
-            cmdstruct->type = CMD_EXTERNE;
+            cmdstruct->cmdSimple = remplissage_cmdSimple(args);
+            if (cmdstruct->cmdSimple->type==CMD_INTERNE)
+            {
+                cmdstruct->type = CMD_INTERNE;
+            }
+            else if(cmdstruct->cmdSimple->type==CMD_EXTERNE)
+            {
+                cmdstruct->type = CMD_EXTERNE;
+            }
+            if (!cmdstruct->cmdSimple)
+            {
+                perror("Erreur cmdSimple");
+            }
         }
-        if (!cmdstruct->cmdSimple)
-        {
-            perror("Erreur cmdSimple");
-        }
-    }
 }
 
 int exec_redirection(cmd_redirection *cmd)
@@ -97,6 +116,7 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
+    // printf("dans la méthode fsh\n");
     int ret = *dernier_exit;
 
     /*gestion de la commande Simple pour l'instant cad CMD_INTERNE && CMD_EXTERNE*/
@@ -105,10 +125,21 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         perror("Structure commande");
         return -1;
     }
+    
+    if (cmdstruct->type == FOR){
+            printf("remontada du for\n");
+            ret = boucle_for(cmdstruct->cmdFor);
+            if (ret != 0)
+            {
+                perror("boucle_for");
+                return ret;
+            };
+    }
     // exit
     // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
     if (cmdstruct->type == CMD_INTERNE)
     {
+        // printf("dans cmd interne\n");
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
         if (strcmp(cmd, "exit") == 0)

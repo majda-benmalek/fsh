@@ -4,7 +4,7 @@ EXEC = fsh
 all: $(EXEC)
 
 $(EXEC): $(SRC)
-	gcc -Wall -o $(EXEC) $(SRC) -lreadline
+	gcc -Wall -g -o $(EXEC) $(SRC) -lreadline
 
 clean:
 	rm -f $(EXEC)

@@ -40,7 +40,7 @@ typedef struct
     Type type;
     char *rep;
     char **op;
-    char variable;
+    char *variable;
     int nbCommandes;
     commandeStruct **cmd;
 } cmdFor;
