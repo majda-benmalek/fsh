@@ -141,7 +141,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // gestion de cd
         else if (strcmp(cmd, "cd") == 0)
         {
-            if (cmdstruct->cmdSimple->args[2] != NULL)
+            if ((cmdstruct->cmdSimple->args[1] != NULL) && cmdstruct->cmdSimple->args[2] != NULL )
             {
                 write(2, "cd: too many arguments\n", strlen("cd: too many arguments\n"));
                 ret = 1;
