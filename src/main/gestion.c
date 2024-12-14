@@ -17,6 +17,7 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
+#include "../../utils/freeStruct.h"
 #define ARG_MAX 512
 
 // static int redirection_en_cours = 0; // Indicateur pour la redirection en cours
@@ -35,6 +36,7 @@ int rechercheDansArgs(char *tofind, char **args)
 
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
+    perror("je suis dans gestion");
     if (!cmdstruct)
     {
         perror("Erreur Structure");
@@ -44,18 +46,19 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         return;
     }
-    else if (strcmp(args[0],"for") == 0){
-        // cmdstruct->cmdFor = malloc(sizeof(cmdFor));
+    else if (strcmp(args[0], "for") == 0)
+    {
         cmdstruct->cmdFor = make_for(args);
         cmdstruct->type = FOR;
-        if (cmdstruct->cmdFor == NULL){
+        if (cmdstruct->cmdFor == NULL)
+        {
             freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
         }
     }
     else
         // REDIRECTION
-        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
+        if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
         {
             cmdstruct->cmdRed = remplissageCmdRedirection(args);
             cmdstruct->type = REDIRECTION;
@@ -63,15 +66,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             {
                 perror("Erreur remplissage redirection");
             }
-        }*/
-       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
-            cmdstruct->cmdRed = remplissageCmdRedirection(args);
-            cmdstruct->type = REDIRECTION;
-            if (cmdstruct->cmdRed == NULL)
-            {
-                perror("Erreur remplissage redirection");
-            }
-       }
+        }
         else if (rechercheDansArgs("|", args))
         {
             cmdstruct->pipe = remplissageCmdPipe(args);
@@ -84,11 +79,11 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         else
         {
             cmdstruct->cmdSimple = remplissage_cmdSimple(args);
-            if (cmdstruct->cmdSimple->type==CMD_INTERNE)
+            if (cmdstruct->cmdSimple->type == CMD_INTERNE)
             {
                 cmdstruct->type = CMD_INTERNE;
             }
-            else if(cmdstruct->cmdSimple->type==CMD_EXTERNE)
+            else if (cmdstruct->cmdSimple->type == CMD_EXTERNE)
             {
                 cmdstruct->type = CMD_EXTERNE;
             }
@@ -125,15 +120,16 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         perror("Structure commande");
         return -1;
     }
-    
-    if (cmdstruct->type == FOR){
-            printf("remontada du for\n");
-            ret = boucle_for(cmdstruct->cmdFor);
-            if (ret != 0)
-            {
-                perror("boucle_for");
-                return ret;
-            };
+
+    if (cmdstruct->type == FOR)
+    {
+        printf("remontada du for\n");
+        ret = boucle_for(cmdstruct->cmdFor);
+        if (ret != 0)
+        {
+            perror("boucle_for");
+            return ret;
+        };
     }
     // exit
     // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur

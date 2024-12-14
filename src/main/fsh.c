@@ -12,7 +12,7 @@
 #include <linux/limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
-#include "../../utils/gestionStruct.h"
+#include "../../utils/freeStruct.h"
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
@@ -83,12 +83,6 @@ int main(void)
 
         gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
-        if (cmdstruct->cmdFor == NULL){
-            // printf("aie aie aie ...\n");
-        }
-        else{
-            // printf("cmdFor!= null dans main \n");
-        }
         dernier_exit = ret;
         if (cmdstruct != NULL)
             freeCmdStruct(cmdstruct);
