@@ -67,4 +67,6 @@ size_t tailleArgs(char **args);
 
 cmdFor* make_for(char ** args);
 
+void free_for(cmdFor *cmdFor);
+
 #endif

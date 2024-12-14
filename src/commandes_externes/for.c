@@ -17,13 +17,49 @@
 
 
 
+void change_var(char * name,char * variable ,commandeStruct *cmd){
+    printf("dans  change var");
+    switch (cmd->type)
+    {
+    case CMD_INTERNE:
+        printf("change var cmd interne \n");
+        int i = 0;
+        while (cmd->cmdSimple->args[i]!=NULL){
+            if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
+                strcpy(cmd->cmdSimple->args[i],name);
+            }
+            i++;
+        }
+        break;
+    
+    default:
+        printf("change var default \n");
+        break;
+    }
+}
+
+
 
 // for i in rep { ls -l $i ; echo $i ; }
 
 int boucle_for(cmdFor *cmdFor)
 {
+    // if (cmdFor ==NULL){
+    //     printf("dans la boucle for cmdfor est null\n");
+    // }
+    // else{
+    //     printf("cmd for var = %s\n",cmdFor->variable);
+    //     printf("rep = %s\n",cmdFor->rep);
+    //     printf("nbr cmd = %d\n",cmdFor->nbCommandes);
+    // }
+    // if (cmdFor->cmd[0]== NULL){
+    //     printf("cmd for-> cmd est null\n");
+    // }
+    // else{
+    //     printf(" c pas null\n");
+    // }
     int dernier_exit=0; //TODO A CHANGER
-    int ret;
+    int ret=0; //TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
@@ -34,10 +70,44 @@ int boucle_for(cmdFor *cmdFor)
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
+        // printf("dans le while\n");
         if (entry->d_name[0] != '.')
         {
+            printf("entry->d_name ... = %s \n",entry->d_name);
+            //? ici
+            int nbr_cmd = 0;
+            while (cmdFor->cmd[nbr_cmd] != NULL)
+            {
+                printf("entry->d_name ... = %s \n",entry->d_name);
+                printf("cmd for var = %s\n",cmdFor->variable);
+                if (cmdFor->cmd[nbr_cmd] == NULL){
+                    printf("cmd for-> cmd est null\n");
+                    return ret;
+                }
+                else{
+                    printf(" c pas null\n");
+                }
+                change_var(entry->d_name,cmdFor->variable,cmdFor->cmd[nbr_cmd]);
+                // // ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
+                // if (ret < 0)
+                // {
+                //     perror("Erreur de fsh");
+                //     closedir(dir);
+                //     return ret;
+                // }
+                nbr_cmd=nbr_cmd+1;
+            }
+        }
+    }
 
-            // char *ptr = (*cmdFor->cmd)->cmdSimple->args;
+    closedir(dir);
+
+    return ret;
+}
+
+
+//?
+// char *ptr = (*cmdFor->cmd)->cmdSimple->args;
             // while ((ptr = strchr(ptr, '$')) != NULL)
             // {
             //     if (*(ptr + 1) == cmdFor->variable)
@@ -53,25 +123,8 @@ int boucle_for(cmdFor *cmdFor)
             //         ptr++;
             //     }
             // }
-            int nbr_cmd = 0;
-            while (cmdFor->cmd[nbr_cmd] != NULL)
-            {
-                ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
-                if (ret < 0)
-                {
-                    perror("Erreur de fsh");
-                    closedir(dir);
-                    return ret;
-                }
-                nbr_cmd++;
-            }
-        }
-    }
 
-    closedir(dir);
 
-    return ret;
-}
 
 
 

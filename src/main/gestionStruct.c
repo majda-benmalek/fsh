@@ -9,6 +9,7 @@
 #include <limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestion.h"
+#include "../../utils/for.h"
 #define ARG_MAX 512
 size_t tailleArgs(char **args);
 
@@ -80,6 +81,7 @@ void freeCmdStruct(commandeStruct *cmd)
 cmd_simple *remplissage_cmdSimple(char **args)
 {
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
+    // printf("dans remplissage cmd simple \n");
 
     if (cmd == NULL)
     {
@@ -89,6 +91,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
     int nbargs = 0;
     while (args[nbargs])
     {
+        // printf("args[%d] = %s\n",nbargs,args[nbargs]);
         nbargs++;
     }
     cmd->args = malloc((nbargs + 1) * sizeof(char *));
@@ -101,6 +104,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
     for (int i = 0; i < nbargs; i++)
     {
         cmd->args[i] = strdup(args[i]);
+        // printf("args[%d] = %s\n",i,cmd->args[i]);
         if (!cmd->args[i])
         {
             perror("strdup");
@@ -117,6 +121,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
 
     if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "pwd") == 0 || strcmp(args[0], "ftype") == 0 || strcmp(args[0], "exit") == 0)
     {
+        // printf("dans la condition pr type cmd interne\n");
         cmd->type = CMD_INTERNE;
     }
     else
@@ -331,13 +336,12 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // // type
 // //   char* rep;
 // //   char variable ; 
-// int nbCommandes;
+//  //int nbCommandes;
 // commandeStruct** cmd;
 // //  op
 
 cmdFor* make_for(char ** args){
     cmdFor *cmdFor = malloc(sizeof(cmdFor));
-    // cmdFor *cmdFor = malloc(ARG_MAX);
     if (cmdFor == NULL){
         perror("problème d'allocation de mémoire pour for");
         return NULL;
@@ -349,19 +353,24 @@ cmdFor* make_for(char ** args){
         for (size_t i = 0; i<tailleArgs(args);i++){
             printf("%s\n",args[i]);
         }
-        free(cmdFor);
+        free_for(cmdFor);
         return NULL;
     }
 
     //* --------- option----------
     // cmdFor->op = NULL;
-
+    // cmdFor->nbCommandes = malloc(sizeof(int));
+    // if (cmdFor->nbCommandes == NULL){
+    //     free_for(cmdFor);
+    // }
+    cmdFor->nbCommandes = 0;
     // ? -------- Type ---------
     cmdFor->type = FOR;
 
     // * ------------------ variable ---------------
     if (strlen(args[1]) != 1){
         perror("Erreur de syntaxe, la variabme doit contenir un seul caractère");
+        free_for(cmdFor);
         return NULL;
     }
     
@@ -374,29 +383,27 @@ cmdFor* make_for(char ** args){
     cmdFor->variable = strdup(args[1]);
     if (cmdFor->variable == NULL) {
         perror("erreur de duuuup");
-        free(cmdFor);
+        free_for(cmdFor);
         return NULL;
     }
     
     cmdFor->rep = strdup(args[3]);
     if (cmdFor->rep == NULL) {
         perror("erreur de duuuuuuuup");
-        free(cmdFor->variable);
-        free(cmdFor);
+        free_for(cmdFor);
         return NULL;
     }
     cmdFor->op = malloc(ARG_MAX*sizeof(char));
     if (cmdFor->op == NULL) {
         perror("aie aie aie");
-        free(cmdFor->rep);
-        free(cmdFor->variable);
-        free(cmdFor);
+        free_for(cmdFor);
         return NULL;
     }
     // ? ----------------- option-----------
-    int i = 5;
+    int i = 4;
     int j = 0;
     while (strcmp(args[i],"{") != 0 ){
+        printf("chui dans le while \n");
         if (strcmp(args[i],"-A") == 0 || strcmp(args[i],"-r") == 0 ){
             cmdFor->op[j]=args[i];
             i++;
@@ -404,12 +411,13 @@ cmdFor* make_for(char ** args){
         }
         else if(strcmp(args[i],"-e") == 0 || strcmp(args[i],"-t") == 0 || strcmp(args[i],"-p") == 0 ){
             if (args[i+1][0]!='-'){
-                cmdFor->op[j]=args[i];
+                cmdFor->op[j]=args[i]; //TODO a changer
                 i=i+2;
                 j++;
             }
             else{
                 perror("il manque un argument");
+                free_for(cmdFor);
                 return NULL;
             }
         }
@@ -420,17 +428,76 @@ cmdFor* make_for(char ** args){
         // }
     }
     if (strcmp(args[i],"{") == 0){
+        // printf("args[%d] = %s\n",i,args[i]);
+        // printf("chui laaaa\n");
          i++; // pour sauter l'{
     }
-    char * tab[ARG_MAX];
-    unsigned int k;
-    while (args[i]!= NULL && i<taille){
-        tab[k]=args[i];
-        k++;
-        i++;
+    
+    // printf("args[%d] = %s\n",i,args[i]);
+    cmdFor->cmd = malloc(sizeof(commandeStruct));
+    if (cmdFor->cmd ==NULL){
+        perror("pb d'alloc de sous cmd de for");
+        free_for(cmdFor);
+        //TODO APPELER LES FREE
+        return NULL;
     }
-    gestion_cmd(*tab,*(cmdFor->cmd));
+
+    char * tab[ARG_MAX];
+    unsigned int k=0;
+    while (args[i]!= NULL && i<taille && strcmp(args[i],"}") != 0){ //TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
+        tab[k]=args[i];
+        // printf("args[%d] = %s et i = %d \n",i,args[i],i);
+        // printf("tab[%d] = %s et i = %d \n",k,tab[k],i);
+        k=k+1;
+        i=i+1;
+        // printf("tab[%d] = %s et i = %d \n",k,tab[k],i);
+        // printf("args[%d] = %s et i = %d \n",i,args[i],i);
+    }
+    char *inter=strdup(tab[0]);//TODO A CHANGER
+    strcat(inter," ");
+    strcat(inter,tab[1]);
+    // for (int i = 0; i <k;i++){
+    //     printf(tab[i]);
+    //     printf("\n");
+    // }
+    // printf("inter = %s\n",inter);
+    gestion_cmd(inter,cmdFor->cmd);
+    // if (cmdFor->cmd[0]==NULL){
+    //     printf("chui BIEN NULLLE\n");
+    //     return NULL;
+    // }
+    
+    // boucle_for(cmdFor);
     return cmdFor;
+}
+
+
+void free_for(cmdFor *cmdFor){
+    if (cmdFor->rep != NULL){
+        free(cmdFor->rep);
+    }
+    if (cmdFor->variable !=NULL){
+        free(cmdFor->variable);
+    }
+    // if (cmdFor->nbCommandes!=NULL){
+    //     free(cmdFor->nbCommandes);
+    // }
+    if (cmdFor->op!= NULL){
+        int i = 0;
+        while(cmdFor->op[i]!=NULL){
+            free(cmdFor->op[i]);
+            i++;
+        }
+        free(cmdFor->op);
+    }
+    if (cmdFor->cmd!=NULL){
+        int i = 0;
+        while (cmdFor->cmd[i]!=NULL){
+            free(cmdFor->op[i]);
+            i++;
+        }
+        free(cmdFor->cmd);
+    }
 }
 
 

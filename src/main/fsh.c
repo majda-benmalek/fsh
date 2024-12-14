@@ -69,6 +69,12 @@ int main(void)
         }
         gestion_cmd(input, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
+        if (cmdstruct->cmdFor == NULL){
+            // printf("aie aie aie ...\n");
+        }
+        else{
+            // printf("cmdFor!= null dans main \n");
+        }
         dernier_exit = ret;
     }
 }

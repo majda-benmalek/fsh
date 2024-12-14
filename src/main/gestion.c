@@ -61,8 +61,11 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
         return;
     }
     else if (strcmp(args[0],"for") == 0){
+        // cmdstruct->cmdFor = malloc(sizeof(cmdFor));
         cmdstruct->cmdFor = make_for(args);
+        cmdstruct->type = FOR;
         if (cmdstruct->cmdFor == NULL){
+            freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
         }
     }
@@ -125,6 +128,7 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
+    // printf("dans la méthode fsh\n");
     int ret = *dernier_exit;
 
     /*gestion de la commande Simple pour l'instant cad CMD_INTERNE && CMD_EXTERNE*/
@@ -135,6 +139,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     
     if (cmdstruct->type == FOR){
+            printf("remontada du for\n");
             ret = boucle_for(cmdstruct->cmdFor);
             if (ret != 0)
             {
@@ -146,6 +151,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
     if (cmdstruct->type == CMD_INTERNE)
     {
+        // printf("dans cmd interne\n");
         char *cmd = cmdstruct->cmdSimple->args[0];
         // // char premierchar = cmdstruct->cmdSimple->args[0][0]; //gérer dans gestion
         char *arg = cmdstruct->cmdSimple->args[1];
