@@ -108,6 +108,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
             else if(cmdstruct->cmdSimple->type==CMD_EXTERNE)
             {
                 cmdstruct->type = CMD_EXTERNE;
+                // printf("chui bien un type exerne\n");
             }
             if (!cmdstruct->cmdSimple)
             {

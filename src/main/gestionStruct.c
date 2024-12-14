@@ -387,7 +387,7 @@ cmdFor* make_for(char ** args){
     //     printf("taille %d \n",sizeof(args[i]));
 
     // }
-    
+
     cmdFor->variable = strdup(args[1]);
     if (cmdFor->variable == NULL) {
         perror("erreur de duuuup");
@@ -462,16 +462,21 @@ cmdFor* make_for(char ** args){
         // printf("args[%d] = %s et i = %d \n",i,args[i],i);
     }
     char *inter=NULL;
-    inter=strdup(tab[0]);//TODO A CHANGER
-    if (tab[1] == NULL){
-        printf("chui null tab un\n");
-    }
+    inter=strdup(tab[0]);//TODO A CHANGER le probleme c que gestion prends un string au lieu d'un tableau du coup chui obligé de recoller tout le monde 
     char *c = " ";
     size_t len = strlen(inter) + strlen(c) + strlen(tab[1]) + 1;
     char *temp = realloc(inter,len);
     inter = temp;
     strcat(inter,c);
     strcat(inter,tab[1]);
+    if (tab[2] != NULL){
+        len = strlen(inter) + strlen(c) + strlen(tab[2]) + 1;
+        temp = realloc(inter,len);
+        inter = temp;
+        strcat(inter,c);
+        strcat(inter,tab[2]);
+    }
+    // printf("inter = %s",inter);
     // // for (int i = 0; i <k;i++){
     // //     printf(tab[i]);
     // //     printf("\n");
@@ -479,7 +484,7 @@ cmdFor* make_for(char ** args){
     // // printf("inter = %s\n",inter);
     // // printf("dans make for var = %s\n",cmdFor->variable);
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
-    cmdFor->cmd[1] = NULL; // TODO A CHANGER
+    cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     gestion_cmd(inter,cmdFor->cmd[0]);
     // if (cmdFor->cmd==NULL){
     //     printf("chui BIEN NULLLE\n");
