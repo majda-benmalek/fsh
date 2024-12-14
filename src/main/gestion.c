@@ -19,12 +19,16 @@
 #include "../../utils/pipe.h"
 #define ARG_MAX 512
 
+//static int redirection_en_cours = 0; // Indicateur pour la redirection en cours
+
 int rechercheDansArgs(char *tofind, char **args)
 {
     for (int i = 0; i < tailleArgs(args) - 1; i++)
     {
+        printf("Argument vérifié : %s\n", args[i]);
         if (strcmp(args[i], tofind) == 0)
         {
+            printf("Trouvé : %s\n", tofind);
             return 1;
         }
     }
@@ -46,6 +50,7 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
     char *token = strtok(input, " \t"); // pour gerer le cas ou l'utilisateur separe les arguments avec tab
     while (token && nb_args < ARG_MAX - 1)
     {
+        printf("Token ajouté : %s\n", token);
         args[nb_args++] = token;
         token = strtok(NULL, " \t");
     }
@@ -57,22 +62,25 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
     }
     else
         // REDIRECTION
-        /*if (strstr(input, ">") != NULL || strstr(input, "<") != NULL || strstr(input, ">>") != NULL || strstr(input, ">|") != NULL || strstr(input, "2>") != NULL || strstr(input, "2>>") != NULL || strstr(input, "2>|") != NULL)
-        {
+        if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
+            /*if (redirection_en_cours) {
+                perror("Redirection déjà en cours");
+                return;
+            }*/
+            //redirection_en_cours = 1; 
+            printf("Redirection détectée : %s\n", args[0]);
             cmdstruct->cmdRed = remplissageCmdRedirection(args);
             cmdstruct->type = REDIRECTION;
-            if (cmdstruct->cmdRed == NULL)
-            {
+            if (cmdstruct->cmdRed == NULL) {
                 perror("Erreur remplissage redirection");
+            }else{
+                printf("Commande redirection remplie avec succès : commande = %s, fichier = %s\n", 
+           cmdstruct->cmdRed->cmd->args[0], cmdstruct->cmdRed->fichier);
+           if(cmdstruct->type == REDIRECTION){
+            printf("le type de la commande struct est REDIRECTION\n");
+           }
             }
-        }*/
-       if(rechercheDansArgs(">" , args) || rechercheDansArgs(">>" , args) || rechercheDansArgs("<" , args) || rechercheDansArgs(">|" , args) || rechercheDansArgs("2>" , args) || rechercheDansArgs("2>>" , args) || rechercheDansArgs("2>|" , args)){
-            cmdstruct->cmdRed = remplissageCmdRedirection(args);
-            cmdstruct->type = REDIRECTION;
-            if (cmdstruct->cmdRed == NULL)
-            {
-                perror("Erreur remplissage redirection");
-            }
+            //redirection_en_cours = 0; 
        }
         else if (rechercheDansArgs("|", args))
         {
@@ -104,6 +112,8 @@ void gestion_cmd(char *input, commandeStruct *cmdstruct)
 int exec_redirection(cmd_redirection *cmd)
 {
     // tester les cmd->separateur et appelé les fonctions approriés et retourné la valeur de retour de ses fonctions
+    printf("Exécution de la redirection : commande = %s, fichier = %s\n",
+           cmd->cmd, cmd->fichier);
     return redirection(cmd);
 }
 
@@ -128,32 +138,16 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     if (cmdstruct->type == CMD_INTERNE)
     {
         char *cmd = cmdstruct->cmdSimple->args[0];
-        // char premierchar = cmdstruct->cmdSimple->args[0][0]; //gérer dans gestion
         char *arg = cmdstruct->cmdSimple->args[1];
         if (strcmp(cmd, "exit") == 0)
         {
-            // printf("arg de exit : %s\n",arg);
             if (cmdstruct->cmdSimple->args[2] != NULL)
             {
                 write(2, "exit: too many arguments\n", strlen("exit: too many arguments\n"));
                 ret = 1;
                 return ret;
             }
-            *dernier_exit = commande_exit(arg); // TODO : donné a ces fonctions directe la strcuture??
-            //! je me rappel c'etait pourquoi cette partie pardon
-            // if (*dernier_exit == -4)
-            // {
-            //     ret = -4;
-            //     *dernier_exit = 0;
-            // if (input)
-            //     free(input);
-            // if (chemin)
-            //     free(chemin);
-            // freeCmdStruct(cmdstruct);
-            //     return ret;
-            // }
-            // if (input)
-            //     free(input);
+            *dernier_exit = commande_exit(arg);
             if (chemin)
                 free(chemin);
             if (cmdstruct)
@@ -167,6 +161,25 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (cmdstruct->cmdSimple->args[2] != NULL)
             {
                 write(2, "cd: too many arguments\n", strlen("cd: too many arguments\n"));
+                ret = 1;
+                return ret;
+            }
+            ret = cd_commande(arg);
+            if (getcwd(chemin, PATH_MAX) == NULL)
+            {
+                perror("getcwd");
+                ret = 1;
+                return ret;
+            }
+            return ret;
+        }
+        // gestion de pwd
+        else if (strcmp(cmd, "pwd") == 0)
+        {
+            if (cmdstruct->cmdSimple->args[1] != NULL)
+            {
+                write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
+                ret = 1;
                 ret = 1;
                 return ret;
             }
@@ -208,6 +221,8 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     else if (cmdstruct->type == REDIRECTION)
     {
+
+        printf("redirection detectée dans la fonction fsh \n");
         ret = exec_redirection(cmdstruct->cmdRed);
     }
     else if (cmdstruct->type == PIPE)

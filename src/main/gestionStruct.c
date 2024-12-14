@@ -290,6 +290,8 @@ cmd_redirection *remplissageCmdRedirection(char **args)
             cmd->separateur = "2>>";
         }
     }
+
+    printf("commande = %s , fichier = %s , separateur = %s \n", cmd->cmd->args[0], cmd->fichier, cmd->separateur);
     return cmd;
 }
 

@@ -9,10 +9,17 @@
 #include <errno.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/gestion.h"
 #define PATH_MAX 1024
 
 
 int redirection(cmd_redirection *cmdredirect){
+
+
+    int inverse=0;
+    int append = 0 ;
+
+    printf("je suis dans la fonction redirection\n");
     int fd = -1  , copie_stdout = -1 , copie_stdin = -1;
     
     if (cmdredirect ==  NULL ) {
@@ -25,28 +32,61 @@ int redirection(cmd_redirection *cmdredirect){
        return 1;
     }
 
+    
+
     char *fichier = cmdredirect->fichier;
     char *separateur = cmdredirect->separateur;
 
+    printf(" fichier = %s\n" , fichier);
+    printf("separateur = %s\n" , separateur);
 
-    if(strcmp(separateur , ">") == 0)
+
+    
+    if(strcmp(separateur , ">>") == 0)
     {
-        fd = open(fichier , O_WRONLY | O_CREAT | O_TRUNC , 0644);
+        append = 1;
     }
-    else if(strcmp(separateur , ">>") == 0)
-    {
-        fd = open(fichier , O_WRONLY | O_CREAT | O_APPEND , 0644);
-    }
+    
     else if(strcmp(separateur , "<") == 0)
     {
-        fd = open(fichier , O_RDONLY);
+       inverse = 1;
     }
 
+    
 
-    if(fd<0){
+    printf("inverse = %d\n" , inverse);
+    printf("append = %d\n" , append);
+
+
+    
+    
+    if(append)
+    {
+        fd = open(fichier , O_WRONLY | O_CREAT | O_APPEND , 0644);
+        if(fd<0){
+        perror("Erreur lors de l'ouverture du fichier");
+        return 1;
+        }
+    }
+    else if(inverse)
+    {
+        fd = open(fichier , O_RDONLY);
+        if(fd<0){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
     }
+    }
+    else{
+        printf("Ouverture du fichier %s\n", fichier);
+        fd = open(fichier , O_WRONLY | O_CREAT | O_TRUNC , 0644);
+        if(fd<0){
+        perror("Erreur lors de l'ouverture du fichier");
+        return 1;
+        }
+    }
+    
+    
+
 
     copie_stdout = dup(STDOUT_FILENO);
     copie_stdin = dup(STDIN_FILENO);
@@ -60,6 +100,7 @@ int redirection(cmd_redirection *cmdredirect){
 
     if(strcmp(separateur , ">>") == 0 || strcmp(separateur , ">") == 0)
     {
+        printf("Redirection de la sortie standard\n");
        if(dup2(fd , STDOUT_FILENO) < 0){
         perror("Erreur lors de la duplication du fd");
         close(fd);
@@ -94,12 +135,14 @@ int redirection(cmd_redirection *cmdredirect){
     if(getcwd(chemin,PATH_MAX)==NULL){
         perror("getcwd");
         free(chemin);
-        close(fd);
         close(copie_stdin);
         close(copie_stdout);
         return 1;
     }
+    printf("Exécution de la commande %s\n", cmdredirect->cmd->args);
     fsh(chemin , &dernier_exit, remplissage_cmdStruct(cmdredirect->type,NULL,NULL,NULL,NULL,cmdredirect,1,NULL));
+    printf("fin de l'execution dans fsh");
+
 
     //retablir les fds
 
