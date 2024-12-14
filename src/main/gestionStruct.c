@@ -235,12 +235,14 @@ cmd_redirection *remplissageCmdRedirection(char **args)
     memset(commande, 0, sizeof(commande));
     if (strstr(args[1], "<") != NULL)
     {
-        cmd->fichier = args[0];
+        cmd->fichier = args[2];
         cmd->separateur = "<";
         size_t size = taille - 2;
         for (int i = 0; i < size; i++)
         {
-            commande[i] = strdup(args[taille - size + i]);
+            commande[i] = strdup(args[i]);
+            printf("commande [%d] = %s\n", i, commande[i]);
+           
             if (commande[i] == NULL)
             {
                 free_redirection(cmd);
@@ -259,16 +261,17 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         }
         size_t pos_sep = tailleArgs(commande);
         cmd->cmd = remplissage_cmdSimple(commande);
-        if (strstr(args[pos_sep], ">") != NULL)
-        {
-            cmd->fichier = args[taille - 1]; // l'avant dernier élement vu que le dernier est NULL
-            cmd->separateur = ">";
-        }
-        else if (strstr(args[pos_sep], " >> ") != NULL)
+        if (strstr(args[pos_sep], ">>") != NULL)
         {
             cmd->fichier = args[taille - 1];
             cmd->separateur = ">>";
         }
+        else if (strstr(args[pos_sep], ">") != NULL)
+        {
+            cmd->fichier = args[taille - 1]; // l'avant dernier élement vu que le dernier est NULL
+            cmd->separateur = ">";
+        }
+        
         else if (strstr(args[pos_sep], " 2> ") != NULL)
         {
             cmd->fichier = args[taille - 1];
@@ -291,7 +294,9 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         }
     }
 
-    printf("commande = %s , fichier = %s , separateur = %s \n", cmd->cmd->args[0], cmd->fichier, cmd->separateur);
+
+ 
+
     return cmd;
 }
 
