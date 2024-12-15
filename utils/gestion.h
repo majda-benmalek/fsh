@@ -17,7 +17,7 @@
  * @param arg Un pointeur vers un tampon de caractères où les arguments seront stockés.
  * @param cmd Un pointeur vers un tampon de caractères où la commande principale sera stockée.
  */
-void gestion_cmd(char *args, commandeStruct *cmdstruct);
+void gestion_cmd(char **input, commandeStruct *cmdstruct);
 
 /**
  * @brief Exécute une commande shell en fonction de la commande et des arguments fournis.

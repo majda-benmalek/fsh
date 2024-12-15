@@ -38,7 +38,7 @@ void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName)
     {
     case CMD_EXTERNE:
     // printf("chui ds cmd externe \n");
-    int k = 0;
+        int k = 0;
         while (cmd->cmdSimple->args[k]!=NULL){
             // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
             if (strcmp(cmd->cmdSimple->args[k],inter) == 0){
@@ -48,6 +48,12 @@ void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName)
                 strcat(nom_complet,"/");
                 strcat(nom_complet,name);
                 // printf("nom complet = %s\n",nom_complet);
+                char * var_temp = realloc(cmd->cmdSimple->args[k],strlen(nom_complet));
+                if (var_temp == NULL){
+                    perror("realloc");
+                    return;
+                }
+                cmd->cmdSimple->args[k] = var_temp;
                 strcpy(cmd->cmdSimple->args[k],nom_complet);
                 // strcpy(cmd->cmdSimple->args[i],name);
                 // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[k]);
@@ -69,6 +75,12 @@ void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName)
                 strcat(nom_complet,"/");
                 strcat(nom_complet,name);
                 // printf("nom complet = %s",nom_complet);
+                char * var_temp =realloc(cmd->cmdSimple->args[i],strlen(nom_complet)+1);
+                if (var_temp == NULL){
+                    perror("pb realloc");
+                    return;
+                }
+                cmd->cmdSimple->args[i] = var_temp;
                 strcpy(cmd->cmdSimple->args[i],nom_complet);
                 // strcpy(cmd->cmdSimple->args[i],name);
                 // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[i]);
