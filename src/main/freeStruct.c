@@ -114,12 +114,12 @@ void freeCmdStruct(commandeStruct *cmd)
             freeCmdSimple(cmd->cmdSimple);
         }
 
-        if (cmd->pipe != NULL)
+        else if (cmd->pipe != NULL)
         {
             free_pipe(cmd->pipe);
         }
 
-        if (cmd->cmdFor != NULL)
+        else if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
         }
