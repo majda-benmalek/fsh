@@ -97,7 +97,17 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         perror("Structure commande");
         return -1;
     }
-
+    
+    if (cmdstruct->type == FOR){
+            // printf("remontada du for\n");
+            ret = boucle_for(cmdstruct->cmdFor);
+            if (ret != 0)
+            {
+                perror("boucle_for");
+                return ret;
+            };
+    }
+    // exit
     // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
     if (cmdstruct->type == CMD_INTERNE)
     {
@@ -187,6 +197,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret > 0)
             {
                 perror("ftype");
+                // printf("pb ftype arg = %s\n",arg);
                 return ret;
             }
         }

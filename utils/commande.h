@@ -41,7 +41,7 @@ typedef struct
     char *rep;
     char **op;
     char *variable;
-    int nbCommandes;
+    // int nbCommandes;
     commandeStruct **cmd;
 } cmdFor;
 
