@@ -13,6 +13,7 @@
 #include "../../utils/ftype.h"
 #include <linux/limits.h>
 #include "../../utils/commande.h"
+#include "../../utils/freeStruct.h"
 #define ARG_MAX 512
 
 
@@ -129,11 +130,12 @@ void restaurer_var(char * ancienne,char * nouveau,commandeStruct *cmd){
         break;
     }
 }
-
+// TODO changer la fct en int car void pas ouf si pb de malloc realloc tt ça faut renvoyer un int qui dis que y'a un pb
 
 
 // for i in rep { ls -l $i ; echo $i ; }
 
+//TODO Si ca ce passe mal ft faire un truc
 int boucle_for(cmdFor *cmdFor)
 {
     // if (cmdFor ==NULL){
@@ -192,11 +194,22 @@ int boucle_for(cmdFor *cmdFor)
                 // printf("entry->d_name = %s\n",entry->d_name);
                 change_var(entry->d_name,cmdFor->variable, cmdFor->cmd[nbr_cmd],cmdFor->rep);
                 ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
+                if (cmdFor->cmd[nbr_cmd] == NULL){
+                    perror("pb ds le changement de var");
+                    free_for(cmdFor);
+                    return 1;
+                }
                 char * ancienne = malloc(strlen(entry->d_name)+strlen(cmdFor->rep)+2);
                 strcpy(ancienne,cmdFor->rep);
                 strcat(ancienne,"/");
                 strcat(ancienne,entry->d_name);
                 restaurer_var(ancienne,cmdFor->variable,cmdFor->cmd[nbr_cmd]);
+                if (cmdFor->cmd[nbr_cmd] == NULL){
+                    perror("pb ds le changement de var");
+                    free_for(cmdFor);
+                    return 1;
+                }
+
                 // change_var(cmdFor->variable,entry->d_name, cmdFor->cmd[nbr_cmd],cmdFor->rep);
                 // if (ret < 0)
                 // {

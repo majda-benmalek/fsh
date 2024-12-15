@@ -26,11 +26,9 @@ void freeCmdSimple(cmd_simple *cmd)
             if (*arg != NULL)
             {
                 free(*arg);
-                *arg= NULL;
             }
         }
         free(cmd->args);
-        cmd->args = NULL;
     }
     free(cmd);
 }
@@ -58,7 +56,6 @@ void free_pipe(cmd_pipe *cmd)
         if (cmd->commandes[i] != NULL)
         {
             freeCmdSimple(cmd->commandes[i]);
-            cmd->commandes[i] = NULL;
         }
     }
     free(cmd);
@@ -71,12 +68,10 @@ void free_for(cmdFor *cmdFor)
         if (cmdFor->rep != NULL)
         {
             free(cmdFor->rep);
-            cmdFor->rep = NULL; // ! jsp
         }
         if (cmdFor->variable != NULL)
         {
             free(cmdFor->variable);
-            cmdFor->variable = NULL;
         }
         if (cmdFor->op != NULL)
         {
@@ -84,11 +79,9 @@ void free_for(cmdFor *cmdFor)
             while (cmdFor->op[i] != NULL)
             {
                 free(cmdFor->op[i]);
-                cmdFor->op[i]= NULL;
                 i++;
             }
             free(cmdFor->op);
-            cmdFor->op = NULL;
         }
         if (cmdFor->cmd != NULL)
         {
@@ -96,15 +89,11 @@ void free_for(cmdFor *cmdFor)
             while (cmdFor->cmd[i] != NULL)
             {
                 freeCmdStruct(cmdFor->cmd[i]);
-                cmdFor->cmd[i] = NULL;
                 i++;
             }
-            cmdFor->cmd[i] = NULL;
             free(cmdFor->cmd);
-            cmdFor->cmd = NULL;
         }
         free(cmdFor);
-        cmdFor = NULL;
     }
     return;
 }
@@ -116,21 +105,17 @@ void freeCmdStruct(commandeStruct *cmd)
         if (cmd->cmdSimple != NULL)
         {
             freeCmdSimple(cmd->cmdSimple);
-            cmd->cmdSimple = NULL;
         }
 
         if (cmd->pipe != NULL)
         {
             free_pipe(cmd->pipe);
-            cmd->pipe = NULL;
         }
 
         if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
-            cmd->cmdFor = NULL;
         }
         free(cmd);
-        cmd= NULL;
     }
 }
