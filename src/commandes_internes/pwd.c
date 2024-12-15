@@ -24,7 +24,6 @@ char *nom_du_repertoire(void)
     struct dirent *ent;
     char *ret = NULL;
 
-
     if (stat(".", &st_target) != 0)
     {
         perror("stat .");
@@ -152,12 +151,6 @@ char *chemin_absolu(char *path, size_t size)
     return strdup(path);
 }
 
-/**
- * Affiche le chemin absolu du répertoire courant.
- *
- * Cette fonction utilise `chemin_absolu` pour obtenir le chemin absolu du
- * répertoire courant et l'affiche sur la sortie standard.
- */
 int pwd(void)
 {
     char *full_path = malloc(PATH_MAX);
@@ -167,7 +160,10 @@ int pwd(void)
         return 0;
     }
     full_path = chemin_absolu(full_path, PATH_MAX);
-    fprintf(stdout, "%s\n", full_path);
+    char *res = malloc(PATH_MAX);
+    sprintf(res, "%s\n", full_path);
+    write(1, res, strlen(res));
+    free(res);
     chdir(full_path); // au cas ou pendant le parcours un changement de rep a était effectué on reviens
                       // au rep courant
     if (full_path == NULL)
