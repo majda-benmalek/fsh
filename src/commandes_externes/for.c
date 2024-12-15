@@ -18,84 +18,169 @@
 
 
 
-void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName){
-    // printf("dans  change var\n");
-    // fflush(NULL);
-    // if (cmd ->type == NULL){
-    //     printf("le type  bien null hein ds change var\n");
-    //     fflush(NULL);
-    // }
-    // else{
-    //     printf(" ah bah my bad le type est pas nul = %d\n",cmd->type);
-    //     fflush(NULL);
-    // }
-    // printf("variable = %s\n",variable);
-    char * inter=malloc(strlen(variable)+2);// ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
-    strcpy(inter,"$");
-    strcat(inter,variable);
-    // printf("inter = %s\n",inter);
-    // printf("cmd->cmdSimple->args[%d] = %s\n",2,cmd->cmdSimple->args[2]);
-    switch (cmd->type)
-    {
-    case CMD_EXTERNE:
-    // printf("chui ds cmd externe \n");
-        int k = 0;
-        while (cmd->cmdSimple->args[k]!=NULL){
-            // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
-            if (strcmp(cmd->cmdSimple->args[k],inter) == 0){
-                // Pr avoir le chemin complet faut mettre le nom du répertoire
-                char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
-                strcpy(nom_complet,repName);
-                strcat(nom_complet,"/");
-                strcat(nom_complet,name);
-                // printf("nom complet = %s\n",nom_complet);
-                char * var_temp = realloc(cmd->cmdSimple->args[k],strlen(nom_complet));
-                if (var_temp == NULL){
-                    perror("realloc");
-                    return;
-                }
-                cmd->cmdSimple->args[k] = var_temp;
-                strcpy(cmd->cmdSimple->args[k],nom_complet);
-                // strcpy(cmd->cmdSimple->args[i],name);
-                // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[k]);
-            }
-            k++;
-        }
-        break;
-    case CMD_INTERNE:
-        // printf("change var cmd interne \n");
-        // fflush(NULL);
-        int i = 0;
-        while (cmd->cmdSimple->args[i]!=NULL){
-            // if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
-            if (strcmp(cmd->cmdSimple->args[i],inter) == 0){
-                // realloc(cmd->cmdSimple->args[i],sizeof(name));
-                // Pr avoir le chemin complet faut mettre le nom du répertoire
-                char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
-                strcpy(nom_complet,repName);
-                strcat(nom_complet,"/");
-                strcat(nom_complet,name);
-                // printf("nom complet = %s",nom_complet);
-                char * var_temp =realloc(cmd->cmdSimple->args[i],strlen(nom_complet)+1);
-                if (var_temp == NULL){
-                    perror("pb realloc");
-                    return;
-                }
-                cmd->cmdSimple->args[i] = var_temp;
-                strcpy(cmd->cmdSimple->args[i],nom_complet);
-                // strcpy(cmd->cmdSimple->args[i],name);
-                // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[i]);
-            }
-            i++;
-        }
-        break;
+// void change_var(char * name,char * variable ,commandeStruct *cmd,char * repName){
+//     // printf("dans  change var\n");
+//     // fflush(NULL);
+//     // if (cmd ->type == NULL){
+//     //     printf("le type  bien null hein ds change var\n");
+//     //     fflush(NULL);
+//     // }
+//     // else{
+//     //     printf(" ah bah my bad le type est pas nul = %d\n",cmd->type);
+//     //     fflush(NULL);
+//     // }
+//     // printf("variable = %s\n",variable);
+//     char * inter=malloc(strlen(variable)+2);// ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+//     strcpy(inter,"$");
+//     strcat(inter,variable);
+//     // printf("inter = %s\n",inter);
+//     // printf("cmd->cmdSimple->args[%d] = %s\n",2,cmd->cmdSimple->args[2]);
+//     switch (cmd->type)
+//     {
+//     case CMD_EXTERNE:
+//     // printf("chui ds cmd externe \n");
+//         int k = 0;
+//         while (cmd->cmdSimple->args[k]!=NULL){
+//             // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+//             char *var_str = strstr(cmd->cmdSimple->args[k],inter);
+//             if (strcmp(cmd->cmdSimple->args[k],inter) == 0){
+//                 // Pr avoir le chemin complet faut mettre le nom du répertoire
+//                 char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
+//                 strcpy(nom_complet,repName);
+//                 strcat(nom_complet,"/");
+//                 strcat(nom_complet,name);
+//                 // printf("nom complet = %s\n",nom_complet);
+//                 char * var_temp = realloc(cmd->cmdSimple->args[k],strlen(nom_complet));
+//                 if (var_temp == NULL){
+//                     perror("realloc");
+//                     return;
+//                 }
+//                 cmd->cmdSimple->args[k] = var_temp;
+//                 strcpy(cmd->cmdSimple->args[k],nom_complet);
+//                 // strcpy(cmd->cmdSimple->args[i],name);
+//                 // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[k]);  
+//             }
+//             else if (var_str != NULL){//TODO FAIRE LA MM PR LE RESTE
+//                 char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
+//                 strcpy(nom_complet,repName);
+//                 strcat(nom_complet,"/");
+//                 strcat(nom_complet,name);
+//                 // printf("nom complet = %s\n",nom_complet);
+//                 // printf("args de strtok cmd->cmdSimple->args[%d] = %s \n inter = %s \n",k,cmd->cmdSimple->args[k],inter);
+//                 char * reste =strtok(cmd->cmdSimple->args[k],inter);
+//                 // printf("reste = %s\n",reste);
+//                 cmd->cmdSimple->args[k] = NULL;
+//                 char * realloue = realloc(cmd->cmdSimple->args[k],strlen(reste)+strlen(nom_complet)+1);
+//                 if (realloue == NULL){
+//                     perror("realloc");
+//                     return;
+//                 }
+//                 // printf("realloue = %s\n",realloue);
+//                 cmd->cmdSimple->args[k] = realloue;
+//                 strcpy(cmd->cmdSimple->args[k],nom_complet);
+//                 strcat(cmd->cmdSimple->args[k],reste);
+//             }
+//             k++;
+//         }
+//         break;
+//     case CMD_INTERNE:
+//         // printf("change var cmd interne \n");
+//         // fflush(NULL);
+//         int i = 0;
+//         while (cmd->cmdSimple->args[i]!=NULL){
+//             // if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
+//             if (strcmp(cmd->cmdSimple->args[i],inter) == 0){
+//                 // realloc(cmd->cmdSimple->args[i],sizeof(name));
+//                 // Pr avoir le chemin complet faut mettre le nom du répertoire
+//                 char *nom_complet = malloc(strlen(name)+strlen(repName)+2);// +2 pr / et '\0'
+//                 strcpy(nom_complet,repName);
+//                 strcat(nom_complet,"/");
+//                 strcat(nom_complet,name);
+//                 // printf("nom complet = %s",nom_complet);
+//                 char * var_temp =realloc(cmd->cmdSimple->args[i],strlen(nom_complet)+1);
+//                 if (var_temp == NULL){
+//                     perror("pb realloc");
+//                     return;
+//                 }
+//                 cmd->cmdSimple->args[i] = var_temp;
+//                 strcpy(cmd->cmdSimple->args[i],nom_complet);
+//                 // strcpy(cmd->cmdSimple->args[i],name);
+//                 // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[i]);
+//             }
+//             i++;
+//         }
+//         break;
     
-    default:
-        // printf("change var default \n");
-        break;
+//     default:
+//         // printf("change var default \n");
+//         break;
+//     }
+// }
+
+
+void nouveau(char *ancienne,char *nouveau, commandeStruct *cmd){ 
+    if (cmd->type == CMD_EXTERNE || CMD_INTERNE){
+        int k = 0;
+        while (cmd->cmdSimple->args[k]!= NULL){
+            char *a_changer = strstr(cmd->cmdSimple->args[k],ancienne);
+            if (a_changer == NULL){
+                k++;
+            }
+            else{
+                // printf("a_changer = %s\n",a_changer);
+                int len_prefixe = strlen(cmd->cmdSimple->args[k])-strlen(a_changer);
+                // printf("len_prefixe = %d\n",len_prefixe);
+                // char *postfixe  = cmd->cmdSimple->args[k]+strlen(ancienne);
+                char*postfixe;
+                if (strlen(a_changer)+strlen(ancienne)== strlen(cmd->cmdSimple->args[k]) ){
+                    printf("a_changer = %s\n",a_changer);
+                    postfixe  = cmd->cmdSimple->args[k]+strlen(a_changer)+strlen(ancienne);
+                }else{
+                    postfixe  = cmd->cmdSimple->args[k]+strlen(ancienne);
+                }
+                
+                if (strcmp(postfixe,"") == 0){
+                    postfixe = NULL;
+                }   
+                char *prefixe[len_prefixe+1];
+                int len_final = strlen(nouveau);
+                if (len_prefixe>0){
+                    strncpy(prefixe,cmd->cmdSimple->args[k],len_prefixe);
+                    len_final+=len_prefixe;
+
+                }
+                cmd->cmdSimple->args[k] = NULL;
+                int len_postfixe = 0;              
+                if (postfixe!=NULL){
+                    len_postfixe = strlen(postfixe);
+                    // printf("postfixe = %s\n",postfixe);
+                    len_final+=len_postfixe;
+                    // printf("nouveau = %s\n",nouveau);
+                }
+                char * realloue = realloc(cmd->cmdSimple->args[k],len_final+2);
+                cmd->cmdSimple->args[k] = realloue;
+                
+                if (len_prefixe>0){
+                    // printf("a_changer = %s\n",a_changer);
+                    printf("postfixe = %s\n",postfixe);
+                    printf("prefixe = %s\n",prefixe);
+                    printf("nouveau =%s\n",nouveau);
+                    printf("ancien = %s\n",ancienne);
+                    // printf("cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+                    strcpy(cmd->cmdSimple->args[k],prefixe);
+                    strcat(cmd->cmdSimple->args[k],nouveau);
+                }else{
+                    strcpy(cmd->cmdSimple->args[k],nouveau);
+                    // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+                }
+                if (len_postfixe> 0){
+                    strcat(cmd->cmdSimple->args[k],postfixe);
+                }
+                k++;
+            }
+        }
     }
 }
-
 
 void restaurer_var(char * ancienne,char * nouveau,commandeStruct *cmd){
     // printf("dans restaure var\n");
@@ -108,6 +193,7 @@ void restaurer_var(char * ancienne,char * nouveau,commandeStruct *cmd){
         int k = 0;
          while (cmd->cmdSimple->args[k]!=NULL){
             // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+            char *var_str = strstr(cmd->cmdSimple->args[k],ancienne);
             if (strcmp(cmd->cmdSimple->args[k],ancienne) == 0){
                 cmd->cmdSimple->args[k]= NULL;
                 cmd->cmdSimple->args[k] = malloc(strlen(nouveau)+2);
@@ -122,6 +208,26 @@ void restaurer_var(char * ancienne,char * nouveau,commandeStruct *cmd){
                 // strcpy(cmd->cmdSimple->args[k],nom_complet);
                 // strcpy(cmd->cmdSimple->args[i],name);
                 // printf("ds change var après strcmy = %s\n",cmd->cmdSimple->args[k]);
+            }
+             else if (var_str != NULL){//TODO FAIRE LA MM PR LE RESTE
+                // printf("ancienne = %s\n",ancienne);
+                // printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+                char *reste =strstr(cmd->cmdSimple->args[k],ancienne);
+                reste+=strlen(ancienne);
+                // printf("reste = %s\n",reste);
+                // printf("nouveau = %s\n",nouveau);
+                // cmd->cmdSimple->args[k] = NULL;
+                char * realloue = realloc(cmd->cmdSimple->args[k],strlen(nouveau)+2); // PR 0 ET $
+                if (realloue == NULL){
+                    perror("realloc");
+                    return;
+                }
+                
+                // printf("realloue = %s\n",realloue);
+                cmd->cmdSimple->args[k] = realloue;
+                strcpy(cmd->cmdSimple->args[k],"$");
+                strcat(cmd->cmdSimple->args[k],nouveau);
+                strcat(cmd->cmdSimple->args[k],reste);
             }
             k++;
         }
@@ -192,13 +298,31 @@ int boucle_for(cmdFor *cmdFor)
                 // }
                 //         nom du rep    var du for i/F    cmd à executer       path du rep
                 // printf("entry->d_name = %s\n",entry->d_name);
-                change_var(entry->d_name,cmdFor->variable, cmdFor->cmd[nbr_cmd],cmdFor->rep);
+                
+                char * inter = malloc(strlen(cmdFor->variable)+2);// ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                strcpy(inter,"$");
+                strcat(inter,cmdFor->variable);
+                // printf("inter = %s\n",inter);
+                
+                char * path = malloc(strlen(entry->d_name)+strlen(cmdFor->rep)+2);// +2 pr / et '\0'
+                if (path == NULL){
+                    return 1;
+                }
+                strcpy(path,cmdFor->rep);
+                strcat(path,"/");
+                strcat(path,entry->d_name);
+                // printf("path = %s\n",path);
+                
+                nouveau(inter,path,cmdFor->cmd[nbr_cmd]);
+                
+                // change_var(entry->d_name,cmdFor->variable, cmdFor->cmd[nbr_cmd],cmdFor->rep);
                 ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
                 if (cmdFor->cmd[nbr_cmd] == NULL){
                     perror("pb ds le changement de var");
                     free_for(cmdFor);
                     return 1;
                 }
+                
                 char * ancienne = malloc(strlen(entry->d_name)+strlen(cmdFor->rep)+2);
                 strcpy(ancienne,cmdFor->rep);
                 strcat(ancienne,"/");
