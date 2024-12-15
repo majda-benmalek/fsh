@@ -93,7 +93,7 @@ cmd_simple *remplissage_cmdSimple(char **args)
     }
     cmd->args[nbargs] = NULL;
 
-    if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "pwd") == 0 || strcmp(args[0], "ftype") == 0 || strcmp(args[0], "exit") == 0)
+    if (strcmp(cmd->args[0], "cd") == 0 || strcmp(cmd->args[0], "pwd") == 0 || strcmp(cmd->args[0], "ftype") == 0 || strcmp(cmd->args[0], "exit") == 0)
     {
         cmd->type = CMD_INTERNE;
     }
@@ -125,7 +125,7 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         return NULL;
     }
     // TODO : erreur sur la pos du separateur
-    size_t pos_sep = tailleArgs(commande) -1;
+    size_t pos_sep = tailleArgs(commande) - 1;
     cmd->cmd = remplissage_cmdSimple(commande);
     if (cmd->cmd == NULL)
     {
@@ -167,7 +167,9 @@ cmd_redirection *remplissageCmdRedirection(char **args)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "<";
-    }else{
+    }
+    else
+    {
         perror("Erreur de syntaxe");
         free_redirection(cmd);
         return NULL;
@@ -185,7 +187,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
     // TODO tableau dynamique
     char *commande[10];
     memset(commande, 0, sizeof(commande));
-    for (size_t i = 0; i <= tailleArgs(args); i++)
+    for (size_t i = 0; i < tailleArgs(args); i++)
     {
         memset(commande, 0, sizeof(commande));
         if (args[i] == NULL)
@@ -196,12 +198,14 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             cmd->commandes[nb] = remplissage_cmdSimple(commande);
+            // printf cmd->commandes[nb]->args
             if (cmd->commandes[nb] == NULL)
             {
                 perror("remplissage cmd simple dans remplissage pipe");
                 free_pipe(cmd);
                 return NULL;
             }
+
             nb += 1;
             j = i + 1;
         }
@@ -213,6 +217,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             cmd->commandes[nb] = remplissage_cmdSimple(commande);
+            // printf cmd->commandes[nb]->args
             if (cmd->commandes[nb] == NULL)
             {
                 perror("remplissage cmd simple dans remplissage pipe");
@@ -222,10 +227,22 @@ cmd_pipe *remplissageCmdPipe(char **args)
             nb += 1;
             j = i + 1;
         }
+        for (int i = 0; commande[i] != NULL; i++)
+        {
+            free(commande[i]);
+        }
     }
     cmd->type = PIPE;
     cmd->nbCommandes = nb;
-    cmd->commandes = (cmd_simple **)realloc(cmd->commandes, cmd->nbCommandes * sizeof(cmd_simple *));
+    cmd_simple **temp = realloc(cmd->commandes, cmd->nbCommandes * sizeof(cmd_simple *));
+    if (temp == NULL)
+    {
+        perror("realloc cmd->commandes");
+        free_pipe(cmd);
+        return NULL;
+    }
+    cmd->commandes =temp;
+    
     return cmd;
 }
 // si vous voulez teste les pipes

@@ -81,7 +81,7 @@ int main(void)
             token = strtok(NULL, " \t");
         }
         args[nb_args] = NULL;
-        
+
         gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;

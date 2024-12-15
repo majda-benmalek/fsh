@@ -51,14 +51,21 @@ void free_redirection(cmd_redirection *cmd)
 
 void free_pipe(cmd_pipe *cmd)
 {
-    for (int i = 0; i < cmd->nbCommandes; i++)
+    if (cmd != NULL)
     {
-        if (cmd->commandes[i] != NULL)
+        if (cmd->commandes != NULL)
         {
-            freeCmdSimple(cmd->commandes[i]);
+            for (int i = 0; i < cmd->nbCommandes; i++)
+            {
+                if (cmd->commandes[i] != NULL)
+                {
+                    freeCmdSimple(cmd->commandes[i]);
+                }
+            }
+            free(cmd->commandes);
         }
+        free(cmd);
     }
-    free(cmd);
 }
 
 void free_for(cmdFor *cmdFor)

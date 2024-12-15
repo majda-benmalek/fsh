@@ -117,14 +117,15 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // printf("dans cmd interne\n");
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
-        //print cmdstrstuct->cmdSimple->args
-        // for (int i = 0; cmdstruct->cmdSimple->args[i]!=NULL; i++)
-        // {
-        //     printf("cmdstruct->cmdSimple->args[%d] = %s\n", i, cmdstruct->cmdSimple->args[i]);
-        // }
+        // print cmdstrstuct->cmdSimple->args
+        //  for (int i = 0; cmdstruct->cmdSimple->args[i]!=NULL; i++)
+        //  {
+        //      printf("cmdstruct->cmdSimple->args[%d] = %s\n", i, cmdstruct->cmdSimple->args[i]);
+        //  }
         if (strcmp(cmd, "exit") == 0)
         {
-            if (cmdstruct->cmdSimple->args[2] != NULL && (cmdstruct->cmdSimple->args[1] != NULL))
+            // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
+            if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
             {
                 write(2, "exit: too many arguments\n", strlen("exit: too many arguments\n"));
                 ret = 1;
@@ -141,7 +142,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // gestion de cd
         else if (strcmp(cmd, "cd") == 0)
         {
-            if ((cmdstruct->cmdSimple->args[1] != NULL) && cmdstruct->cmdSimple->args[2] != NULL )
+            if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
             {
                 write(2, "cd: too many arguments\n", strlen("cd: too many arguments\n"));
                 ret = 1;
@@ -159,7 +160,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // gestion de pwd
         else if (strcmp(cmd, "cd") == 0)
         {
-            if (cmdstruct->cmdSimple->args[1] != NULL)
+           if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
             {
                 write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
                 ret = 1;
@@ -178,7 +179,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         // gestion de pwd
         else if (strcmp(cmd, "pwd") == 0)
         {
-            if (cmdstruct->cmdSimple->args[1] != NULL)
+            if (tailleArgs(cmdstruct->cmdSimple->args) > 2)
             {
                 write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
                 ret = 1;
@@ -188,7 +189,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         }
         else if (strcmp(cmd, "ftype") == 0)
         {
-            if (cmdstruct->cmdSimple->args[2] != NULL)
+           if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
             {
                 write(2, "ftype: too many arguments\n", strlen("ftype: too many arguments\n"));
                 ret = 1;
@@ -214,10 +215,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     else if (cmdstruct->type == CMD_EXTERNE)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
-        if (ret < 0)
-        {
-            return ret;
-        }
+        return ret;
     }
     return ret;
 }
