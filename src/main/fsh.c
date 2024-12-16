@@ -26,10 +26,14 @@ void test_decoupe_args() {
         "pwd", NULL
     };
 
-    commandeStruct *cmds[9] = {NULL};
-    int max_cmds = 9;
+    commandeStruct** cmds = malloc(100 * sizeof(commandeStruct*));
+if (!cmds) {
+    perror("Erreur allocation cmds");
+    exit(EXIT_FAILURE);
+}
 
-    int nbCommandes = decoupe_args(input, cmds, max_cmds);
+    int nbCommandes = decoupe_args(input, cmds, 1000);
+    printf("nbCommandes : %d\n", nbCommandes);
     for (int i = 0; i < nbCommandes; i++) {
         printf("Commande %d : %d\n", i + 1, cmds[i]->type);
     }

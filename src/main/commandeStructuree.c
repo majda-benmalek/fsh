@@ -11,6 +11,21 @@
 #define ARG_MAX 400
 #define MAX_CMDS 100
 
+void afficher_commandes(commandeStruct **cmds, int nbCommandes) {
+    if (cmds == NULL || nbCommandes <= 0) {
+        printf("Aucune commande à afficher.\n");
+        return;
+    }
+    
+    printf("Liste des commandes :\n");
+    for (int i = 0; i < nbCommandes; i++) {
+        if (cmds[i] == NULL) {
+            printf("Commande %d : NULL\n", i + 1);
+        } else {
+            printf("Commande %d : Type = %d\n", i + 1, cmds[i]->type);
+        }
+    }
+}
 /*TO DO : refaire le ARG_mAX*/
 
 int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , int maxCmds){
@@ -21,11 +36,12 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
         
     }
     if(*nbCmds >= maxCmds) return -1;
-    commandeStruct * cmdstruct = malloc(sizeof(commandeStruct));
-    if(cmdstruct == NULL) {
-        perror("Erreur alocation cmdStruct dans decoupe_commande");
-        return -1;
-    }
+    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
+if (cmdstruct == NULL) {
+    perror("Erreur allocation cmdStruct dans decoupe_commande");
+    return -1;
+}
+
     printf("allorc reussi\n");
     if (remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct) == NULL) {
         perror("Erreur lors du remplissage de cmdStruct");
@@ -37,7 +53,8 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
     gestion_cmd(commande, cmdstruct);
     printf("fin gestion \n");
     cmds[(*nbCmds)++] = cmdstruct;
-    
+    afficher_commandes(cmds, *nbCmds);
+
     printf("ajout à cmd réussi \n");
     return *nbCmds;
 }
