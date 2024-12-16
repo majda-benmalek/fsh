@@ -14,6 +14,7 @@
 #include <linux/limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/exit.h"
 #define ARG_MAX 512
 
 int compte_occ(char *chaine, char * sous_chaine){
@@ -66,8 +67,8 @@ int boucle_for(cmdFor *cmdFor){
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
-        perror("Erreur d'ouverture du repertoire");
-        ret=1;
+        fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
+        ret = 1;
         return ret;
     }
     struct dirent *entry;
@@ -114,7 +115,6 @@ int boucle_for(cmdFor *cmdFor){
             }
         }
     }
-
     closedir(dir);
 
     return ret;

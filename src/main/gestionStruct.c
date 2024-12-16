@@ -11,6 +11,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
 #include "../../utils/freeStruct.h"
+
 #define ARG_MAX 512
 // #include <stdbool.h>
 
@@ -37,7 +38,7 @@ int arg_cmdsimple(char **args, char **commande, int i, int j)
     return 0;
 }
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection , commandeStruct ** cmdsStrcu, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -51,6 +52,7 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdFor = cmdForStruct;
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
+    cmd->cmdsStruc = cmdsStrcu;
     return cmd;
 }
 
@@ -115,19 +117,17 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         perror("malloc");
         return NULL;
     }
-
     cmd->type = REDIRECTION;
     // TODO tableau dynmaique
-    char *commande[10];
-    memset(commande, 0, sizeof(commande));
+    char **commande = malloc(10 * sizeof(char *));
+    memset(commande, 0, 10 * sizeof(char *));
     if (arg_cmdsimple(args, commande, taille - 3, 0) == 1)
     {
         perror("strdup cmd_redirection");
         free_redirection(cmd);
         return NULL;
     }
-    // TODO : erreur sur la pos du separateur
-    size_t pos_sep = tailleArgs(commande) - 1;
+    size_t pos_sep = tailleArgs(args) - 3;
     cmd->cmd = remplissage_cmdSimple(commande);
     if (cmd->cmd == NULL)
     {
@@ -135,37 +135,37 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         free_redirection(cmd);
         return NULL;
     }
-    if (strstr(args[pos_sep], ">") != NULL)
+    if (strcmp(args[pos_sep], ">") == 0)
     {
         cmd->fichier = args[taille - 2]; // l'avant dernier élement vu que le dernier est NULL
         cmd->separateur = ">";
     }
-    else if (strstr(args[pos_sep], " >> ") != NULL)
+    else if (strcmp(args[pos_sep], ">>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = ">>";
     }
-    else if (strstr(args[pos_sep], " 2> ") != NULL)
+    else if (strcmp(args[pos_sep], "2>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "2>";
     }
-    else if (strstr(args[pos_sep], " >| ") != NULL)
+    else if (strcmp(args[pos_sep], ">|") == 0)
     {
         cmd->fichier = args[taille - 2];
-        cmd->separateur = " >| ";
+        cmd->separateur = ">|";
     }
-    else if (strstr(args[pos_sep], "2>|") != NULL)
+    else if (strcmp(args[pos_sep], "2>|") == 0)
     {
-        cmd->fichier = args[taille - 1];
+        cmd->fichier = args[taille - 2];
         cmd->separateur = "2>|";
     }
-    else if (strstr(args[pos_sep], " 2>> ") != NULL)
+    else if (strcmp(args[pos_sep], "2>>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "2>>";
     }
-    else if (strstr(args[pos_sep], "<") != NULL)
+    else if (strcmp(args[pos_sep], "<") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "<";
@@ -176,6 +176,11 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         free_redirection(cmd);
         return NULL;
     }
+    for (int i = 0; commande[i] != NULL; i++)
+    {
+        free(commande[i]);
+    }
+    free(commande);
     return cmd;
 }
 
@@ -243,36 +248,36 @@ cmd_pipe *remplissageCmdPipe(char **args)
         free_pipe(cmd);
         return NULL;
     }
-    cmd->commandes =temp;
-    
+    cmd->commandes = temp;
+
     return cmd;
 }
 // si vous voulez teste les pipes
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
 
-
-
 // // type
 // //   char* rep;
-// //   char variable ; 
+// //   char variable ;
 //  //int nbCommandes;
 // commandeStruct** cmd;
 // //  op
 
-cmdFor* make_for(char ** args){
+cmdFor *make_for(char **args)
+{
     // cmdFor *cmdFor = malloc(sizeof(*cmdFor));
 
     cmdFor *cmdFor = malloc(sizeof(*cmdFor));
-    if (cmdFor == NULL){
+    if (cmdFor == NULL)
+    {
         perror("problème d'allocation de mémoire pour for");
         return NULL;
     }
     // printf("Adresse de cmdFor %p\n", cmdFor);
     // TODO j'ai commenté
-    if (tailleArgs(args) < 8)
+    if (tailleArgs(args) < 9)
     {
-        perror("problème de syntaxe");
+        perror("Erreur de synatxe");
         printf("la taille de l'argument = %ld\n", tailleArgs(args));
         for (size_t i = 0; i < tailleArgs(args); i++)
         {
@@ -328,12 +333,14 @@ cmdFor* make_for(char ** args){
     //     // free_for(cmdFor);
     //     return NULL;
     // }
-    cmdFor->op = malloc(ARG_MAX*sizeof(char));
-    if (cmdFor->op == NULL) {
+    cmdFor->op = malloc(12 * sizeof(char *));
+    if (cmdFor->op == NULL)
+    {
         perror("aie aie aie");
         free_for(cmdFor);
         return NULL;
     }
+    memset(cmdFor->op, 0, 12 * sizeof(char*));
     // ? ----------------- option-----------
     int i = 4;
     int j = 0;
@@ -343,7 +350,13 @@ cmdFor* make_for(char ** args){
         // printf("chui dans le while \n");
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
         {
-            cmdFor->op[j] = args[i]; // TODO utiliser strdup
+            cmdFor->op[j] = strdup(args[i]); // TODO utiliser strdup
+            if (cmdFor->op[j] == NULL)
+            {
+                perror("strdup for");
+                free_for(cmdFor);
+                return NULL;
+            }
             i++;
             j++;
             // flag = true;
@@ -352,9 +365,22 @@ cmdFor* make_for(char ** args){
         {
             if (args[i + 1][0] != '-')
             {
-                cmdFor->op[j] = args[i]; // TODO a changer
+                cmdFor->op[j] = strdup(args[i]); // TODO a changer
+                if (cmdFor->op[j] == NULL)
+                {
+                    perror("strdup for");
+                    free_for(cmdFor);
+                    return NULL;
+                }
+                cmdFor->op[j + 1] = strdup(args[i + 1]);
+                if (cmdFor->op[j+1] == NULL)
+                {
+                    perror("strdup for");
+                    free_for(cmdFor);
+                    return NULL;
+                }
                 i = i + 2;
-                j++;
+                j = j+2;
                 // flag = true;
             }
             else
@@ -380,13 +406,14 @@ cmdFor* make_for(char ** args){
         // printf("chui laaaa\n");
         i++; // pour sauter l'{
     }
-    
+
     // printf("args[%d] = %s\n",i,args[i]);
     cmdFor->cmd = malloc(sizeof(commandeStruct));
-    if (cmdFor->cmd == NULL){
+    if (cmdFor->cmd == NULL)
+    {
         perror("pb d'alloc de sous cmd de for");
         free_for(cmdFor);
-        //TODO APPELER LES FREE
+        // TODO APPELER LES FREE
         return NULL;
     }
 
@@ -398,34 +425,11 @@ cmdFor* make_for(char ** args){
         k = k + 1;
         i = i + 1;
     }
-    tab[k]= NULL;
-    // char *inter=NULL;
-    // inter=strdup(tab[0]);//TODO A CHANGER le probleme c que gestion prends un string au lieu d'un tableau du coup chui obligé de recoller tout le monde 
-    // char *c = " ";
-    // size_t len = strlen(inter) + strlen(c) + strlen(tab[1]) + 1;
-    // char *temp = realloc(inter,len);
-    // inter = temp;
-    // strcat(inter,c);
-    // strcat(inter,tab[1]);
-    // if (tab[2] != NULL){
-    //     len = strlen(inter) + strlen(c) + strlen(tab[2]) + 1;
-    //     temp = realloc(inter,len);
-    //     inter = temp;
-    //     strcat(inter,c);
-    //     strcat(inter,tab[2]);
-    // }
-    // printf("inter = %s",inter);
-    // // for (int i = 0; i <k;i++){
-    // //     printf(tab[i]);
-    // //     printf("\n");
-    // // }
-    // // printf("inter = %s\n",inter);
-    // // printf("dans make for var = %s\n",cmdFor->variable);
-    // memset(cmdFor->cmd,0,ARG_MAX);
+    tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(inter,cmdFor->cmd[0]);
-    gestion_cmd(tab,cmdFor->cmd[0]);
+    gestion_cmd(tab, cmdFor->cmd[0]);
     // if (cmdFor->cmd==NULL){
     //     printf("chui BIEN NULLLE\n");
     //     return NULL;
@@ -434,7 +438,6 @@ cmdFor* make_for(char ** args){
     //     printf("le type dans make for du bébé cmd de for = %d\n",cmdFor->cmd[0]->type);
     //     // fflush(NULL);
     // }
-
 
     // boucle_for(cmdFor);
     return cmdFor;

@@ -105,6 +105,7 @@ void free_for(cmdFor *cmdFor)
     return;
 }
 
+
 void freeCmdStruct(commandeStruct *cmd)
 {
     if (cmd != NULL)
@@ -118,10 +119,19 @@ void freeCmdStruct(commandeStruct *cmd)
         {
             free_pipe(cmd->pipe);
         }
-
         else if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
+        }
+        else if (cmd->cmdRed != NULL)
+        {
+            free_redirection(cmd->cmdRed);
+        }
+        else if(cmd->cmdsStruc != NULL){
+            for (int i = 0 ; cmd->cmdsStruc[i] != NULL ; i++){
+                freeCmdStruct(cmd->cmdsStruc[i]);
+            }
+            free(cmd->cmdsStruc);
         }
         free(cmd);
     }

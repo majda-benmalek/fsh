@@ -64,7 +64,7 @@ int cmdpipe(cmd_pipe *p)
                 free(chemin);
                 return 1;
             }
-            commandeStruct *cmd = remplissage_cmdStruct(p->commandes[i]->type, p->commandes[i], NULL, NULL, NULL, NULL, 0, NULL);
+            commandeStruct *cmd = remplissage_cmdStruct(p->commandes[i]->type, p->commandes[i], NULL, NULL, NULL, NULL,NULL, 0, NULL);
             ret = fsh(chemin, &dernier_exit, cmd);
             if (cmd != NULL)
                 freeCmdStruct(cmd);

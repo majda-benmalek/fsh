@@ -45,13 +45,15 @@ typedef struct
     commandeStruct **cmd;
 } cmdFor;
 
-typedef struct
+typedef struct cmd_redirection cmd_redirection;
+
+struct cmd_redirection
 {
     Type type;
     cmd_simple *cmd;
     char *fichier;
     char *separateur;
-} cmd_redirection;
+} ;
 
 struct commandeStruct
 {
@@ -61,9 +63,8 @@ struct commandeStruct
     cmdIf *cmdIf;
     cmdFor *cmdFor;
     cmd_redirection *cmdRed;
+    commandeStruct ** cmdsStruc;
     int nbCommandes;
 };
-
-
 
 #endif

@@ -32,6 +32,8 @@ void gestion_cmd(char **input, commandeStruct *cmdstruct);
  * @param dernier_exit Un pointeur vers un entier représentant la valeur de retour de la dernière commande exécutée.
  * @return La valeur de retour de la commande exécutée.
  */
-int fsh(char *chemin, int *dernier_exit , commandeStruct *cmdstruct);
+int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct);
+
+int rechercheDansArgs(char *tofind, char **args);
 
 #endif // GESTION_H
