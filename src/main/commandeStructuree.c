@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE
+/*#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +11,7 @@
 #define ARG_MAX 400
 #define MAX_CMDS 100
 
-/*TO DO : refaire le ARG_mAX*/
+/*TO DO : refaire le ARG_mAX
 
 
 int decoupe_commande(char* commande , commandeStruct ** cmds , int * nbCmds , int maxCmds){
@@ -83,3 +83,4 @@ int gestion_commandes_structures(char* input , commandeStruct** cmds , int max_c
 }
 
 
+*/

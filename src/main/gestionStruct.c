@@ -49,7 +49,7 @@ int rechercheDansArgs(char *tofind, char **args)
     return 0;
 }
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection , commandeStruct ** cmdsStrcu, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -63,6 +63,7 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdFor = cmdForStruct;
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
+    cmd->cmdsStruc = cmdsStrcu;
     return cmd;
 }
 

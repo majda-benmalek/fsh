@@ -173,7 +173,7 @@ int redirection(cmd_redirection *cmdredirect)
         return 1;
     }
 
-    commandeStruct *cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+    commandeStruct *cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL , NULL, 0, NULL);
     gestion_cmd(cmdredirect->cmd->args, cmd);
     ret = fsh(chemin, &dernier_exit, cmd);
     // ! pour évité les pertes de mémoire
