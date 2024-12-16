@@ -63,6 +63,7 @@ struct commandeStruct
     cmdIf *cmdIf;
     cmdFor *cmdFor;
     cmd_redirection *cmdRed;
+    commandeStruct ** cmdsStruc;
     int nbCommandes;
 };
 
