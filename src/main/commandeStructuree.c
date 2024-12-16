@@ -13,7 +13,6 @@
 
 /*TO DO : refaire le ARG_mAX*/
 
-
 int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , int maxCmds){
     if(*nbCmds >= maxCmds) return -1;
     commandeStruct * cmdstruct = malloc(sizeof(commandeStruct));
@@ -21,25 +20,25 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
         perror("Erreur alocation cmdStruct dans decoupe_commande");
         return -1;
     }
-    cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct); 
+    if (remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct) == NULL) {
+        perror("Erreur lors du remplissage de cmdStruct");
+        free(cmdstruct); 
+        return -1;
+    }
     gestion_cmd(commande, cmdstruct);
-    cmds[(*nbCmds) ++] = cmdstruct;
-    return 0 ;
+    cmds[(*nbCmds)++] = cmdstruct;
+    return nbCmds;
 }
-
 int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
 
     size_t taille = tailleArgs(args);
     int debut = 0;
     int nbcommandes = 0;
-
-
-    while (debut < taille)
+    while (debut < (int)taille)
     {
         int fin = debut;
         int imbrication = 0;
         bool estDansBloc = false;
-
         // trouver la fin du bloc 
         while (args[fin] != NULL){
             if(strcmp(args[fin], "{") == 0){
@@ -54,30 +53,38 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
             }
             fin++; 
         }
-        char** commande = malloc(fin - debut + 1 * sizeof(char*));
+        int commandeSize = fin - debut + 1;
+        char** commande = malloc(commandeSize * sizeof(char *));
         if(commande == NULL) {
             perror("Erreur alocation commande dans decoupe_args");
             return -1;
         }
-
         // extraire la commande entre debut et fin 
         if(arg_cmdsimple(args , commande , fin , debut) != 0){
             perror("arg_cmdsimple");
-            for (int i = 0; commande[i] != NULL; i++) {
+            for (int i = 0; commandeSize-1; i++) {
             free(commande[i]);
             }
             free(commande);
             return -1; 
         }
-        decoupe_commande(commande , cmds , &nbcommandes , maxcmds);
-        for (int i = 0; commande[i] != NULL; i++) {
+        if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) != 0) {
+            for (int i = 0; i < commandeSize - 1; i++) { 
+                free(commande[i]);
+            }
+            free(commande);
+            return -1;
+        }
+        for (int i = 0; i < commandeSize - 1; i++) { 
             free(commande[i]);
         }
         free(commande);
-        debut = fin + 1;
+
+        debut = fin + 1; 
     }
+
+    cmds[nbcommandes] = NULL;
 
     return nbcommandes;
 }
-
 
