@@ -153,17 +153,14 @@ int pos_arg_options(char **op)
 
 int option_e(struct dirent *entry, cmdFor *cmdFor)
 {
-    if (rechercheDansArgs("-e", cmdFor->op))
+    char *ext = cmdFor->op[pos_arg_options(cmdFor->op)];
+    char *basename = entry->d_name;
+    if (strlen(ext) > 0 && basename[strlen(basename) - strlen(ext) - 1] == '.' && basename[0] != '.')
     {
-        char *ext = cmdFor->op[pos_arg_options(cmdFor->op)];
-        char *basename = entry->d_name;
-        if (strlen(ext) > 0 && basename[strlen(basename) - strlen(ext) - 1] == '.' && basename[0] != '.')
-        {
-            // printf("basename[strlen(basename) - strlen(ext) - 1] = [%c]\n", basename[strlen(basename) - strlen(ext) - 1]);
-            // printf("Nom du fichier: [%s]\n", basename);
-            // printf("extension [%s]\n", ext);
-            return 1;
-        }
+        // printf("basename[strlen(basename) - strlen(ext) - 1] = [%c]\n", basename[strlen(basename) - strlen(ext) - 1]);
+        // printf("Nom du fichier: [%s]\n", basename);
+        // printf("extension [%s]\n", ext);
+        return 1;
     }
     return 0;
 }
@@ -188,11 +185,14 @@ int boucle_for(cmdFor *cmdFor)
     while ((entry = readdir(dir)) != NULL)
     {
         // printf("dans le while\n");
-        if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
+        if ((entry->d_name[0] != '.' || optionA(entry, cmdFor))) // si -A activée on regarde les . sinon on regarde pas
         {
-            if (!option_e(entry, cmdFor))
+            if (rechercheDansArgs("-e", cmdFor->op))
             {
-                continue;
+                if (!option_e(entry, cmdFor))
+                {
+                    continue;
+                }
             }
             // if l'option est activé et que le fichier contient l'extenstion alors affiché sinon ca dégage
             //  printf("entry->d_name = [%s] \n", entry->d_name);
