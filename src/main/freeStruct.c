@@ -127,7 +127,7 @@ void freeCmdStruct(commandeStruct *cmd)
         {
             free_redirection(cmd->cmdRed);
         }
-        if(cmd->cmdsStruc != NULL){
+        else if(cmd->cmdsStruc != NULL){
             for (int i = 0 ; cmd->cmdsStruc[i] != NULL ; i++){
                 freeCmdStruct(cmd->cmdsStruc[i]);
             }
