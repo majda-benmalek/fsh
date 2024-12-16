@@ -122,6 +122,9 @@ void freeCmdStruct(commandeStruct *cmd)
         {
             free_for(cmd->cmdFor);
         }
+        if(cmd->cmdRed != NULL){
+            free_redirection(cmd->cmdRed);
+        }
         free(cmd);
     }
 }

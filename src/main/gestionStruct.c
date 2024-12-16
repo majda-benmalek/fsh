@@ -11,6 +11,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
 #include "../../utils/freeStruct.h"
+
 #define ARG_MAX 512
 size_t tailleArgs(char **args)
 {
@@ -32,6 +33,19 @@ int arg_cmdsimple(char **args, char **commande, int i, int j)
         }
     }
     commande[i - j] = NULL; // pour le dernier élementp
+    return 0;
+}
+int rechercheDansArgs(char *tofind, char **args)
+{
+    for (int i = 0; i < tailleArgs(args) - 1; i++)
+    {
+
+        if (strcmp(args[i], tofind) == 0)
+        {
+
+            return 1;
+        }
+    }
     return 0;
 }
 
@@ -107,25 +121,24 @@ cmd_simple *remplissage_cmdSimple(char **args)
 cmd_redirection *remplissageCmdRedirection(char **args)
 {
     size_t taille = tailleArgs(args);
+    int nb = 0;
     cmd_redirection *cmd = malloc(sizeof(cmd_redirection));
     if (cmd == NULL)
     {
         perror("malloc");
         return NULL;
     }
-
     cmd->type = REDIRECTION;
     // TODO tableau dynmaique
-    char *commande[10];
-    memset(commande, 0, sizeof(commande));
+    char **commande = malloc(10 * sizeof(char *));
+    memset(commande, 0, 10 * sizeof(char *));
     if (arg_cmdsimple(args, commande, taille - 3, 0) == 1)
     {
         perror("strdup cmd_redirection");
         free_redirection(cmd);
         return NULL;
     }
-    // TODO : erreur sur la pos du separateur
-    size_t pos_sep = tailleArgs(commande) - 1;
+    size_t pos_sep = tailleArgs(args) - 3;
     cmd->cmd = remplissage_cmdSimple(commande);
     if (cmd->cmd == NULL)
     {
@@ -133,37 +146,37 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         free_redirection(cmd);
         return NULL;
     }
-    if (strstr(args[pos_sep], ">") != NULL)
+    if (strcmp(args[pos_sep], ">") == 0)
     {
         cmd->fichier = args[taille - 2]; // l'avant dernier élement vu que le dernier est NULL
         cmd->separateur = ">";
     }
-    else if (strstr(args[pos_sep], " >> ") != NULL)
+    else if (strcmp(args[pos_sep], ">>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = ">>";
     }
-    else if (strstr(args[pos_sep], " 2> ") != NULL)
+    else if (strcmp(args[pos_sep], "2>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "2>";
     }
-    else if (strstr(args[pos_sep], " >| ") != NULL)
+    else if (strcmp(args[pos_sep], ">|") == 0)
     {
         cmd->fichier = args[taille - 2];
-        cmd->separateur = " >| ";
+        cmd->separateur = ">|";
     }
-    else if (strstr(args[pos_sep], "2>|") != NULL)
+    else if (strcmp(args[pos_sep], "2>|") == 0)
     {
-        cmd->fichier = args[taille - 1];
+        cmd->fichier = args[taille - 2];
         cmd->separateur = "2>|";
     }
-    else if (strstr(args[pos_sep], " 2>> ") != NULL)
+    else if (strcmp(args[pos_sep], "2>>") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "2>>";
     }
-    else if (strstr(args[pos_sep], "<") != NULL)
+    else if (strcmp(args[pos_sep], "<") == 0)
     {
         cmd->fichier = args[taille - 2];
         cmd->separateur = "<";
@@ -174,6 +187,11 @@ cmd_redirection *remplissageCmdRedirection(char **args)
         free_redirection(cmd);
         return NULL;
     }
+    for (int i = 0; commande[i] != NULL; i++)
+    {
+        free(commande[i]);
+    }
+    free(commande);
     return cmd;
 }
 
@@ -241,8 +259,8 @@ cmd_pipe *remplissageCmdPipe(char **args)
         free_pipe(cmd);
         return NULL;
     }
-    cmd->commandes =temp;
-    
+    cmd->commandes = temp;
+
     return cmd;
 }
 // si vous voulez teste les pipes
