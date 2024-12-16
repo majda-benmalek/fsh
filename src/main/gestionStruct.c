@@ -442,3 +442,8 @@ cmdFor *make_for(char **args)
     // boucle_for(cmdFor);
     return cmdFor;
 }
+
+
+cmdIf *remplissageCmdIf(char** args){
+    
+}
