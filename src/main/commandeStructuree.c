@@ -15,9 +15,9 @@
 
 int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , int maxCmds){
     
-    print("je suis dans decoupe commande\n");
+    printf("je suis dans decoupe commande\n");
     for (int i = 0; commande[i] != NULL; i++){
-        print("commande : %s\n", commande[i]);
+        printf("commande : %s\n", commande[i]);
         
     }
     if(*nbCmds >= maxCmds) return -1;
@@ -37,10 +37,12 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
     gestion_cmd(commande, cmdstruct);
     printf("fin gestion \n");
     cmds[(*nbCmds)++] = cmdstruct;
+    
+    printf("ajout à cmd réussi \n");
     return *nbCmds;
 }
 int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
-    printf("je suis dans decoup");
+    printf("je suis dans decoup\n");
     size_t taille = tailleArgs(args);
     int debut = 0;
     int nbcommandes = 0;
@@ -78,6 +80,16 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
             free(commande);
             return -1; 
         }
+
+        printf("aprés appel a  arg_cmdsimple\n");
+        for (int i = 0; commande[i] != NULL; i++){
+            printf("commande : %s\n", commande[i]);
+            
+        }
+
+
+
+        printf("debut de decoupe commande dans decoupe args\n");
         if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) != 0) {
             for (int i = 0; i < commandeSize - 1; i++) { 
                 free(commande[i]);
@@ -85,6 +97,8 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
             free(commande);
             return -1;
         }
+        printf("aprés appel a  decoupe_commande\n");
+        
         for (int i = 0; i < commandeSize - 1; i++) { 
             free(commande[i]);
         }
