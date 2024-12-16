@@ -14,6 +14,8 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
+#define ARG_MAX 2000
+
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 void test_decoupe_args() {
@@ -26,13 +28,13 @@ void test_decoupe_args() {
         "pwd", NULL
     };
 
-    commandeStruct** cmds = malloc(100 * sizeof(commandeStruct*));
+    commandeStruct** cmds = malloc(ARG_MAX * sizeof(commandeStruct*));
 if (!cmds) {
     perror("Erreur allocation cmds");
     exit(EXIT_FAILURE);
 }
 
-    int nbCommandes = decoupe_args(input, cmds, 1000);
+    int nbCommandes = decoupe_args(input, cmds, ARG_MAX);
     printf("nbCommandes : %d\n", nbCommandes);
     for (int i = 0; i < nbCommandes; i++) {
         printf("Commande %d : %d\n", i + 1, cmds[i]->type);

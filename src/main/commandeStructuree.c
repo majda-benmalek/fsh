@@ -8,8 +8,7 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/gestion.h"
-#define ARG_MAX 400
-#define MAX_CMDS 100
+
 
 void afficher_commandes(commandeStruct **cmds, int nbCommandes) {
     if (cmds == NULL || nbCommandes <= 0) {
@@ -35,7 +34,7 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
         printf("commande : %s\n", commande[i]);
         
     }
-    if(*nbCmds >= maxCmds) return -1;
+    //if(*nbCmds >= maxCmds) return -1;
     commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
 if (cmdstruct == NULL) {
     perror("Erreur allocation cmdStruct dans decoupe_commande");
