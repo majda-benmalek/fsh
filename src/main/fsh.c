@@ -31,14 +31,14 @@ void test_decoupe_args() {
 
     int nbCommandes = decoupe_args(input, cmds, max_cmds);
     for (int i = 0; i < nbCommandes; i++) {
-        printf("Commande %d : %s\n", i + 1, cmds[i]->type);
+        printf("Commande %d : %d\n", i + 1, cmds[i]->type);
     }
     for (int i = 0; i < 100; i++) {
         if (cmds[i] != NULL) {
             freeCmdStruct(cmds[i]); 
         }
     }
-    free(cmds);
+   
 }
 
 int main(void)

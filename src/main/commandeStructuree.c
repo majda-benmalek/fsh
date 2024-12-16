@@ -14,23 +14,33 @@
 /*TO DO : refaire le ARG_mAX*/
 
 int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , int maxCmds){
+    
+    print("je suis dans decoupe commande\n");
+    for (int i = 0; commande[i] != NULL; i++){
+        print("commande : %s\n", commande[i]);
+        
+    }
     if(*nbCmds >= maxCmds) return -1;
     commandeStruct * cmdstruct = malloc(sizeof(commandeStruct));
     if(cmdstruct == NULL) {
         perror("Erreur alocation cmdStruct dans decoupe_commande");
         return -1;
     }
+    printf("allorc reussi\n");
     if (remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct) == NULL) {
         perror("Erreur lors du remplissage de cmdStruct");
         free(cmdstruct); 
         return -1;
     }
+    printf("initilisation commaande struct réussie \n");
+    printf("appel gestion \n");
     gestion_cmd(commande, cmdstruct);
+    printf("fin gestion \n");
     cmds[(*nbCmds)++] = cmdstruct;
-    return nbCmds;
+    return *nbCmds;
 }
 int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
-
+    printf("je suis dans decoup");
     size_t taille = tailleArgs(args);
     int debut = 0;
     int nbcommandes = 0;
@@ -83,7 +93,7 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
         debut = fin + 1; 
     }
 
-    cmds[nbcommandes] = NULL;
+    //cmds[nbcommandes] = NULL;
 
     return nbcommandes;
 }

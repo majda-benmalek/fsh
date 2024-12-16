@@ -404,11 +404,11 @@ cmdFor *make_for(char **args)
         i = i + 1;
     }
     perror("print tab");
-    for (int i = 0; i < k; i++)
-    {
-        printf(tab[i]);
-        printf("\n");
-    }
+    //for (int i = 0; i < k; i++)
+    //{
+        //printf(tab[i]);
+        //printf("\n");
+    //}
     tab[k] = NULL;
     gestion_cmd(tab, cmdFor->cmd);
     return cmdFor;

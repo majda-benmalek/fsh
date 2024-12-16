@@ -18,11 +18,11 @@
 
 
 void change_var(char * name,char * variable ,commandeStruct *cmd){
-    printf("dans  change var");
+    //printf("dans  change var");
     switch (cmd->type)
     {
     case CMD_INTERNE:
-        printf("change var cmd interne \n");
+        //printf("change var cmd interne \n");
         int i = 0;
         while (cmd->cmdSimple->args[i]!=NULL){
             if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
@@ -33,7 +33,7 @@ void change_var(char * name,char * variable ,commandeStruct *cmd){
         break;
     
     default:
-        printf("change var default \n");
+        //printf("change var default \n");
         break;
     }
 }
@@ -73,19 +73,19 @@ int boucle_for(cmdFor *cmdFor)
         // printf("dans le while\n");
         if (entry->d_name[0] != '.')
         {
-            printf("entry->d_name ... = %s \n",entry->d_name);
+            //printf("entry->d_name ... = %s \n",entry->d_name);
             //? ici
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {
-                printf("entry->d_name ... = %s \n",entry->d_name);
-                printf("cmd for var = %s\n",cmdFor->variable);
+                //printf("entry->d_name ... = %s \n",entry->d_name);
+                //printf("cmd for var = %s\n",cmdFor->variable);
                 if (cmdFor->cmd[nbr_cmd] == NULL){
-                    printf("cmd for-> cmd est null\n");
+                    //printf("cmd for-> cmd est null\n");
                     return ret;
                 }
                 else{
-                    printf(" c pas null\n");
+                    //printf(" c pas null\n");
                 }
                 change_var(entry->d_name,cmdFor->variable,cmdFor->cmd[nbr_cmd]);
                 // // ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);

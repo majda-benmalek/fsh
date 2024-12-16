@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "commande.h"
 
+
+int arg_cmdsimple(char **args, char **commande, int i, int j);
+
 /**
  * @brief Alloue et remplit une structure commandeStruct.
  *
