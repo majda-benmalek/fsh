@@ -51,7 +51,8 @@ if (cmdstruct == NULL) {
     printf("appel gestion \n");
     gestion_cmd(commande, cmdstruct);
     printf("fin gestion \n");
-    cmds[(*nbCmds)++] = cmdstruct;
+    cmds[*nbCmds] = cmdstruct;
+    (*nbCmds)++;
     afficher_commandes(cmds, *nbCmds);
 
     printf("ajout à cmd réussi \n");
@@ -106,7 +107,7 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
 
 
         printf("debut de decoupe commande dans decoupe args\n");
-        if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) != 0) {
+        if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) < 0) {
             for (int i = 0; i < commandeSize - 1; i++) { 
                 free(commande[i]);
             }
