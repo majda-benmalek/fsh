@@ -255,28 +255,28 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
 
-
-
 // // type
 // //   char* rep;
-// //   char variable ; 
+// //   char variable ;
 //  //int nbCommandes;
 // commandeStruct** cmd;
 // //  op
 
-cmdFor* make_for(char ** args){
+cmdFor *make_for(char **args)
+{
     // cmdFor *cmdFor = malloc(sizeof(*cmdFor));
 
     cmdFor *cmdFor = malloc(sizeof(*cmdFor));
-    if (cmdFor == NULL){
+    if (cmdFor == NULL)
+    {
         perror("problème d'allocation de mémoire pour for");
         return NULL;
     }
     // printf("Adresse de cmdFor %p\n", cmdFor);
     // TODO j'ai commenté
-    if (tailleArgs(args) < 8)
+    if (tailleArgs(args) < 9)
     {
-        perror("problème de syntaxe");
+        perror("Erreur de synatxe");
         printf("la taille de l'argument = %ld\n", tailleArgs(args));
         for (size_t i = 0; i < tailleArgs(args); i++)
         {
@@ -332,12 +332,14 @@ cmdFor* make_for(char ** args){
     //     // free_for(cmdFor);
     //     return NULL;
     // }
-    cmdFor->op = malloc(ARG_MAX*sizeof(char));
-    if (cmdFor->op == NULL) {
+    cmdFor->op = malloc(12 * sizeof(char *));
+    if (cmdFor->op == NULL)
+    {
         perror("aie aie aie");
         free_for(cmdFor);
         return NULL;
     }
+    memset(cmdFor->op, 0, 12 * sizeof(char*));
     // ? ----------------- option-----------
     int i = 4;
     int j = 0;
@@ -348,7 +350,8 @@ cmdFor* make_for(char ** args){
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
         {
             cmdFor->op[j] = strdup(args[i]); // TODO utiliser strdup
-            if(cmdFor->op[j]==NULL){
+            if (cmdFor->op[j] == NULL)
+            {
                 perror("strdup for");
                 free_for(cmdFor);
                 return NULL;
@@ -361,9 +364,22 @@ cmdFor* make_for(char ** args){
         {
             if (args[i + 1][0] != '-')
             {
-                cmdFor->op[j] = args[i]; // TODO a changer
+                cmdFor->op[j] = strdup(args[i]); // TODO a changer
+                if (cmdFor->op[j] == NULL)
+                {
+                    perror("strdup for");
+                    free_for(cmdFor);
+                    return NULL;
+                }
+                cmdFor->op[j + 1] = strdup(args[i + 1]);
+                if (cmdFor->op[j+1] == NULL)
+                {
+                    perror("strdup for");
+                    free_for(cmdFor);
+                    return NULL;
+                }
                 i = i + 2;
-                j++;
+                j = j+2;
                 // flag = true;
             }
             else
@@ -389,13 +405,14 @@ cmdFor* make_for(char ** args){
         // printf("chui laaaa\n");
         i++; // pour sauter l'{
     }
-    
+
     // printf("args[%d] = %s\n",i,args[i]);
     cmdFor->cmd = malloc(sizeof(commandeStruct));
-    if (cmdFor->cmd == NULL){
+    if (cmdFor->cmd == NULL)
+    {
         perror("pb d'alloc de sous cmd de for");
         free_for(cmdFor);
-        //TODO APPELER LES FREE
+        // TODO APPELER LES FREE
         return NULL;
     }
 
@@ -407,11 +424,11 @@ cmdFor* make_for(char ** args){
         k = k + 1;
         i = i + 1;
     }
-    tab[k]= NULL;
+    tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(inter,cmdFor->cmd[0]);
-    gestion_cmd(tab,cmdFor->cmd[0]);
+    gestion_cmd(tab, cmdFor->cmd[0]);
     // if (cmdFor->cmd==NULL){
     //     printf("chui BIEN NULLLE\n");
     //     return NULL;
@@ -420,7 +437,6 @@ cmdFor* make_for(char ** args){
     //     printf("le type dans make for du bébé cmd de for = %d\n",cmdFor->cmd[0]->type);
     //     // fflush(NULL);
     // }
-
 
     // boucle_for(cmdFor);
     return cmdFor;
