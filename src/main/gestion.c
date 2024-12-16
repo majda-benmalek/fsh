@@ -97,28 +97,20 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         perror("Structure commande");
         return -1;
     }
-    
-    if (cmdstruct->type == FOR){
-            // printf("remontada du for\n");
-            ret = boucle_for(cmdstruct->cmdFor);
-            if (ret != 0)
-            {
-                perror("boucle_for");
-                return ret;
-            };
-    }
-    // exit
-    // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
-    if (cmdstruct->type == CMD_INTERNE)
+
+    if (cmdstruct->type == FOR)
     {
-        // printf("dans cmd interne\n");
+        ret = boucle_for(cmdstruct->cmdFor);
+        if (ret != 0)
+        {
+            perror("boucle_for");
+            return ret;
+        };
+    }
+    else if (cmdstruct->type == CMD_INTERNE)
+    {
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
-        // print cmdstrstuct->cmdSimple->args
-        //  for (int i = 0; cmdstruct->cmdSimple->args[i]!=NULL; i++)
-        //  {
-        //      printf("cmdstruct->cmdSimple->args[%d] = %s\n", i, cmdstruct->cmdSimple->args[i]);
-        //  }
         if (strcmp(cmd, "exit") == 0)
         {
             // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
