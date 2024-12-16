@@ -13,11 +13,39 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/commandeStructuree.h"
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
+void test_decoupe_args() {
+    char *input[] = {
+        "for", "f", "in", "rep", "{", 
+        "echo", "fichier :", "$f", ";", 
+        "cat", "$f", ";", 
+        "}", 
+        ";", 
+        "pwd", NULL
+    };
+
+    commandeStruct *cmds[100] = {NULL};
+    int max_cmds = 100;
+
+    int nbCommandes = decoupe_args(input, cmds, max_cmds);
+    for (int i = 0; i < nbCommandes; i++) {
+        printf("Commande %d : %s\n", i + 1, cmds[i]->type);
+    }
+    for (int i = 0; i < 100; i++) {
+    if (cmds[i] != NULL) {
+        freeCmdStruct(cmds[i]); 
+    }
+    free(cmds);
+}
+
+}
 
 int main(void)
 {
+    test_decoupe_args();
+
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
     {
@@ -53,7 +81,7 @@ int main(void)
                 freeCmdStruct(cmdstruct);
             exit(1);
         }
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL,NULL, 0, cmdstruct); // tout initialisé a NULL
+        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
