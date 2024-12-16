@@ -62,7 +62,6 @@ void nouveau(char *ancienne,char *nouveau, commandeStruct *cmd){
 
 //TODO Si ca ce passe mal ft faire un truc
 int boucle_for(cmdFor *cmdFor){
-    int dernier_exit=0; //TODO A CHANGER
     int ret=0; //TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
@@ -74,7 +73,7 @@ int boucle_for(cmdFor *cmdFor){
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL){
         if (entry->d_name[0] != '.')
-        {            //? ici
+        {
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {   
