@@ -37,19 +37,6 @@ int arg_cmdsimple(char **args, char **commande, int i, int j)
     commande[i - j] = NULL; // pour le dernier élementp
     return 0;
 }
-int rechercheDansArgs(char *tofind, char **args)
-{
-    for (int i = 0; i < tailleArgs(args) - 1; i++)
-    {
-
-        if (strcmp(args[i], tofind) == 0)
-        {
-
-            return 1;
-        }
-    }
-    return 0;
-}
 
 commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, int nbcommandes, commandeStruct *cmd)
 {
@@ -123,7 +110,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
 cmd_redirection *remplissageCmdRedirection(char **args)
 {
     size_t taille = tailleArgs(args);
-    int nb = 0;
     cmd_redirection *cmd = malloc(sizeof(cmd_redirection));
     if (cmd == NULL)
     {
@@ -361,7 +347,12 @@ cmdFor* make_for(char ** args){
         // printf("chui dans le while \n");
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
         {
-            cmdFor->op[j] = args[i]; // TODO utiliser strdup
+            cmdFor->op[j] = strdup(args[i]); // TODO utiliser strdup
+            if(cmdFor->op[j]==NULL){
+                perror("strdup for");
+                free_for(cmdFor);
+                return NULL;
+            }
             i++;
             j++;
             // flag = true;
@@ -417,29 +408,6 @@ cmdFor* make_for(char ** args){
         i = i + 1;
     }
     tab[k]= NULL;
-    // char *inter=NULL;
-    // inter=strdup(tab[0]);//TODO A CHANGER le probleme c que gestion prends un string au lieu d'un tableau du coup chui obligé de recoller tout le monde 
-    // char *c = " ";
-    // size_t len = strlen(inter) + strlen(c) + strlen(tab[1]) + 1;
-    // char *temp = realloc(inter,len);
-    // inter = temp;
-    // strcat(inter,c);
-    // strcat(inter,tab[1]);
-    // if (tab[2] != NULL){
-    //     len = strlen(inter) + strlen(c) + strlen(tab[2]) + 1;
-    //     temp = realloc(inter,len);
-    //     inter = temp;
-    //     strcat(inter,c);
-    //     strcat(inter,tab[2]);
-    // }
-    // printf("inter = %s",inter);
-    // // for (int i = 0; i <k;i++){
-    // //     printf(tab[i]);
-    // //     printf("\n");
-    // // }
-    // // printf("inter = %s\n",inter);
-    // // printf("dans make for var = %s\n",cmdFor->variable);
-    // memset(cmdFor->cmd,0,ARG_MAX);
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(inter,cmdFor->cmd[0]);

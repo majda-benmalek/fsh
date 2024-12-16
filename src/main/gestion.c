@@ -20,6 +20,20 @@
 #include "../../utils/freeStruct.h"
 #define ARG_MAX 512
 
+int rechercheDansArgs(char *tofind, char **args)
+{
+    for (int i = 0; i < tailleArgs(args) - 1; i++)
+    {
+
+        if (strcmp(args[i], tofind) == 0)
+        {
+
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
     if (!cmdstruct)
@@ -75,6 +89,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
+    
 }
 
 int exec_redirection(cmd_redirection *cmd)
@@ -103,7 +118,8 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         ret = boucle_for(cmdstruct->cmdFor);
         if (ret != 0)
         {
-            perror("boucle_for");
+            // perror("boucle_for");
+            perror("command_for_run");
             return ret;
         };
     }
