@@ -15,10 +15,14 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/commandeStructuree.h"
+#include "../../utils/cmdStructuree.h"
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
 #define ARG_MAX 512
+
+
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -45,16 +49,54 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         return;
     }
+    /*else if(rechercheDansArgs(";" , args)){
+        int debutBloc = -1 , finBloc = -1;
+        bool pvoutbloc = false;
+
+        // arriver a la fin du bloc 
+        for (int i = 0; args[i] != NULL; i++){
+            if(strcmp(args[i] , "{") == 0){
+                debutBloc = i;
+            } else if (strcmp(args[i] , "}") == 0 && debutBloc != -1){
+                finBloc = i;
+            }
+            if(strcmp(args[i] , ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc))){
+                pvoutbloc = true;
+                break;
+            }
+        }
+
+        // une fois la fin du bloc detectecté tester si ya un ; apres 
+        if(pvoutbloc){
+           
+                cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+                if(cmdstruct->cmdsStruc == NULL){
+                    perror("Erreur Allocation cmdsStruc ");
+                    return;
+                }
+
+                int nbCommandes = decoupe_args(args , cmdstruct->cmdsStruc , ARG_MAX);
+                if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
+                {
+                    freeCmdStruct(cmdstruct);
+                    perror("Erreur découpages commandes structurées");
+                    
+                }
+                cmdstruct->nbCommandes= nbCommandes;
+                cmdstruct->type = CMD_STRUCT;
+
+            }
+    }*/
     else if (strcmp(args[0], "for") == 0)
     {
-        cmdstruct->cmdFor = make_for(args);
-        cmdstruct->type = FOR;
-        if (cmdstruct->cmdFor == NULL)
-        {
-            freeCmdStruct(cmdstruct);
-            perror("Erreur remplissage de for");
+            cmdstruct->cmdFor = make_for(args);
+            cmdstruct->type = FOR;
+            if (cmdstruct->cmdFor == NULL)
+            {
+                freeCmdStruct(cmdstruct);
+                perror("Erreur remplissage de for");
+            }
         }
-    }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
         cmdstruct->cmdRed = remplissageCmdRedirection(args);
@@ -117,6 +159,17 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = boucle_for(cmdstruct->cmdFor);
         if (ret != 0)
+        {
+            // perror("boucle_for");
+            perror("command_for_run");
+            return ret;
+        };
+    }else if(cmdstruct->type == CMD_STRUCT){
+        printf("je suis iciiiii\n");
+    
+         printf("appel a exec\n");
+        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes);
+        if (ret < 0)
         {
             // perror("boucle_for");
             perror("command_for_run");

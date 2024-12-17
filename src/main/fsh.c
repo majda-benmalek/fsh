@@ -14,7 +14,7 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
-#define ARG_MAX 2000
+#define ARG_MAX 512
 
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
@@ -57,7 +57,7 @@ int main(void)
                 freeCmdStruct(cmdstruct); // ? si c null y'a rien a free nan ?
             exit(1);
         }
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
+        cmdstruct = remplissage_cmdStruct(PAR_DEFAULT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
