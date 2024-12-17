@@ -117,22 +117,23 @@ int option_t(struct dirent *entry, cmdFor *cmd){
         else if (strcmp(cmd->op[indice_op],"d") == 0){
             for_type = 4;
         }
-        else if (strcmp(cmd->op[indice_op],"l")){
+        else if (strcmp(cmd->op[indice_op],"l") == 0){
             for_type = 10;
         } 
-        else if (strcmp(cmd->op[indice_op],"p")){
+        else if (strcmp(cmd->op[indice_op],"p") == 0 ){
             for_type = 1;
         }
         else {
-            perror("vous n'avez pas donne de bon type");
+            // perror("vous n'avez pas donne de bon type");
             return -1;
         }
         // printf("entry-> d_type = %d\n",type);
         // printf("for_type = %d\n",indice_op);
+        // printf("chui la\n");
         return type == for_type;
     } 
     else {
-        perror("vous n'avez pas donné de type");
+        // perror("vous n'avez pas donné de type");
         return -1;
     }
 }
@@ -142,9 +143,9 @@ int option_t(struct dirent *entry, cmdFor *cmd){
 //TODO JE FERME PAS LE REP ? 
 int boucle_for(cmdFor *cmdFor)
 {
-    printf("chui dans la boucle\n");
     int ret = 0; // TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
+    // printf("lui devrait pas marcher \n");
     if (dir == NULL)
     {
         fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
@@ -170,8 +171,9 @@ int boucle_for(cmdFor *cmdFor)
                     continue;
                 }
                 if (res == -1){
-                    printf("ouais y'a un prob");
-                    perror("problème de type");
+                    // printf("ouais y'a un prob");
+                    // perror("problème de type");
+                    dernier_exit=1;
                     return 1;
                 }
             }
@@ -190,15 +192,18 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 strcpy(path, cmdFor->rep);
                 strcat(path, "/");
-                char *c = strstr(entry->d_name, ".");
-                if (c != NULL)
+                if (cmdFor->cmd[nbr_cmd] == CMD_EXTERNE)
                 {
-                    char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
-                    memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
-                    strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
-                    sprintf(entry->d_name, "%s", nom_sans_ext);
-                    if (nom_sans_ext != NULL)
-                        free(nom_sans_ext);
+                    char *c = strstr(entry->d_name, ".");
+                    if (c != NULL)
+                    {
+                        char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                        memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                        strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                        sprintf(entry->d_name, "%s", nom_sans_ext);
+                        if (nom_sans_ext != NULL)
+                            free(nom_sans_ext);
+                    }
                 }
                 strcat(path, entry->d_name);
                 nouveau(inter, path, cmdFor->cmd[nbr_cmd]);

@@ -50,7 +50,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         cmdstruct->cmdFor = make_for(args);
         if (cmdstruct->cmdFor == NULL)
         {
-            freeCmdStruct(cmdstruct);
+            // freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
         }
         cmdstruct->type = FOR;
@@ -115,21 +115,20 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 
     if (cmdstruct->type == FOR)
     {
-        // if (cmdstruct->cmdFor != NULL){
-            printf("chui dans la méthode fsh\n");
+        if (cmdstruct->cmdFor != NULL){
              ret = boucle_for(cmdstruct->cmdFor);
             if (ret != 0)
             {
                 // perror("boucle_for");
-                perror("command_for_run");
+                // perror("command_for_run");
                 return ret;
             };
-        // }
-        // else{
-        //     perror("for est null");
-        //     ret = 1;
-        //     return ret;
-        // }
+        }
+        else{
+            // perror("for est null");
+            ret = 1;
+            return ret;
+        }
        
     }
     else if (cmdstruct->type == CMD_INTERNE)
