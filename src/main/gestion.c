@@ -69,7 +69,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         // une fois la fin du bloc detectecté tester si ya un ; apres 
         if(pvoutbloc){
            
-                cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+                /*cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
                 if(cmdstruct->cmdsStruc == NULL){
                     perror("Erreur Allocation cmdsStruc ");
                     return;
@@ -83,7 +83,18 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                     
                 }
                 cmdstruct->nbCommandes= nbCommandes;
-                cmdstruct->type = CMD_STRUCT;
+                cmdstruct->type = CMD_STRUCT;*/
+                remplissageCmdStructurees(args, &cmdstruct);
+                if (cmdstruct->cmdsStruc == NULL) {
+                    perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
+                return ;  
+}
+
+                if (cmdstruct->nbCommandes < 0) {
+                    perror("Erreur lors du découpage des commandes");
+                    freeCmdStruct(cmdstruct);  // 
+                    return;  
+                }
 
             }
     }
