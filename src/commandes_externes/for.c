@@ -124,28 +124,23 @@ int option_t(struct dirent *entry, cmdFor *cmd){
             for_type = 1;
         }
         else {
-            // perror("vous n'avez pas donne de bon type");
             return -1;
         }
-        // printf("entry-> d_type = %d\n",type);
-        // printf("for_type = %d\n",indice_op);
-        // printf("chui la\n");
         return type == for_type;
     } 
     else {
-        // perror("vous n'avez pas donné de type");
         return -1;
     }
 }
 
 
+//TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 // TODO Si ca ce passe mal ft faire un truc
 //TODO JE FERME PAS LE REP ? 
 int boucle_for(cmdFor *cmdFor)
 {
     int ret = 0; // TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
-    // printf("lui devrait pas marcher \n");
     if (dir == NULL)
     {
         fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
@@ -171,8 +166,6 @@ int boucle_for(cmdFor *cmdFor)
                     continue;
                 }
                 if (res == -1){
-                    // printf("ouais y'a un prob");
-                    // perror("problème de type");
                     dernier_exit=1;
                     return 1;
                 }
