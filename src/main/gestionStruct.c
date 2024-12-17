@@ -267,6 +267,31 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
 
+void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct){
+ 
+    cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+    int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
+    if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
+    {
+      freeCmdStruct(cmdStruct);
+      perror("Erreur découpages commandes structurées");
+      return ;
+    }
+    cmdStruct->nbCommandes = nbCommandes;
+    commandeStruct* tmp = realloc(cmdStruct->cmdsStruc,sizeof(commandeStruct*) * (nbCommandes + 1));
+    if(tmp!=NULL)
+      cmdStruct->cmdsStruc=tmp;
+    else {
+        perror("probleme de realloc");
+        freeCmdStruct(tmp);
+        freeCmdSimple(cmdStruct);
+        return ;
+    }
+    cmdStruct->type = CMD_STRUCT;
+
+}
+
+
 cmdFor *make_for(char **args)
 {
     cmdFor *cmdFor = malloc(sizeof(*cmdFor));

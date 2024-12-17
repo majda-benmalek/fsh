@@ -70,26 +70,38 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 break;
             }
         }
-        // une fois la fin du bloc detectecté tester si ya un ; apres
-        if (pvoutbloc)
-        {
 
-            cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
-            if (cmdstruct->cmdsStruc == NULL)
-            {
-                perror("Erreur Allocation cmdsStruc ");
-                return;
-            }
+        // une fois la fin du bloc detectecté tester si ya un ; apres 
+        if(pvoutbloc){
+           
+                /*cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+                if(cmdstruct->cmdsStruc == NULL){
+                    perror("Erreur Allocation cmdsStruc ");
+                    return;
+                }
 
-            int nbCommandes = decoupe_args(args, cmdstruct->cmdsStruc, ARG_MAX);
-            if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
-            {
-                freeCmdStruct(cmdstruct);
-                perror("Erreur découpages commandes structurées");
+                int nbCommandes = decoupe_args(args , cmdstruct->cmdsStruc , ARG_MAX);
+                if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
+                {
+                    freeCmdStruct(cmdstruct);
+                    perror("Erreur découpages commandes structurées");
+                    
+                }
+                cmdstruct->nbCommandes= nbCommandes;
+                cmdstruct->type = CMD_STRUCT;*/
+                remplissageCmdStructurees(args, cmdstruct);
+                if (cmdstruct->cmdsStruc == NULL) {
+                    perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
+                return ;  
+}
+
+                if (cmdstruct->nbCommandes < 0) {
+                    perror("Erreur lors du découpage des commandes");
+                    freeCmdStruct(cmdstruct);  // 
+                    return;  
+                }
+
             }
-            cmdstruct->nbCommandes = nbCommandes;
-            cmdstruct->type = CMD_STRUCT;
-        }
     }
     else if (strcmp(args[0], "for") == 0)
     {

@@ -32,6 +32,7 @@ cmd_simple *remplissage_cmdSimple(char **args);
 cmd_redirection *remplissageCmdRedirection(char **args);
 
 cmd_pipe *remplissageCmdPipe(char **args);
+void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct);
 
 size_t tailleArgs(char **args);
 
