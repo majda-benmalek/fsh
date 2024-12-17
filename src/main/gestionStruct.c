@@ -61,7 +61,6 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
 cmd_simple *remplissage_cmdSimple(char **args)
 {
     cmd_simple *cmd = malloc(sizeof(cmd_simple));
-    // printf("dans remplissage cmd simple \n");
 
     if (cmd == NULL)
     {
@@ -71,7 +70,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
     int nbargs = 0;
     while (args[nbargs])
     {
-        // printf("args[%d] = %s\n",nbargs,args[nbargs]);
         nbargs++;
     }
     cmd->args = malloc((nbargs + 1) * sizeof(char *));
@@ -84,7 +82,6 @@ cmd_simple *remplissage_cmdSimple(char **args)
     for (int i = 0; i < nbargs; i++)
     {
         cmd->args[i] = strdup(args[i]);
-        // printf("args[%d] = %s\n",i,cmd->args[i]);
         if (!cmd->args[i])
         {
             perror("strdup");
@@ -267,30 +264,39 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
 
-void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct){
- 
-    cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
+{
+
+    cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
-      freeCmdStruct(cmdStruct);
-      perror("Erreur découpages commandes structurées");
-      return ;
+        freeCmdStruct(cmdStruct);
+        perror("Erreur découpages commandes structurées");
+        return;
     }
     cmdStruct->nbCommandes = nbCommandes;
-    commandeStruct* tmp = realloc(cmdStruct->cmdsStruc,sizeof(commandeStruct*) * (nbCommandes + 1));
-    if(tmp!=NULL)
-      cmdStruct->cmdsStruc=tmp;
-    else {
-        perror("probleme de realloc");
-        freeCmdStruct(tmp);
-        freeCmdSimple(cmdStruct);
-        return ;
-    }
+    // commandeStruct **tmp = realloc(cmdStruct->cmdsStruc, sizeof(commandeStruct *) * (nbCommandes + 1));
+    // if (tmp != NULL)
+    //     cmdStruct->cmdsStruc = tmp;
+    // else
+    // {
+    //     perror("probleme de realloc");
+    //     for (int i = 0; tmp[i] != NULL; i++)
+    //     {
+    //         freeCmdStruct(tmp[i]);
+    //     }
+    //     free(tmp);
+    //     freeCmdStruct(cmdStruct);
+    //     return;
+    // }
+    // for (int i = 0; tmp[i] != NULL; i++)
+    // {
+    //     freeCmdStruct(tmp[i]);
+    // }
+    // free(tmp);
     cmdStruct->type = CMD_STRUCT;
-
 }
-
 
 cmdFor *make_for(char **args)
 {
@@ -450,7 +456,6 @@ cmdIf *remplissageCmdIf(char **args)
     {
         i++;
     }
-    printf("i apres la boucle = [%d]\n", i);
     // a la fin i= la pos de {
     char **commande = malloc(ARG_MAX * sizeof(char *));
     if (arg_cmdsimple(args, commande, i, 1) == 1) // copie de 1 à i (exclu)
@@ -460,12 +465,6 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    printf("------------------------------------------------1\n");
-    for (int k = 0; k < i; k++)
-    {
-        printf("commande[%d] = %s\n", k, commande[k]);
-    }
-    printf("------------------------------------------------2\n");
     // TODO : appelé gestion psq ca peut etre une redirection aussi
     cmd->test = remplissageCmdPipe(commande);
     if (cmd->test == NULL)
@@ -475,22 +474,22 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    // print cmd->test->commandes[0]->args
-    for (int k = 0; cmd->test->commandes[0]->args[k] != NULL; k++)
+    if (commande != NULL)
     {
-        printf("cmd->test->commandes[0]->args[%d] = %s\n", k, cmd->test->commandes[0]->args[k]);
+        for (int h = 0; commande[h] != NULL; h++)
+        {
+            free(commande[h]);
+        }
     }
-    printf("cmd->test->commandes[0]->args[%d] = %s\n", 5, cmd->test->commandes[0]->args[5]);
-
+    free(commande);
+    commande = malloc(ARG_MAX * sizeof(char *));
     int j = i + 1; // début de la commande a éxécuté
     while (i < taille && /*strcmp(args[i], "else") != 0 &&*/ strcmp(args[i], "}"))
     { // a revoir cette condition psq le for et les if imbriqué
         i++;
     }
-    printf("------------------------------------------------3\n");
     memset(commande, 0, ARG_MAX * sizeof(char *));
-    printf("i pour la commande du if = [%d]\n", i);
-    printf("j pour la commande du if = [%d]\n", j);
+
     if (arg_cmdsimple(args, commande, i, j) == 1) //
     {
         perror("arg_cmdsimple");
@@ -498,22 +497,8 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    printf("------------------------------------------------4\n");
-    cmd->commandeIf->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
-    int nbcom = decoupe_args(commande, cmd->commandeIf->cmdsStruc, ARG_MAX);
-    cmd->commandeIf->nbCommandes = nbcom;
-    
-    // commandeStruct **tmp = realloc(cmd->commandeIf->cmdsStruc, nbcom + 1);
-    // cmd->commandeIf->cmdsStruc = tmp;
-    if (cmd->commandeIf->cmdsStruc[1] != NULL && cmd->commandeIf->cmdsStruc[1]->cmdSimple != NULL)
-    {
-        for (int k = 0; cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[k] != NULL; k++)
-        {
-            printf("cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[%d] = %s\n", k, cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[k]);
-        }
-    }else{
-        perror("tout est null");
-    }
+
+    remplissageCmdStructurees(commande, cmd->commandeIf);
 
     // j = i + 1; // le else ou pas
     // if (args[j] != NULL)
@@ -523,6 +508,14 @@ cmdIf *remplissageCmdIf(char **args)
     //         // TODO :alors on remplit commandeElse
     //     }
     // }
-    printf("remplissage if fini\n");
+
+    if (commande != NULL)
+    {
+        for (int h = 0; commande[h] != NULL; h++)
+        {
+            free(commande[h]);
+        }
+    }
+    free(commande);
     return cmd;
 }

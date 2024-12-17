@@ -64,9 +64,9 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 }
                 strcat(cmd->cmdSimple->args[k], prefixe);
                 k++;
-                if (ancienne_cmd != NULL)
-                    free(ancienne_cmd);
             }
+            if (ancienne_cmd != NULL)
+                free(ancienne_cmd);
         }
     }
 }
@@ -145,15 +145,18 @@ int boucle_for(cmdFor *cmdFor)
                 strcat(path, "/");
                 if (cmdFor->cmd[nbr_cmd]->type == CMD_EXTERNE)
                 {
-                    char *c = strstr(entry->d_name, ".");
-                    if (c != NULL)
+                    if (entry->d_name != NULL)
                     {
-                        char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
-                        memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
-                        strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
-                        sprintf(entry->d_name, "%s", nom_sans_ext);
-                        if (nom_sans_ext != NULL)
-                            free(nom_sans_ext);
+                        char *c = strstr(entry->d_name, ".");
+                        if (c != NULL && c != entry->d_name)
+                        {
+                            char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                            memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                            strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                            sprintf(entry->d_name, "%s", nom_sans_ext);
+                            if (nom_sans_ext != NULL)
+                                free(nom_sans_ext);
+                        }
                     }
                 }
                 strcat(path, entry->d_name);
@@ -165,7 +168,7 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                char *ancienne = malloc(strlen(entry->d_name) - 3 + strlen(cmdFor->rep) + 2);
+                char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 strcpy(ancienne, cmdFor->rep);
                 strcat(ancienne, "/");
                 strcat(ancienne, entry->d_name);
