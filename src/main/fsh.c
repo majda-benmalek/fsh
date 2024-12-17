@@ -18,38 +18,9 @@
 
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
-void test_decoupe_args() {
-    char *input[] = {
-        "for", "f", "in", "rep", "{", 
-        "echo", "fichier :", "$f", ";", 
-        "cat", "$f", ";", 
-        "}", 
-        ";", 
-        "pwd", NULL
-    };
-
-    commandeStruct** cmds = malloc(ARG_MAX * sizeof(commandeStruct*));
-if (!cmds) {
-    perror("Erreur allocation cmds");
-    exit(EXIT_FAILURE);
-}
-
-    int nbCommandes = decoupe_args(input, cmds, ARG_MAX);
-    printf("nbCommandes : %d\n", nbCommandes);
-    for (int i = 0; i < nbCommandes; i++) {
-        printf("Commande %d : %d\n", i + 1, cmds[i]->type);
-    }
-    for (int i = 0; i < 100; i++) {
-        if (cmds[i] != NULL) {
-            freeCmdStruct(cmds[i]); 
-        }
-    }
-   
-}
 
 int main(void)
 {
-    test_decoupe_args();
 
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
