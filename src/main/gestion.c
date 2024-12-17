@@ -204,26 +204,6 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             }
             return ret;
         }
-        // gestion de pwd
-        else if (strcmp(cmd, "cd") == 0)
-        {
-            if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
-            {
-                write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
-                ret = 1;
-                ret = 1;
-                return ret;
-            }
-            ret = cd_commande(arg);
-            if (getcwd(chemin, PATH_MAX) == NULL)
-            {
-                perror("getcwd");
-                ret = 1;
-                return ret;
-            }
-            return ret;
-        }
-        // gestion de pwd
         else if (strcmp(cmd, "pwd") == 0)
         {
             if (tailleArgs(cmdstruct->cmdSimple->args) > 2)
