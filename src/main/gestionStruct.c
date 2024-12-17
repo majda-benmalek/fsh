@@ -385,6 +385,8 @@ cmdFor *make_for(char **args)
         k = k + 1;
         i = i + 1;
     }
+
+
     tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein

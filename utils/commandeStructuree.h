@@ -12,7 +12,7 @@
  * @param maxCmds Nombre maximum de commandes autorisées dans cmds.
  * @return 0 en cas de succès, -1 en cas d'erreur.
  */
-int decoupe_commande(char* commande , commandeStruct ** cmds , int * nbCmds , int maxCmds);
+int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , int maxCmds);
 
 /**
  * @brief Analyse une chaîne d'entrée contenant plusieurs commandes structurées.
@@ -23,7 +23,7 @@ int decoupe_commande(char* commande , commandeStruct ** cmds , int * nbCmds , in
  * @return Le nombre de commandes analysées en cas de succès, -1 en cas d'erreur.
  */
 
-int gestion_commandes_structures(char* input , commandeStruct** cmds , int max_cmd);
+int decoupe_args(char** args , commandeStruct** cmds , int maxcmds);
 
 
 

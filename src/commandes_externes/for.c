@@ -66,8 +66,10 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 k++;
                 if (ancienne_cmd != NULL)
                     free(ancienne_cmd);
+
             }
         }
+
     }
 }
 
@@ -120,6 +122,7 @@ int boucle_for(cmdFor *cmdFor)
     {
         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
         {
+
             if (rechercheDansArgs("-e", cmdFor->op))
             {
                 if (!option_e(entry, cmdFor))
@@ -151,6 +154,7 @@ int boucle_for(cmdFor *cmdFor)
                     sprintf(entry->d_name, "%s", nom_sans_ext);
                     if (nom_sans_ext != NULL)
                         free(nom_sans_ext);
+
                 }
                 strcat(path, entry->d_name);
                 nouveau(inter, path, cmdFor->cmd[nbr_cmd]);

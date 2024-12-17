@@ -13,11 +13,15 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/commandeStructuree.h"
+#define ARG_MAX 512
+
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
 int main(void)
 {
+
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
     {
@@ -53,7 +57,7 @@ int main(void)
                 freeCmdStruct(cmdstruct); // ? si c null y'a rien a free nan ?
             exit(1);
         }
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL,NULL, 0, cmdstruct); // tout initialisé a NULL
+        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
@@ -81,7 +85,7 @@ int main(void)
             token = strtok(NULL, " \t");
         }
         args[nb_args] = NULL;
-
+        
         gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;

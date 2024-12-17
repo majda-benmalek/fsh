@@ -16,6 +16,7 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
 #include "../../utils/commandeStructuree.h"
+#include "../../utils/cmdStructuree.h"
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
@@ -43,10 +44,54 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         perror("Erreur Structure");
         return;
-    }
-    if (args[0] == NULL)
+    } 
+    else if (args[0] == NULL || args[0][0]=='\0' || args[0][0]=='\n' )
     {
         return;
+    }
+    else if (rechercheDansArgs(";", args))
+    {
+        int debutBloc = -1, finBloc = -1;
+        bool pvoutbloc = false;
+
+        // arriver a la fin du bloc
+        for (int i = 0; args[i] != NULL; i++)
+        {
+            if (strcmp(args[i], "{") == 0)
+            {
+                debutBloc = i;
+            }
+            else if (strcmp(args[i], "}") == 0 && debutBloc != -1)
+            {
+                finBloc = i;
+            }
+            if (strcmp(args[i], ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc)))
+            {
+                pvoutbloc = true;
+                break;
+            }
+        }
+
+        // une fois la fin du bloc detectecté tester si ya un ; apres
+        if (pvoutbloc)
+        {
+
+            cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
+            if (cmdstruct->cmdsStruc == NULL)
+            {
+                perror("Erreur Allocation cmdsStruc ");
+                return;
+            }
+
+            int nbCommandes = decoupe_args(args, cmdstruct->cmdsStruc, ARG_MAX);
+            if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
+            {
+                freeCmdStruct(cmdstruct);
+                perror("Erreur découpages commandes structurées");
+            }
+            cmdstruct->nbCommandes = nbCommandes;
+            cmdstruct->type = CMD_STRUCT;
+        }
     }
     else if (strcmp(args[0], "for") == 0)
     {
@@ -92,7 +137,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
-    
 }
 
 int exec_redirection(cmd_redirection *cmd)
@@ -205,6 +249,11 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     else if (cmdstruct->type == CMD_EXTERNE)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
+        return ret;
+    }
+    else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc!=NULL)
+    {
+        ret = execCmdStruct(cmdstruct->cmdsStruc, cmdstruct->nbCommandes, chemin);
         return ret;
     }
     return ret;
