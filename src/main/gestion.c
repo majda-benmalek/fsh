@@ -15,10 +15,13 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/commandeStructuree.h"
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
 #define ARG_MAX 512
+
+
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -47,14 +50,14 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0)
     {
-        cmdstruct->cmdFor = make_for(args);
-        cmdstruct->type = FOR;
-        if (cmdstruct->cmdFor == NULL)
-        {
-            freeCmdStruct(cmdstruct);
-            perror("Erreur remplissage de for");
+            cmdstruct->cmdFor = make_for(args);
+            cmdstruct->type = FOR;
+            if (cmdstruct->cmdFor == NULL)
+            {
+                freeCmdStruct(cmdstruct);
+                perror("Erreur remplissage de for");
+            }
         }
-    }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
         cmdstruct->cmdRed = remplissageCmdRedirection(args);
@@ -68,10 +71,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         cmdstruct->pipe = remplissageCmdPipe(args);
         cmdstruct->type = PIPE;
-        // if (cmdstruct->pipe == NULL)
-        // {
-        //     perror("erreur remplissage pipe");
-        // }
+        if (cmdstruct->pipe == NULL)
+        {
+            perror("erreur remplissage pipe");
+        }
     }
     else
     {
@@ -89,10 +92,12 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
+    
 }
 
 int exec_redirection(cmd_redirection *cmd)
 {
+
     return redirection(cmd);
 }
 
@@ -108,7 +113,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     if (cmdstruct == NULL)
     {
         perror("Structure commande");
-        return 1;
+        return -1;
     }
 
     if (cmdstruct->type == FOR)
@@ -127,6 +132,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         char *arg = cmdstruct->cmdSimple->args[1];
         if (strcmp(cmd, "exit") == 0)
         {
+            // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
             if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
             {
                 write(2, "exit: too many arguments\n", strlen("exit: too many arguments\n"));
@@ -159,6 +165,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             }
             return ret;
         }
+        // gestion de pwd
         else if (strcmp(cmd, "pwd") == 0)
         {
             if (tailleArgs(cmdstruct->cmdSimple->args) > 2)
@@ -191,7 +198,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = exec_redirection(cmdstruct->cmdRed);
     }
-    else if (cmdstruct->type == PIPE && cmdstruct->pipe != NULL)
+    else if (cmdstruct->type == PIPE)
     {
         ret = exec_pipe(cmdstruct->pipe);
     }
