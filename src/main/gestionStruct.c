@@ -38,7 +38,7 @@ int arg_cmdsimple(char **args, char **commande, int i, int j)
     return 0;
 }
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection , commandeStruct ** cmdsStrcu, int nbcommandes, commandeStruct *cmd)
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, cmd_redirection *cmdredirection, commandeStruct **cmdsStrcu, int nbcommandes, commandeStruct *cmd)
 {
 
     if (cmd == NULL)
@@ -340,7 +340,7 @@ cmdFor *make_for(char **args)
         free_for(cmdFor);
         return NULL;
     }
-    memset(cmdFor->op, 0, 12 * sizeof(char*));
+    memset(cmdFor->op, 0, 12 * sizeof(char *));
     // ? ----------------- option-----------
     int i = 4;
     int j = 0;
@@ -373,14 +373,14 @@ cmdFor *make_for(char **args)
                     return NULL;
                 }
                 cmdFor->op[j + 1] = strdup(args[i + 1]);
-                if (cmdFor->op[j+1] == NULL)
+                if (cmdFor->op[j + 1] == NULL)
                 {
                     perror("strdup for");
                     free_for(cmdFor);
                     return NULL;
                 }
                 i = i + 2;
-                j = j+2;
+                j = j + 2;
                 // flag = true;
             }
             else
@@ -428,22 +428,22 @@ cmdFor *make_for(char **args)
     tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
-    // gestion_cmd(inter,cmdFor->cmd[0]);
     gestion_cmd(tab, cmdFor->cmd[0]);
-    // if (cmdFor->cmd==NULL){
-    //     printf("chui BIEN NULLLE\n");
-    //     return NULL;
-    // }else{
-    //     printf("chui pas null le bebe cdm du for\n");
-    //     printf("le type dans make for du bébé cmd de for = %d\n",cmdFor->cmd[0]->type);
-    //     // fflush(NULL);
-    // }
-
-    // boucle_for(cmdFor);
     return cmdFor;
 }
 
+cmdIf *remplissageCmdIf(char **args)
+{
+    // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
+    // * OU 
+    // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
 
-cmdIf *remplissageCmdIf(char** args){
-    
+    // testé si apres if y'a {
+    // exécuté le pipe TEST et redirigé sa sortie sur dev/null 
+    // testé si apres TEST y'a { si y'a pas erreur de syntaxe 
+    // donné la commande a exécuté a gestion/appel fsh directe
+    // vu que c'est soit une commande structurés soit commande simples soit pipe (i guess)
+
+
+
 }
