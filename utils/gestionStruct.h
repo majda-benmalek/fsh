@@ -38,5 +38,7 @@ size_t tailleArgs(char **args);
 
 cmdFor* make_for(char ** args);
 
+cmdIf *remplissageCmdIf(char **args);
+
 
 #endif

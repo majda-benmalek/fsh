@@ -15,16 +15,52 @@
 #include "../../utils/commande.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/exit.h"
+#include "../../utils/gestionStruct.h"
 
-int exec_if(cmdIf *cmd)
+int exec_if(cmdIf *cmd, char *chemin)
 {
+    // ! if [ 1 -eq 1 ] { echo 1=1 }
+    
     // redirection de la sortie d'erreur et de la sortie standard OU l'exécuté sur un autre processus
-    int pid_enf = fork();
-    switch (pid_enf)
-    {
-    case -1:
-        perror("fork");
-    case 0: // code du fils
-
-    default: // code du père
+    perror("exec if");
+    if (cmd->commandeIf != NULL && cmd->commandeIf->cmdsStruc != NULL &&  cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[0]!=NULL) {
+        printf("commandeIf: [%s]\n", cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[0]);
+    }else{
+        printf("cmd->commandeIf est null");
+    }
+    if (cmd->test != NULL) {
+        printf("test: [%s]\n", cmd->test->commandes[0]->args[0]);
+    }else {
+        printf("cmd->test est null");
+    }
+    // int pid_enf = fork();
+    // switch (pid_enf)
+    // {
+    // case -1:
+    //     perror("fork");
+    // case 0: // code du fils
+    //     int ret = 1;
+    //     if (cmd->test != NULL)
+    //     {
+    //         ret = fsh(chemin, &dernier_exit, remplissage_cmdStruct(PIPE, NULL, cmd->test, NULL, NULL, NULL, NULL, 1, NULL));
+    //         exit(ret);
+    //     }
+    // default: // code du père
+    //     // recuperer le code de retour du fils
+    //     int status;
+    //     if (waitpid(pid_enf, &status, 0) == -1)
+    //     {
+    //         perror("waitpid");
+    //         return 1;
+    //     }
+    //     int r = WIFEXITED(status);
+    //     if (r)
+    //     {
+    //         r = fsh(chemin,&dernier_exit,cmd->commandeIf);
+    //         return r;
+    //     }
+    //     else
+    //     {
+    //     }
+    // }
 }

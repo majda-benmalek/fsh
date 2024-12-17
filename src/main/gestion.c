@@ -20,9 +20,8 @@
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/if.h"
 #define ARG_MAX 512
-
-
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -44,8 +43,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         perror("Erreur Structure");
         return;
-    } 
-    else if (args[0] == NULL || args[0][0]=='\0' || args[0][0]=='\n' )
+    }
+    else if (args[0] == NULL || args[0][0] == '\0' || args[0][0] == '\n')
     {
         return;
     }
@@ -94,14 +93,25 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0)
     {
-            cmdstruct->cmdFor = make_for(args);
-            cmdstruct->type = FOR;
-            if (cmdstruct->cmdFor == NULL)
-            {
-                freeCmdStruct(cmdstruct);
-                perror("Erreur remplissage de for");
-            }
+        cmdstruct->cmdFor = make_for(args);
+        cmdstruct->type = FOR;
+        if (cmdstruct->cmdFor == NULL)
+        {
+            freeCmdStruct(cmdstruct);
+            perror("Erreur remplissage de for");
         }
+    }
+    else if (strcmp(args[0], "if") == 0)
+    {
+        perror("je suis un if");
+        cmdstruct->cmdIf = remplissageCmdIf(args);
+        cmdstruct->type = IF;
+        if (cmdstruct->cmdIf == NULL)
+        {
+            free_if(cmdstruct->cmdIf);
+            perror("erreur remplissage if");
+        }
+    }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
         cmdstruct->cmdRed = remplissageCmdRedirection(args);
@@ -250,9 +260,14 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
     }
-    else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc!=NULL)
+    else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc != NULL)
     {
         ret = execCmdStruct(cmdstruct->cmdsStruc, cmdstruct->nbCommandes, chemin);
+        return ret;
+    }
+    else if (cmdstruct->type == IF && cmdstruct->cmdIf != NULL)
+    {
+        ret = exec_if(cmdstruct->cmdIf, chemin);
         return ret;
     }
     return ret;

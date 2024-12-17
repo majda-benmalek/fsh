@@ -408,6 +408,8 @@ cmdIf *remplissageCmdIf(char **args)
 
     cmdIf *cmd = malloc(sizeof(cmdIf));
     cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+    cmd->commandeElse = NULL;
+    cmd->test = NULL;
 
     // pas besoin d'alloué cmd_pipe ca va être fais apres
 
@@ -419,19 +421,27 @@ cmdIf *remplissageCmdIf(char **args)
     }
     size_t taille = tailleArgs(args);
     int i = 0;
-    while (i < taille || strcmp(args[i], "{") != 0)
+    while (i < taille && strcmp(args[i], "{") != 0)
     {
         i++;
     }
+    printf("i apres la boucle = [%d]\n", i);
     // a la fin i= la pos de {
     char **commande = malloc(ARG_MAX * sizeof(char *));
-    if (arg_cmdsimple(args, commande, i, 1) == 0) // copie de 1 à i (exclu)
+    if (arg_cmdsimple(args, commande, i, 1) == 1) // copie de 1 à i (exclu)
     {
         perror("arg_cmdsimple");
         free(commande);
         free_if(cmd);
         return NULL;
     }
+    printf("------------------------------------------------1\n");
+    for (int k = 0; k < i; k++)
+    {
+        printf("commande[%d] = %s\n", k, commande[k]);
+    }
+    printf("------------------------------------------------2\n");
+    // TODO : appelé gestion psq ca peut etre une redirection aussi
     cmd->test = remplissageCmdPipe(commande);
     if (cmd->test == NULL)
     {
@@ -440,42 +450,54 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
+    // print cmd->test->commandes[0]->args
+    for (int k = 0; cmd->test->commandes[0]->args[k] != NULL; k++)
+    {
+        printf("cmd->test->commandes[0]->args[%d] = %s\n", k, cmd->test->commandes[0]->args[k]);
+    }
+    printf("cmd->test->commandes[0]->args[%d] = %s\n", 5, cmd->test->commandes[0]->args[5]);
+
     int j = i + 1; // début de la commande a éxécuté
-    while (i < taille || strcmp(args[i], "else") != 0 || strcmp(args[i], "}"))
+    while (i < taille && /*strcmp(args[i], "else") != 0 &&*/ strcmp(args[i], "}"))
     { // a revoir cette condition psq le for et les if imbriqué
         i++;
     }
+    printf("------------------------------------------------3\n");
     memset(commande, 0, ARG_MAX * sizeof(char *));
-    if (arg_cmdsimple(args, commande, i, j) == 0)
+    printf("i pour la commande du if = [%d]\n", i);
+    printf("j pour la commande du if = [%d]\n", j);
+    if (arg_cmdsimple(args, commande, i, j) == 1) //
     {
         perror("arg_cmdsimple");
         free(commande);
         free_if(cmd);
         return NULL;
     }
+    printf("------------------------------------------------4\n");
     cmd->commandeIf->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
     int nbcom = decoupe_args(commande, cmd->commandeIf->cmdsStruc, ARG_MAX);
     cmd->commandeIf->nbCommandes = nbcom;
-    commandeStruct *tmp = realloc(cmd->commandeIf->cmdsStruc, nbcom + 1);
-    cmd->commandeIf->cmdsStruc = tmp;
-    free(tmp);
-
-    if (tmp == NULL)
+    
+    // commandeStruct **tmp = realloc(cmd->commandeIf->cmdsStruc, nbcom + 1);
+    // cmd->commandeIf->cmdsStruc = tmp;
+    if (cmd->commandeIf->cmdsStruc[1] != NULL && cmd->commandeIf->cmdsStruc[1]->cmdSimple != NULL)
     {
-        perror("realloc");
-        free(commande);
-        free_if(cmd);
-        return NULL;
-    }
-
-    j = i + 1; // le else ou pas
-    if (args[j] != NULL)
-    {
-        if (strcmp(args[j], "else") == 0 && strcmp(args[j + 1], "{") == 0)
+        for (int k = 0; cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[k] != NULL; k++)
         {
-            // TODO :alors on remplit commandeElse
+            printf("cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[%d] = %s\n", k, cmd->commandeIf->cmdsStruc[1]->cmdSimple->args[k]);
         }
+    }else{
+        perror("tout est null");
     }
 
+    // j = i + 1; // le else ou pas
+    // if (args[j] != NULL)
+    // {
+    //     if (strcmp(args[j], "else") == 0 && strcmp(args[j + 1], "{") == 0)
+    //     {
+    //         // TODO :alors on remplit commandeElse
+    //     }
+    // }
+    printf("remplissage if fini\n");
     return cmd;
 }

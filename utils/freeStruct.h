@@ -9,5 +9,6 @@ void freeCmdStruct(commandeStruct *cmd);
 void free_redirection(cmd_redirection *cmd);
 void free_pipe(cmd_pipe *cmd);
 void free_for(cmdFor *cmdFor);
+void free_if(cmdIf *cmd);
 
 #endif // FREESTRUCT_H

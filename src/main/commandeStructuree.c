@@ -71,10 +71,6 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
         }
 
        
-        
-
-
-       
         if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) < 0) {
             for (int i = 0; i < commandeSize - 1; i++) { 
                 free(commande[i]);
