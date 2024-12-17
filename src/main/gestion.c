@@ -84,7 +84,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 }
                 cmdstruct->nbCommandes= nbCommandes;
                 cmdstruct->type = CMD_STRUCT;*/
-                remplissageCmdStructurees(args, &cmdstruct);
+                remplissageCmdStructurees(args, cmdstruct);
                 if (cmdstruct->cmdsStruc == NULL) {
                     perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
                 return ;  
