@@ -139,3 +139,23 @@ void freeCmdStruct(commandeStruct *cmd)
         free(cmd);
     }
 }
+
+void free_if(cmdIf *cmd)
+{
+    if (cmd != NULL)
+    {
+        if (cmd->test != NULL)
+        {
+            free_pipe(cmd->test);
+        }
+        if (cmd->commandeIf != NULL)
+        {
+            freeCmdStruct(cmd->commandeIf);
+        }
+        if (cmd->commandeElse != NULL)
+        {
+            freeCmdStruct(cmd->commandeElse);
+        }
+        free(cmd);
+    }
+}

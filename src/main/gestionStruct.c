@@ -12,6 +12,7 @@
 #include "../../utils/for.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/exit.h"
+#include "../../utils/commandeStructuree.h"
 
 #define ARG_MAX 512
 // #include <stdbool.h>
@@ -386,7 +387,6 @@ cmdFor *make_for(char **args)
         i = i + 1;
     }
 
-
     tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
@@ -396,9 +396,9 @@ cmdFor *make_for(char **args)
 
 cmdIf *remplissageCmdIf(char **args)
 {
-    // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
+    // ? {"if" , "[" , "TEST" , "]" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
     // * OU
-    // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
+    // ? {"if" , [" ,"TEST" , "]" ,"{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
 
     // // testé si apres if y'a {
     //* exécuté le pipe TEST et redirigé sa sortie sur dev/null
@@ -407,47 +407,75 @@ cmdIf *remplissageCmdIf(char **args)
     // vu que c'est soit une commande structurés soit commande simples soit pipe (i guess)
 
     cmdIf *cmd = malloc(sizeof(cmdIf));
-    cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL);
-    
+    cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+
     // pas besoin d'alloué cmd_pipe ca va être fais apres
 
     if (strcmp(args[1], "{") == 0)
     {
         perror("Syntaxe error");
+        free_if(cmd);
+        return NULL;
+    }
+    size_t taille = tailleArgs(args);
+    int i = 0;
+    while (i < taille || strcmp(args[i], "{") != 0)
+    {
+        i++;
+    }
+    // a la fin i= la pos de {
+    char **commande = malloc(ARG_MAX * sizeof(char *));
+    if (arg_cmdsimple(args, commande, i, 1) == 0) // copie de 1 à i (exclu)
+    {
+        perror("arg_cmdsimple");
+        free(commande);
+        free_if(cmd);
+        return NULL;
+    }
+    cmd->test = remplissageCmdPipe(commande);
+    if (cmd->test == NULL)
+    {
+        perror("remplissageCmdPipe");
+        free(commande);
+        free_if(cmd);
+        return NULL;
+    }
+    int j = i + 1; // début de la commande a éxécuté
+    while (i < taille || strcmp(args[i], "else") != 0 || strcmp(args[i], "}"))
+    { // a revoir cette condition psq le for et les if imbriqué
+        i++;
+    }
+    memset(commande, 0, ARG_MAX * sizeof(char *));
+    if (arg_cmdsimple(args, commande, i, j) == 0)
+    {
+        perror("arg_cmdsimple");
+        free(commande);
+        free_if(cmd);
+        return NULL;
+    }
+    cmd->commandeIf->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
+    int nbcom = decoupe_args(commande, cmd->commandeIf->cmdsStruc, ARG_MAX);
+    cmd->commandeIf->nbCommandes = nbcom;
+    commandeStruct *tmp = realloc(cmd->commandeIf->cmdsStruc, nbcom + 1);
+    cmd->commandeIf->cmdsStruc = tmp;
+    free(tmp);
+
+    if (tmp == NULL)
+    {
+        perror("realloc");
+        free(commande);
+        free_if(cmd);
         return NULL;
     }
 
-    
+    j = i + 1; // le else ou pas
+    if (args[j] != NULL)
+    {
+        if (strcmp(args[j], "else") == 0 && strcmp(args[j + 1], "{") == 0)
+        {
+            // TODO :alors on remplit commandeElse
+        }
+    }
 
-
-
+    return cmd;
 }
-
-// // redirection de la sortie d'erreur et de la sortie standard OU l'exécuté sur un autre processus
-// int pid_enf = fork();
-// switch (pid_enf)
-// {
-// case -1:
-//     perror("fork");
-// //! ca c'est dans exec
-// case 0: // code du fils
-//     char **commande = malloc(ARG_MAX);
-//     if (arg_cmdsimple(args, commande, 3, 0) == 0)
-//     {
-//         perror("arg_cmdsimple");
-//         // freecmdif
-//         return NULL;
-//     }
-//     commandeStruct *testPipe = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-//     gestion_cmd(commande, testPipe);
-//     char *chemin = malloc(PATH_MAX);
-//     if (getcwd(chemin, PATH_MAX) == NULL)
-//     {
-//         perror("getcwd");
-//         // free 
-//         // free testPipe
-//         return NULL;
-//     }
-//     int ret = fsh(chemin, &dernier_exit, testPipe);
-
-// default: // code du père

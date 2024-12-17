@@ -71,7 +71,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 break;
             }
         }
-
         // une fois la fin du bloc detectecté tester si ya un ; apres
         if (pvoutbloc)
         {
