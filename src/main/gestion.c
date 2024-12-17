@@ -49,7 +49,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         return;
     }
-    /*else if(rechercheDansArgs(";" , args)){
+    else if(rechercheDansArgs(";" , args)){
         int debutBloc = -1 , finBloc = -1;
         bool pvoutbloc = false;
 
@@ -86,7 +86,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 cmdstruct->type = CMD_STRUCT;
 
             }
-    }*/
+    }
     else if (strcmp(args[0], "for") == 0)
     {
             cmdstruct->cmdFor = make_for(args);
@@ -159,17 +159,6 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = boucle_for(cmdstruct->cmdFor);
         if (ret != 0)
-        {
-            // perror("boucle_for");
-            perror("command_for_run");
-            return ret;
-        };
-    }else if(cmdstruct->type == CMD_STRUCT){
-        printf("je suis iciiiii\n");
-    
-         printf("appel a exec\n");
-        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes);
-        if (ret < 0)
         {
             // perror("boucle_for");
             perror("command_for_run");
@@ -276,6 +265,10 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
+    }
+    else if(cmdstruct->type == CMD_STRUCT){
+        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes);
+        return ret ;
     }
     return ret;
 }

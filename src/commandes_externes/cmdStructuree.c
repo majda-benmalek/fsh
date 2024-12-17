@@ -12,7 +12,8 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/exit.h"
 #include "../../utils/freeStruct.h"
-void afficherCommandeStruct(commandeStruct *cmd) {
+#include "../../utils/cd.h"
+/*void afficherCommandeStruct(commandeStruct *cmd) {
     if (cmd == NULL) {
         printf("Commande : NULL\n");
         return;
@@ -116,14 +117,14 @@ void afficherTableauCommandes(commandeStruct **cmds, int nbCommandes) {
         printf("\n--- Commande %d ---\n", i + 1);
         afficherCommandeStruct(cmds[i]);
     }
-}
+}*/
 
 
 
 int execCmdStruct(commandeStruct **cmds, int nbCommandes) {
-    printf("je suis dans exec cmdStruct\n");
-    afficherTableauCommandes(cmds, nbCommandes);
-    
+    //afficherTableauCommandes(cmds, nbCommandes);
+  
+
     if (cmds == NULL || nbCommandes <= 0) {
         perror("tableau de commandes invalide");
         return -1;
@@ -132,11 +133,19 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes) {
     int last_ret = -1;
     for (int i = 0; i < nbCommandes; i++) {
         commandeStruct *cmd = cmds[i];
-        printf("cmd dans le fils\n");
-        afficherCommandeStruct(cmd);
         if (cmd == NULL) {
             perror("commande invalide");
             return -1; 
+        }
+         if (cmd->type == CMD_INTERNE && cmd->cmdSimple && strcmp(cmd->cmdSimple->args[0], "cd") == 0) {
+              char *chemin = malloc(PATH_MAX);
+                if (getcwd(chemin, PATH_MAX) == NULL) {
+                    perror("getcwd");
+                    free(chemin);
+                    exit(-1); 
+                }
+            last_ret = fsh(chemin,&dernier_exit,cmd);
+            continue;
         }
 
         pid_fils[i] = fork();
@@ -145,14 +154,13 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes) {
             return -1;
         }
         else if (pid_fils[i] == 0) { 
-            char *chemin = malloc(PATH_MAX);
-            if (getcwd(chemin, PATH_MAX) == NULL) {
-                perror("getcwd");
-                free(chemin);
-                exit(-1); 
-            }
-            int retour = fsh(chemin, &dernier_exit, cmd);
-            free(chemin); 
+            char *chemin1 = malloc(PATH_MAX);
+                if (getcwd(chemin1, PATH_MAX) == NULL) {
+                    perror("getcwd");
+                    free(chemin1);
+                    exit(-1); 
+                }
+            int retour = fsh(chemin1, &dernier_exit, cmd);
             exit(retour); 
         }
         else {
@@ -162,12 +170,15 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes) {
                 perror("waitpid");
                 return -1;
             }
-
             if (WIFEXITED(status)) {
                 last_ret = WEXITSTATUS(status); 
-            }
+            } 
+            
         }
     }
+   
 
     return last_ret;
 }
+
+

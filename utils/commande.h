@@ -9,7 +9,6 @@ typedef enum
     CMD_INTERNE,
     REDIRECTION,
     CMD_STRUCT,
-    PAR_DEFAULT,
     FOR,
     IF,
     PIPE
