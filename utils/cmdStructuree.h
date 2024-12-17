@@ -5,7 +5,7 @@
 #include "commandeStructuree.h"
 
 
-int execCmdStruct(commandeStruct ** cmds , int nbCommandes);
+int execCmdStruct(commandeStruct ** cmds , int nbCommandes , char * chemin);
 
 
 

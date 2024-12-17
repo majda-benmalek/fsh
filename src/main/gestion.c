@@ -247,7 +247,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         return ret;
     }
     else if(cmdstruct->type == CMD_STRUCT){
-        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes);
+        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes , chemin);
         return ret ;
     }
     return ret;
