@@ -76,11 +76,11 @@ int optionA(struct dirent *entry, cmdFor *cmdFor)
     return (rechercheDansArgs("-A", cmdFor->op) && entry->d_name[0] == '.' && entry->d_name[1] != '.' && entry->d_name[1] != '\0');
 }
 
-int arg_options(char **op)
+int arg_options(char **op,char *for_opt)
 {
     for (int i = 0; op[i] != NULL; i++)
     {
-        if (strcmp(op[i], "-e") == 0)
+        if (strcmp(op[i], for_opt) == 0)
         {
             return i + 1;
         }
@@ -90,7 +90,7 @@ int arg_options(char **op)
 
 int option_e(struct dirent *entry, cmdFor *cmdFor)
 {
-    char *ext = cmdFor->op[arg_options(cmdFor->op)];
+    char *ext = cmdFor->op[arg_options(cmdFor->op,"-e")];
     char *basename = entry->d_name;
     char *dot = strrchr(basename, '.');
 
@@ -104,9 +104,45 @@ int option_e(struct dirent *entry, cmdFor *cmdFor)
     return 0;
 }
 
+
+
+int option_t(struct dirent *entry, cmdFor *cmd){
+    int type = entry->d_type;
+    int indice_op = arg_options(cmd->op,"-t");
+    int for_type = -1;
+    if (indice_op != 0){
+        if (strcmp(cmd->op[indice_op],"f") == 0){
+            for_type = 8;
+        }
+        else if (strcmp(cmd->op[indice_op],"d") == 0){
+            for_type = 4;
+        }
+        else if (strcmp(cmd->op[indice_op],"l")){
+            for_type = 10;
+        } 
+        else if (strcmp(cmd->op[indice_op],"p")){
+            for_type = 1;
+        }
+        else {
+            perror("vous n'avez pas donne de bon type");
+            return -1;
+        }
+        // printf("entry-> d_type = %d\n",type);
+        // printf("for_type = %d\n",indice_op);
+        return type == for_type;
+    } 
+    else {
+        perror("vous n'avez pas donné de type");
+        return -1;
+    }
+}
+
+
 // TODO Si ca ce passe mal ft faire un truc
+//TODO JE FERME PAS LE REP ? 
 int boucle_for(cmdFor *cmdFor)
 {
+    printf("chui dans la boucle\n");
     int ret = 0; // TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
@@ -125,6 +161,18 @@ int boucle_for(cmdFor *cmdFor)
                 if (!option_e(entry, cmdFor))
                 {
                     continue;
+                }
+            }
+
+            if (rechercheDansArgs("-t",cmdFor->op)){
+                int res = option_t(entry,cmdFor);
+                if (res == 0){
+                    continue;
+                }
+                if (res == -1){
+                    printf("ouais y'a un prob");
+                    perror("problème de type");
+                    return 1;
                 }
             }
 

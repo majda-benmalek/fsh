@@ -83,9 +83,12 @@ int main(void)
         args[nb_args] = NULL;
 
         gestion_cmd(args, cmdstruct);
+        // ICI ON TESTE PAS SI C BIEN REMPLI
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
-        if (cmdstruct != NULL)
-            freeCmdStruct(cmdstruct);
+        // if (ret != 1){
+            if (cmdstruct != NULL)
+                freeCmdStruct(cmdstruct);
+        // }
     }
 }

@@ -327,7 +327,7 @@ cmdFor *make_for(char **args)
         }
         else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
         {
-            if (args[i + 1][0] != '-')
+            if (args[i + 1][0] != '-' && args[i+1][0] != '{')
             {
                 cmdFor->op[j] = strdup(args[i]); // TODO a changer
                 if (cmdFor->op[j] == NULL)
