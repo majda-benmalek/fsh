@@ -13,420 +13,185 @@
 #include "../../utils/ftype.h"
 #include <linux/limits.h>
 #include "../../utils/commande.h"
+#include "../../utils/freeStruct.h"
+#include "../../utils/exit.h"
 #define ARG_MAX 512
 
-
-
-void change_var(char * name,char * variable ,commandeStruct *cmd){
-    //printf("dans  change var");
-    switch (cmd->type)
+int compte_occ(char *chaine, char *sous_chaine)
+{
+    int res = 0;
+    char *c = strstr(chaine, sous_chaine);
+    while (c != NULL)
     {
-    case CMD_INTERNE:
-        //printf("change var cmd interne \n");
-        int i = 0;
-        while (cmd->cmdSimple->args[i]!=NULL){
-            if (strcmp(cmd->cmdSimple->args[i],variable) == 0){
-                strcpy(cmd->cmdSimple->args[i],name);
+        c += strlen(sous_chaine);
+        res++;
+        c = strstr(c, sous_chaine);
+    }
+    return res;
+}
+
+void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
+{
+    if (cmd->type == CMD_EXTERNE || CMD_INTERNE)
+    {
+        int k = 0;
+        while (cmd->cmdSimple->args[k] != NULL)
+        {
+            char *ancienne_cmd = strdup(cmd->cmdSimple->args[k]);
+            char *a_changer = strstr(ancienne_cmd, ancienne);
+            if (a_changer == NULL)
+            {
+                k++;
             }
-            i++;
+            else
+            {
+                int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
+                int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
+                char *realloue = realloc(cmd->cmdSimple->args[k], taille); // TODO TEst = null
+                cmd->cmdSimple->args[k] = realloue;
+                char *prefixe = ancienne_cmd;
+                cmd->cmdSimple->args[k][0] = '\0'; // pour pas qu'il soit à null
+                while (a_changer != NULL)
+                {
+                    int taille_prefixe = strlen(prefixe) - strlen(a_changer);
+                    if (taille_prefixe > 0)
+                    {
+                        strncat(cmd->cmdSimple->args[k], prefixe, taille_prefixe);
+                    }
+                    strcat(cmd->cmdSimple->args[k], nouveau);
+                    prefixe = a_changer + strlen(ancienne);
+                    a_changer = strstr(prefixe, ancienne);
+                }
+                strcat(cmd->cmdSimple->args[k], prefixe);
+                k++;
+                if (ancienne_cmd != NULL)
+                    free(ancienne_cmd);
+
+            }
         }
-        break;
-    
-    default:
-        //printf("change var default \n");
-        break;
+
     }
 }
 
+int optionA(struct dirent *entry, cmdFor *cmdFor)
+{
+    return (rechercheDansArgs("-A", cmdFor->op) && entry->d_name[0] == '.' && entry->d_name[1] != '.' && entry->d_name[1] != '\0');
+}
 
+int arg_options(char **op)
+{
+    for (int i = 0; op[i] != NULL; i++)
+    {
+        if (strcmp(op[i], "-e") == 0)
+        {
+            return i + 1;
+        }
+    }
+    return 0;
+}
 
-// for i in rep { ls -l $i ; echo $i ; }
+int option_e(struct dirent *entry, cmdFor *cmdFor)
+{
+    char *ext = cmdFor->op[arg_options(cmdFor->op)];
+    char *basename = entry->d_name;
+    char *dot = strrchr(basename, '.');
 
+    if (dot != NULL && strcmp(dot + 1, ext) == 0 && basename[0] != '.') // pas un . a la 1ere pos
+    {
+        // printf("Nom du fichier: [%s]\n", basename);
+        // printf("Extension: [%s]\n", ext);
+        // printf("extension du fichier dot+1 : [%s]\n",dot+1);
+        return 1;
+    }
+    return 0;
+}
+
+// TODO Si ca ce passe mal ft faire un truc
 int boucle_for(cmdFor *cmdFor)
 {
-    // if (cmdFor ==NULL){
-    //     printf("dans la boucle for cmdfor est null\n");
-    // }
-    // else{
-    //     printf("cmd for var = %s\n",cmdFor->variable);
-    //     printf("rep = %s\n",cmdFor->rep);
-    //     printf("nbr cmd = %d\n",cmdFor->nbCommandes);
-    // }
-    // if (cmdFor->cmd[0]== NULL){
-    //     printf("cmd for-> cmd est null\n");
-    // }
-    // else{
-    //     printf(" c pas null\n");
-    // }
-    int dernier_exit=0; //TODO A CHANGER
-    int ret=0; //TODO A CHANGER;
+    int ret = 0; // TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
-        perror("Erreur d'ouverture du repertoire");
-        ret=1;
+        fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
+        ret = 1;
         return ret;
     }
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
-        // printf("dans le while\n");
-        if (entry->d_name[0] != '.')
+        if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
         {
-            //printf("entry->d_name ... = %s \n",entry->d_name);
-            //? ici
+
+            if (rechercheDansArgs("-e", cmdFor->op))
+            {
+                if (!option_e(entry, cmdFor))
+                {
+                    continue;
+                }
+            }
+
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {
-                //printf("entry->d_name ... = %s \n",entry->d_name);
-                //printf("cmd for var = %s\n",cmdFor->variable);
-                if (cmdFor->cmd[nbr_cmd] == NULL){
-                    //printf("cmd for-> cmd est null\n");
-                    return ret;
+                char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                strcpy(inter, "$");
+                strcat(inter, cmdFor->variable);
+
+                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
+                if (path == NULL)
+                {
+                    return 1;
                 }
-                else{
-                    //printf(" c pas null\n");
+                strcpy(path, cmdFor->rep);
+                strcat(path, "/");
+                char *c = strstr(entry->d_name, ".");
+                if (c != NULL)
+                {
+                    char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                    memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                    strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                    sprintf(entry->d_name, "%s", nom_sans_ext);
+                    if (nom_sans_ext != NULL)
+                        free(nom_sans_ext);
+
                 }
-                change_var(entry->d_name,cmdFor->variable,cmdFor->cmd[nbr_cmd]);
-                // // ret = fsh("",&dernier_exit,cmdFor->cmd[nbr_cmd]);
-                // if (ret < 0)
-                // {
-                //     perror("Erreur de fsh");
-                //     closedir(dir);
-                //     return ret;
-                // }
-                nbr_cmd=nbr_cmd+1;
+                strcat(path, entry->d_name);
+                nouveau(inter, path, cmdFor->cmd[nbr_cmd]);
+                ret = fsh("", &dernier_exit, cmdFor->cmd[nbr_cmd]);
+                if (cmdFor->cmd[nbr_cmd] == NULL)
+                {
+                    perror("pb ds le changement de var");
+                    free_for(cmdFor);
+                    return 1;
+                }
+                char *ancienne = malloc(strlen(entry->d_name) - 3 + strlen(cmdFor->rep) + 2);
+                strcpy(ancienne, cmdFor->rep);
+                strcat(ancienne, "/");
+                strcat(ancienne, entry->d_name);
+                char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                strcpy(dollar, "$");
+                strcat(dollar, cmdFor->variable);
+                nouveau(ancienne, dollar, cmdFor->cmd[nbr_cmd]);
+                if (cmdFor->cmd[nbr_cmd] == NULL)
+                {
+                    perror("pb ds le changement de var");
+                    free_for(cmdFor);
+                    return 1;
+                }
+                nbr_cmd = nbr_cmd + 1;
+                if (dollar != NULL)
+                    free(dollar);
+                if (ancienne != NULL)
+                    free(ancienne);
+                if (path != NULL)
+                    free(path);
+                if (inter != NULL)
+                    free(inter);
             }
         }
     }
-
     closedir(dir);
 
     return ret;
 }
-
-
-//?
-// char *ptr = (*cmdFor->cmd)->cmdSimple->args;
-            // while ((ptr = strchr(ptr, '$')) != NULL)
-            // {
-            //     if (*(ptr + 1) == cmdFor->variable)
-            //     {
-            //         char chemin[1000];
-            //         snprintf(chemin, sizeof(chemin), "%s/%s",cmdFor->rep, entry->d_name);
-            //         memmove(ptr + strlen(chemin), ptr + 2, strlen(ptr + 2) + 1);
-            //         memcpy(ptr, chemin, strlen(chemin));
-            //         ptr += strlen(chemin);
-            //     }
-            //     else
-            //     {
-            //         ptr++;
-            //     }
-            // }
-
-
-
-
-
-// int boucle_for(cmdFor *cmdFor)
-// {
-//     int dernier_exit=0; //TODO A CHANGER
-//     int ret;
-//     DIR *dir = opendir(cmdFor->rep);
-//     if (dir == NULL)
-//     {
-//         perror("Erreur d'ouverture du repertoire");
-//         ret=1;
-//         return ret;
-//     }
-//     struct dirent *entry;
-//     while ((entry = readdir(dir)) != NULL)
-//     {
-//         if (entry->d_name[0] != '.')
-//         {
-//             char *ptr = (*cmdFor->cmd)->cmdSimple->args;
-//             while ((ptr = strchr(ptr, '$')) != NULL)
-//             {
-//                 if (*(ptr + 1) == cmdFor->variable)
-//                 {
-//                     char chemin[1000];
-//                     snprintf(chemin, sizeof(chemin), "%s/%s",cmdFor->rep, entry->d_name);
-//                     memmove(ptr + strlen(chemin), ptr + 2, strlen(ptr + 2) + 1);
-//                     memcpy(ptr, chemin, strlen(chemin));
-//                     ptr += strlen(chemin);
-//                 }
-//                 else
-//                 {
-//                     ptr++;
-//                 }
-//             }
-//             int nbr_cmd = cmdFor->nbCommandes;
-//             while (nbr_cmd>0)
-//             {
-//                 ret = fsh((*cmdFor->cmd)->cmdSimple->args,cmdFor->rep,&dernier_exit,cmdFor->cmd);
-//                 if (ret < 0)
-//                 {
-//                     perror("Erreur de fsh");
-//                     closedir(dir);
-//                     return ret;
-//                 }
-//                 nbr_cmd--;
-//             }
-//         }
-//     }
-
-//     closedir(dir);
-
-//     return ret;
-// }
-
-
-// int make_for(char *input, cmdFor *cmdFor){
-//     //* --------- option----------
-//     cmdFor->op = NULL;
-
-//     // ? -------- Type ---------
-//     cmdFor->type = FOR;
-
-//     // * ------------------ variable ---------------
-//     char *debut_variable = input + 4;
-//     char *fin_variable = strstr(debut_variable, " in");
-//     int ret = 0;
-
-//     if (fin_variable != NULL)
-//     {
-//         int len = fin_variable - debut_variable;
-//         if (len != 1)
-//         {
-//             perror("Erreur de syntaxe, la variable doit contenir un seul caractère");
-//             return 1;
-//         }
-//         cmdFor->variable = *debut_variable;
-//     }
-//     else
-//     {
-//         perror("in attendu");
-//         ret=1;
-//         return ret;
-//     }
-
-//     // ? --------------- répertoire --------------
-//     char *debut_rep_opt = strstr(input, "in ");
-//     char *fin_rep_opt = strstr(input, " {");
-//     char *fin_cmd = strstr(input, " }");
-
-//     if (fin_rep_opt == NULL || fin_cmd == NULL || debut_rep_opt == NULL)
-//     {
-//         perror("Erreur de syntaxe");
-//         ret=1;
-//         return ret;
-//     }
-
-//     debut_rep_opt += 3;
-//     int len_rep = fin_rep_opt - debut_rep_opt;
-//     char rep[len_rep + 1];
-//     strncpy(rep, debut_rep_opt, len_rep);
-//     rep[len_rep] = '\0';
-    
-//     // * ------------ extraction des commandes ------------
-//     char *debut_cmd = fin_rep_opt + 2;
-//     int len_cmd = fin_cmd - debut_cmd;
-//     char commandes[len_cmd + 1];
-//     strncpy(commandes, debut_cmd, len_cmd);
-//     commandes[len_cmd] = '\0';
-
-//     // TODO APPPELER LA FCT FSH SUR COMMANDES
-//     // gestion_cmd(commandes,cmdFor->cmd);
-//     gestion_cmd(commandes, *(cmdFor->cmd));
-
-//     return ret;
-// }
-
-
-//-----------
-
-    // char * opt= strstr(rep,"-");
-
-    // if (opt == NULL){
-    //     cmdFor.rep= rep; // TODO for i in rep A {} le nom du répertoire sera "rep A" c pas bon
-    // }else{
-
-    // }
-
-    // int rep_option(char *input, char *rep, char *opt){
-    //     char *inter = strstr(input,"-");
-    //     if (inter == NULL){
-    //         rep=inter;
-    //     }else{
-    //         // int len
-    //     }
-    // }
-
-
-
-
-//! Ancienne version
-
-
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <fcntl.h>
-// #include <unistd.h>
-// #include <string.h>
-// #include <sys/wait.h>
-// #include <dirent.h>
-// #include <errno.h>
-// #include <limits.h>
-// #include "../../utils/redirection.h"
-// #include "../../utils/gestion.h"
-// #include "../../utils/extern.h"
-// #include "../../utils/ftype.h"
-// #include <linux/limits.h>
-// #define ARG_MAX 512
-
-// int boucle_for(char *input)
-// {
-//     /**
-//      * for i in rep { ls -l $i ; echo $i ; }
-//      * 1- ectraire la variable i
-//      * 2- extraire rep
-//      * 3- extraire les commande ls -l $i ; echo $i ;
-//      * 4- pour chaque commande remplacer $i par le nom du fichier
-//      * 5- utiliser strok pour separer les commandes avec le separateur " ;"
-//      * 6- pour chaque commande verifier si c'est une redirection donc appeler la fonction redirection
-//      * sinon utiliser execvp pour executer la commande
-//      */
-
-//     // pour la variable i
-//     char var;
-//     char *debut_variable = input + 4;
-//     char *fin_variable = strstr(debut_variable, " in");
-//     int ret = 0;
-
-//     if (fin_variable != NULL)
-//     {
-//         int len = fin_variable - debut_variable;
-//         if (len != 1)
-//         {
-//             perror("Erreur de syntaxe, la variable doit contenir un seul caractère");
-//             return 1;
-//         }
-//         var = *debut_variable;
-//     }
-//     else
-//     {
-//         perror("in attendu");
-//         ret=1;
-//         return ret;
-//     }
-//     // extraction de rep
-//     // for i in rep { ls -l $i ; echo $i ; }
-//     // rep avant le " {" et aprés le " in"
-
-//     char *debut_rep = strstr(input, "in ");
-//     char *fin_rep = strstr(input, " {");
-//     char *fin_cmd = strstr(input, " }");
-
-//     if (fin_rep == NULL || fin_cmd == NULL || debut_rep == NULL)
-//     {
-//         perror("Erreur de syntaxe");
-//         ret=1;
-//         return ret;
-//     }
-
-//     debut_rep += 3;
-//     int len_rep = fin_rep - debut_rep;
-//     char rep[len_rep + 1];
-//     strncpy(rep, debut_rep, len_rep);
-//     rep[len_rep] = '\0';
-
-//     // extraction des commandes
-//     char *debut_cmd = fin_rep + 2;
-//     int len_cmd = fin_cmd - debut_cmd;
-//     char commandes[len_cmd + 1];
-//     strncpy(commandes, debut_cmd, len_cmd);
-//     commandes[len_cmd] = '\0';
-//     // printf("cmd = %s\n var = %c\n rep = %s\n", commandes, var, rep);
-
-//     // remplacer les $i
-
-//     DIR *dir = opendir(rep);
-//     if (dir == NULL)
-//     {
-//         perror("Erreur d'ouverture du repertoire");
-//         ret=1;
-//         return ret;
-//     }
-//     struct dirent *entry;
-//     while ((entry = readdir(dir)) != NULL)
-//     {
-
-//         // pour ignorer les fichiers cachés
-//         if (entry->d_name[0] != '.')
-//         {
-//             // printf("Fichier trouvé : %s\n", entry->d_name);
-//             char commandes_modifiee[len_cmd + 1000];
-//             strcpy(commandes_modifiee, commandes);
-//             /* maintenant que j'ai le nom du fichier je vais chercher dans les commande si je trouve des occurence de $i pour ça je vais utiliser un autre pointeur ui va parcourir la liste*/
-//             char *ptr = commandes_modifiee;
-//             while ((ptr = strchr(ptr, '$')) != NULL)
-//             {
-//                 // verifier si c'est bien i
-//                 if (*(ptr + 1) == var)
-//                 {
-//                     // deplacer la portion aprés la variable de pos + strlen d->d_name
-//                     /*deplacer la chaine qui se situe apres la varible donc aprs pos+2 ($i) de longueur strlen(pos+2) donc ca nous donne le nombre de caractére a deplacer enfin les deplacer vers la position pos+strlen(d->d_name)*/
-//                     char chemin[1000];
-
-//                     snprintf(chemin, sizeof(chemin), "%s/%s", rep, entry->d_name);
-//                     memmove(ptr + strlen(chemin), ptr + 2, strlen(ptr + 2) + 1);
-//                     // puisque c'est deplacer on va copier
-//                     memcpy(ptr, chemin, strlen(chemin));
-//                     ptr += strlen(chemin);
-//                 }
-//                 else
-//                 {
-//                     ptr++;
-//                 }
-//             }
-//             //  séparer les cmd avec le separateur ;
-//             //  appliquer chaque commande
-//             char *cmd = strtok(commandes_modifiee, ";");
-//             char *cmd1 = cmd;
-//             snprintf(cmd, strlen(cmd1), "%s", cmd1 + 1);
-
-//             while (cmd != NULL)
-//             {
-//                 char *arg1 = malloc(ARG_MAX);
-//                 char *cmd1 = malloc(ARG_MAX);
-//                 gestion_cmd(cmd, arg1, cmd1);
-//                 int dernier_exit = 0;
-//                 char chemin_fsh[4096] = "";
-//                 if (getcwd(chemin_fsh, 4096) == NULL)
-//                 {
-//                     perror("Erreur de getcwd");
-//                     closedir(dir);
-//                     free(arg1);
-//                     free(cmd1);
-//                     ret=1;
-//                     return ret;
-//                 }
-
-//                 ret = fsh(cmd1, arg1, cmd, chemin_fsh, &dernier_exit);
-//                 if (ret < 0)
-//                 {
-//                     perror("Erreur de fsh");
-//                     closedir(dir);
-//                     free(arg1);
-//                     free(cmd1);
-//                     return ret;
-//                 }
-//                 cmd = strtok(NULL, ";");
-//             }
-//         }
-//     }
-
-//     closedir(dir);
-
-//     return ret;
-// }

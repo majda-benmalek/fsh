@@ -25,7 +25,7 @@ int ftype(char *name)
     }
     if (lstat(name,&st)!=0)
         {
-            perror("problème avec le lstat");
+            // perror("problème avec le lstat");
             goto error;
         }
 

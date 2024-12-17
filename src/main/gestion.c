@@ -20,6 +20,20 @@
 #include "../../utils/freeStruct.h"
 #define ARG_MAX 512
 
+int rechercheDansArgs(char *tofind, char **args)
+{
+    for (int i = 0; i < tailleArgs(args) - 1; i++)
+    {
+
+        if (strcmp(args[i], tofind) == 0)
+        {
+
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
     if (!cmdstruct)
@@ -75,6 +89,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
+    
 }
 
 int exec_redirection(cmd_redirection *cmd)
@@ -98,17 +113,20 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         return -1;
     }
 
-    // TODO testé direct si cmdstruct->type = CMD_INTERNE sinon problème psq si cmd==NULL erreur
-    if (cmdstruct->type == CMD_INTERNE)
+    if (cmdstruct->type == FOR)
     {
-        // printf("dans cmd interne\n");
+        ret = boucle_for(cmdstruct->cmdFor);
+        if (ret != 0)
+        {
+            // perror("boucle_for");
+            perror("command_for_run");
+            return ret;
+        };
+    }
+    else if (cmdstruct->type == CMD_INTERNE)
+    {
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
-        // print cmdstrstuct->cmdSimple->args
-        //  for (int i = 0; cmdstruct->cmdSimple->args[i]!=NULL; i++)
-        //  {
-        //      printf("cmdstruct->cmdSimple->args[%d] = %s\n", i, cmdstruct->cmdSimple->args[i]);
-        //  }
         if (strcmp(cmd, "exit") == 0)
         {
             // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
@@ -187,6 +205,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret > 0)
             {
                 perror("ftype");
+                // printf("pb ftype arg = %s\n",arg);
                 return ret;
             }
         }

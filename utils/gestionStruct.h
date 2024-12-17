@@ -38,6 +38,5 @@ size_t tailleArgs(char **args);
 
 cmdFor* make_for(char ** args);
 
-int rechercheDansArgs(char *tofind, char **args);
 
 #endif
