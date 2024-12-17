@@ -15,10 +15,14 @@
 #include "../../utils/ftype.h"
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
+#include "../../utils/commandeStructuree.h"
+#include "../../utils/cmdStructuree.h"
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
 #define ARG_MAX 512
+
+
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -44,6 +48,55 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     if (args[0] == NULL)
     {
         return;
+    }
+    else if(rechercheDansArgs(";" , args)){
+        int debutBloc = -1 , finBloc = -1;
+        bool pvoutbloc = false;
+
+        // arriver a la fin du bloc 
+        for (int i = 0; args[i] != NULL; i++){
+            if(strcmp(args[i] , "{") == 0){
+                debutBloc = i;
+            } else if (strcmp(args[i] , "}") == 0 && debutBloc != -1){
+                finBloc = i;
+            }
+            if(strcmp(args[i] , ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc))){
+                pvoutbloc = true;
+                break;
+            }
+        }
+
+        // une fois la fin du bloc detectecté tester si ya un ; apres 
+        if(pvoutbloc){
+           
+                /*cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+                if(cmdstruct->cmdsStruc == NULL){
+                    perror("Erreur Allocation cmdsStruc ");
+                    return;
+                }
+
+                int nbCommandes = decoupe_args(args , cmdstruct->cmdsStruc , ARG_MAX);
+                if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
+                {
+                    freeCmdStruct(cmdstruct);
+                    perror("Erreur découpages commandes structurées");
+                    
+                }
+                cmdstruct->nbCommandes= nbCommandes;
+                cmdstruct->type = CMD_STRUCT;*/
+                remplissageCmdStructurees(args, cmdstruct);
+                if (cmdstruct->cmdsStruc == NULL) {
+                    perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
+                return ;  
+}
+
+                if (cmdstruct->nbCommandes < 0) {
+                    perror("Erreur lors du découpage des commandes");
+                    freeCmdStruct(cmdstruct);  // 
+                    return;  
+                }
+
+            }
     }
     else if (strcmp(args[0], "for") == 0)
     {
@@ -170,26 +223,6 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             }
             return ret;
         }
-        // gestion de pwd
-        else if (strcmp(cmd, "cd") == 0)
-        {
-            if (tailleArgs(cmdstruct->cmdSimple->args) > 3)
-            {
-                write(2, "pwd: too many arguments\n", strlen("pwd: too many arguments\n"));
-                ret = 1;
-                ret = 1;
-                return ret;
-            }
-            ret = cd_commande(arg);
-            if (getcwd(chemin, PATH_MAX) == NULL)
-            {
-                perror("getcwd");
-                ret = 1;
-                return ret;
-            }
-            return ret;
-        }
-        // gestion de pwd
         else if (strcmp(cmd, "pwd") == 0)
         {
             if (tailleArgs(cmdstruct->cmdSimple->args) > 2)
@@ -231,6 +264,10 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
+    }
+    else if(cmdstruct->type == CMD_STRUCT){
+        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes , chemin);
+        return ret ;
     }
     return ret;
 }

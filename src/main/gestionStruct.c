@@ -11,6 +11,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/cmdStructuree.h"
 
 #define ARG_MAX 512
 // #include <stdbool.h>
@@ -256,6 +257,30 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
 
+void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct){
+ 
+    cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
+    int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
+    if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
+    {
+      freeCmdStruct(cmdStruct);
+      perror("Erreur découpages commandes structurées");
+      return ;
+    }
+    cmdStruct->nbCommandes = nbCommandes;
+    commandeStruct* tmp = realloc(cmdStruct->cmdsStruc,sizeof(commandeStruct*) * (nbCommandes + 1));
+    if(tmp!=NULL)
+      cmdStruct->cmdsStruc=tmp;
+    else {
+        perror("probleme de realloc");
+        freeCmdStruct(tmp);
+        freeCmdSimple(cmdStruct);
+        return ;
+    }
+    cmdStruct->type = CMD_STRUCT;
+
+}
+
 
 cmdFor *make_for(char **args)
 {
@@ -374,6 +399,8 @@ cmdFor *make_for(char **args)
         k = k + 1;
         i = i + 1;
     }
+
+
     tab[k] = NULL;
     cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein

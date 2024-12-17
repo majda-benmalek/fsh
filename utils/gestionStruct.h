@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "commande.h"
 
+
+int arg_cmdsimple(char **args, char **commande, int i, int j);
+
 /**
  * @brief Alloue et remplit une structure commandeStruct.
  *
@@ -29,6 +32,7 @@ cmd_simple *remplissage_cmdSimple(char **args);
 cmd_redirection *remplissageCmdRedirection(char **args);
 
 cmd_pipe *remplissageCmdPipe(char **args);
+void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct);
 
 size_t tailleArgs(char **args);
 

@@ -44,7 +44,7 @@ int ouvrir_fichier(const char *fichier, const char *separateur)
     int flags = dterminer_flags(separateur);
     if (flags == -1)
     {
-        return -1;
+        return 1;
     }
     int fd = open(fichier, flags, 0644);
     return fd;
@@ -122,34 +122,34 @@ int redirection(cmd_redirection *cmdredirect)
         return 1;
     }
     int copie_stdout = -1, copie_stdin = -1, copie_stderr = -1;
-    if (sauvgarde_descripteurs(STDOUT_FILENO, &copie_stdout) < 0)
+    if (sauvgarde_descripteurs(STDOUT_FILENO, &copie_stdout) != 0)
     {
         perror("sauvgarde descripteurs");
         close(fd);
         return 1;
     }
-    if (sauvgarde_descripteurs(STDIN_FILENO, &copie_stdin) < 0)
+    if (sauvgarde_descripteurs(STDIN_FILENO, &copie_stdin) != 0)
     {
         perror("sauvgarde descripteurs");
         close(fd);
         return 1;
     }
 
-    if (sauvgarde_descripteurs(STDERR_FILENO, &copie_stderr) < 0)
+    if (sauvgarde_descripteurs(STDERR_FILENO, &copie_stderr) != 0)
     {
         perror("sauvegarde descripteurs");
         close(fd);
         return 1;
     }
 
-    if (duplication_fd(fd, separateur) < 0)
+    if (duplication_fd(fd, separateur) != 0)
     {
         perror("duplication fd");
         restauration_descipteur(copie_stdout, STDOUT_FILENO);
         restauration_descipteur(copie_stdin, STDIN_FILENO);
         restauration_descipteur(copie_stderr, STDERR_FILENO);
         close(fd);
-        return -1;
+        return 1;
     }
     close(fd);
 
@@ -181,11 +181,11 @@ int redirection(cmd_redirection *cmdredirect)
         freeCmdStruct(cmd);
     if (chemin)
         free(chemin);
-    if (restauration_descipteur(copie_stdout, STDOUT_FILENO) < 0 ||
-        restauration_descipteur(copie_stdin, STDIN_FILENO) < 0 || restauration_descipteur(copie_stderr, STDERR_FILENO) < 0)
+    if (restauration_descipteur(copie_stdout, STDOUT_FILENO) != 0 ||
+        restauration_descipteur(copie_stdin, STDIN_FILENO) != 0 || restauration_descipteur(copie_stderr, STDERR_FILENO) != 0)
     {
         perror("restaurer descripteur");
-        return -1;
+        return 1;
     }
 
     return ret;

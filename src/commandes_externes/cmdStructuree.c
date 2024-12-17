@@ -12,57 +12,61 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/exit.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/cd.h"
 
 
-int execCmdStruct(commandeStruct ** cmds , int nbCommandes){
+int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
+    //afficherTableauCommandes(cmds, nbCommandes);
+  
+
     if (cmds == NULL || nbCommandes <= 0) {
-        fprintf(stderr, "Erreur : tableau de commandes invalide ou vide\n");
+        perror("tableau de commandes invalide");
         return -1;
     }
-
-
     pid_t pid_fils[nbCommandes];
+    int last_ret = -1;
     for (int i = 0; i < nbCommandes; i++) {
-    commandeStruct *cmd = cmds[i];
-    if (cmd == NULL) {
-            fprintf(stderr, "Erreur : commande %d invalide (NULL)\n", i);
-            continue; // Passer à la commande suivante
-        
-    int ret; 
-    pid_fils[i] = fork();
-    if (pid_fils[i] == -1)
-        {
+        commandeStruct *cmd = cmds[i];
+        if (cmd == NULL) {
+            perror("commande invalide");
+            return -1; 
+        }
+         if (cmd->type == CMD_INTERNE && cmd->cmdSimple && strcmp(cmd->cmdSimple->args[0], "cd") == 0) {
+            last_ret = fsh(chemin,&dernier_exit,cmd);
+            continue;
+        }
+
+        pid_fils[i] = fork();
+        if (pid_fils[i] == -1) {
             perror("fork");
-            return 1;
+            return -1;
         }
-
-        if (pid_fils[i] == 0) // Code exécuté par les enfants
-        {
-            char *chemin = malloc(PATH_MAX);
-            if (getcwd(chemin, PATH_MAX) == NULL)
-            {
-                perror("getcwd");
-                free(chemin);
-                return 1;
+        else if (pid_fils[i] == 0) { 
+            char *chemin1 = malloc(PATH_MAX);
+                if (getcwd(chemin1, PATH_MAX) == NULL) {
+                    perror("getcwd");
+                    free(chemin1);
+                    exit(-1); 
+                }
+            int retour = fsh(chemin1, &dernier_exit, cmd);
+            exit(retour); 
+        }
+        else {
+            int status;
+            pid_t pid = waitpid(pid_fils[i], &status, 0);
+            if (pid == -1) {
+                perror("waitpid");
+                return -1;
             }
-            ret = fsh(chemin, &dernier_exit, cmd);
-            exit(ret);
+            if (WIFEXITED(status)) {
+                last_ret = WEXITSTATUS(status); 
+            } 
+            
         }
     }
-    }
+   
 
-    int ret;
-    int status;
-    for (int i = 0; i < nbCommandes; i++)
-    {
-        waitpid(pid_fils[i], &status, 0);
-        if (WIFEXITED(status))
-        {
-            ret = WEXITSTATUS(status);
-        }
-    }
-
-    return ret;
-
-    
+    return last_ret;
 }
+
+

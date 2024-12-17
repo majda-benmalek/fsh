@@ -66,8 +66,10 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 k++;
                 if (ancienne_cmd != NULL)
                     free(ancienne_cmd);
+
             }
         }
+
     }
 }
 
@@ -152,6 +154,7 @@ int boucle_for(cmdFor *cmdFor)
     {
         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
         {
+
             if (rechercheDansArgs("-e", cmdFor->op))
             {
                 if (!option_e(entry, cmdFor))
