@@ -68,10 +68,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         cmdstruct->pipe = remplissageCmdPipe(args);
         cmdstruct->type = PIPE;
-        if (cmdstruct->pipe == NULL)
-        {
-            perror("erreur remplissage pipe");
-        }
+        // if (cmdstruct->pipe == NULL)
+        // {
+        //     perror("erreur remplissage pipe");
+        // }
     }
     else
     {
@@ -89,12 +89,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
-    
 }
 
 int exec_redirection(cmd_redirection *cmd)
 {
-
     return redirection(cmd);
 }
 
@@ -110,7 +108,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     if (cmdstruct == NULL)
     {
         perror("Structure commande");
-        return -1;
+        return 1;
     }
 
     if (cmdstruct->type == FOR)
@@ -191,10 +189,9 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     else if (cmdstruct->type == REDIRECTION)
     {
-
         ret = exec_redirection(cmdstruct->cmdRed);
     }
-    else if (cmdstruct->type == PIPE)
+    else if (cmdstruct->type == PIPE && cmdstruct->pipe != NULL)
     {
         ret = exec_pipe(cmdstruct->pipe);
     }

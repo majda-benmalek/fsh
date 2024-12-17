@@ -11,6 +11,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/exit.h"
 
 #define ARG_MAX 512
 // #include <stdbool.h>
@@ -218,21 +219,30 @@ cmd_pipe *remplissageCmdPipe(char **args)
         }
         else if (strcmp(args[i], "|") == 0)
         {
-            if (arg_cmdsimple(args, commande, i, j) == 1)
+            if (args[i + 1] == NULL)
             {
+                perror("Syntaxe error");
                 free_pipe(cmd);
                 return NULL;
             }
-            cmd->commandes[nb] = remplissage_cmdSimple(commande);
-            // printf cmd->commandes[nb]->args
-            if (cmd->commandes[nb] == NULL)
+            else
             {
-                perror("remplissage cmd simple dans remplissage pipe");
-                free_pipe(cmd);
-                return NULL;
+                if (arg_cmdsimple(args, commande, i, j) == 1)
+                {
+                    free_pipe(cmd);
+                    return NULL;
+                }
+                cmd->commandes[nb] = remplissage_cmdSimple(commande);
+                // printf cmd->commandes[nb]->args
+                if (cmd->commandes[nb] == NULL)
+                {
+                    perror("remplissage cmd simple dans remplissage pipe");
+                    free_pipe(cmd);
+                    return NULL;
+                }
+                nb += 1;
+                j = i + 1;
             }
-            nb += 1;
-            j = i + 1;
         }
         for (int i = 0; commande[i] != NULL; i++)
         {
@@ -255,7 +265,6 @@ cmd_pipe *remplissageCmdPipe(char **args)
 // si vous voulez teste les pipes
 // cat fichier.txt | sort | head -n 5 | ftype fichier.txt
 //  cat fichier.txt | sort | head -n 5
-
 
 cmdFor *make_for(char **args)
 {
@@ -386,15 +395,49 @@ cmdFor *make_for(char **args)
 cmdIf *remplissageCmdIf(char **args)
 {
     // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
-    // * OU 
+    // * OU
     // ? {"if" , "TEST" , "{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
 
-    // testé si apres if y'a {
-    // exécuté le pipe TEST et redirigé sa sortie sur dev/null 
-    // testé si apres TEST y'a { si y'a pas erreur de syntaxe 
+    // // testé si apres if y'a {
+    // exécuté le pipe TEST et redirigé sa sortie sur dev/null
+    // testé si apres TEST y'a { si y'a pas erreur de syntaxe
     // donné la commande a exécuté a gestion/appel fsh directe
     // vu que c'est soit une commande structurés soit commande simples soit pipe (i guess)
 
+    cmdIf* cmd = malloc(sizeof(cmdIf));
+    //pas besoin d'alloué cmd_pipe ca va être fais apres 
 
+    if (strcmp(args[1], "{") == 0)
+    {
+        perror("Syntaxe error");
+        return NULL;
+    }
 
+    //redirection de la sortie d'erreur et de la sortie standard OU l'exécuté sur un autre processus 
+    int pid_enf = fork();
+    switch(pid_enf){
+        case -1 :
+        perror("fork");
+        //! ca c'est dans exec 
+        case 0 : //code du fils 
+            char** commande = malloc(ARG_MAX);
+            if(arg_cmdsimple(args,commande,3,0)==0){
+                perror("arg_cmdsimple");
+                //freecmdif
+                return NULL;
+            }
+            commandeStruct * testPipe = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL);
+            gestion_cmd(commande,testPipe);
+            char* chemin = malloc(PATH_MAX);
+            if(getcwd(chemin,PATH_MAX)==NULL){
+                perror("getcwd");
+                //free
+                //free testPipe
+                return NULL;
+            }
+            int ret = fsh(chemin,&dernier_exit,testPipe);
+        
+        default : //code du père
+
+    }
 }
