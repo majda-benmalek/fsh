@@ -393,7 +393,7 @@ cmdFor *make_for(char **args)
 
     char *tab[ARG_MAX];
     unsigned int k = 0;
-    while (args[i] != NULL && i < taille && strcmp(args[i], "}") != 0)
+    while (args[i] != NULL && i < taille /*&& strcmp(args[i], "}") != 0*/ )
     { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
         k = k + 1;
