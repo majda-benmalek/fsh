@@ -368,7 +368,7 @@ cmdFor *make_for(char **args)
         }
         else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
         {
-            if (args[i + 1][0] != '-' && args[i+1][0] != '{')
+            if (args[i + 1][0] != '-' && args[i + 1][0] != '{')
             {
                 cmdFor->op[j] = strdup(args[i]); // TODO a changer
                 if (cmdFor->op[j] == NULL)
@@ -431,19 +431,13 @@ cmdIf *remplissageCmdIf(char **args)
     // * OU
     // ? {"if" , [" ,"TEST" , "]" ,"{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
     // !  if test -d NOTADIR { echo bad ; ./ret 10 } else { echo good ; ./ret 11 }
-
     // ? TEST_FOLDER_FILTER=jalon-2-B ./test.sh
-    // perror("remplissage if");
-    // // testé si apres if y'a {
-    // // testé si apres TEST y'a { si y'a pas erreur de syntaxe
 
     cmdIf *cmd = malloc(sizeof(cmdIf));
     cmd->type = IF;
     cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     cmd->commandeElse = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     cmd->test = NULL;
-
-    // pas besoin d'alloué cmd_pipe ca va être fais apres
 
     if (strcmp(args[1], "{") == 0)
     {
@@ -474,7 +468,8 @@ cmdIf *remplissageCmdIf(char **args)
         return NULL;
     }
     // TODO : appelé gestion psq ca peut etre une redirection aussi
-    cmd->test = remplissageCmdPipe(commande);
+    cmd->test = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+    gestion_cmd(commande, cmd->test);
     if (cmd->test == NULL)
     {
         perror("remplissageCmdPipe");
@@ -585,5 +580,3 @@ cmdIf *remplissageCmdIf(char **args)
     }
     return cmd;
 }
-
-

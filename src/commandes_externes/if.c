@@ -30,7 +30,7 @@ int exec_if(cmdIf *cmd, char *chemin)
         int ret = 1;
         if (cmd->test != NULL)
         {
-            ret = fsh(chemin, &dernier_exit, remplissage_cmdStruct(PIPE, NULL, cmd->test, NULL, NULL, NULL, NULL, 1, NULL));
+            ret = fsh(chemin, &dernier_exit, cmd->test);
             exit(ret);
         }
     default: // code du père
@@ -54,7 +54,7 @@ int exec_if(cmdIf *cmd, char *chemin)
                 return 1;
             }
         }
-        else 
+        else
         {
             if (cmd->commandeElse != NULL)
             {

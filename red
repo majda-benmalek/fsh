@@ -1,0 +1,14 @@
+AUTHORS.md
+exec
+fichier.txt
+fsh
+Makefile
+mon_repertoire
+myfolder
+out
+README.md
+red
+sortie
+src
+test.sh
+utils

@@ -79,9 +79,9 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 }
                 strcat(cmd->cmdSimple->args[k], prefixe);
                 k++;
+                if (ancienne_cmd != NULL)
+                    free(ancienne_cmd);
             }
-            if (ancienne_cmd != NULL)
-                free(ancienne_cmd);
         }
     }
 }
@@ -153,8 +153,8 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         return -1;
     }
 }
-int boucle_for(cmdFor *cmdFor);
 
+int boucle_for(cmdFor *cmdFor);
 int option_r(struct dirent *entry, cmdFor *cmd)
 {
     if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
@@ -194,7 +194,7 @@ int option_r(struct dirent *entry, cmdFor *cmd)
         }
         return 0;
     }
-    return 0;
+    return 1;
 }
 
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
@@ -243,7 +243,7 @@ int boucle_for(cmdFor *cmdFor)
                 ret = option_r(entry, cmdFor);
                 if (ret == 1)
                     break;
-                continue;
+                // continue ;
             }
 
             int nbr_cmd = 0;
@@ -263,12 +263,14 @@ int boucle_for(cmdFor *cmdFor)
                 {
                     strcat(path, "/");
                 }
+                // Pour savoir quand enlevé l'exetension
                 if (cmdFor->cmd[nbr_cmd]->type == CMD_EXTERNE)
                 {
-                    if (entry->d_name != NULL)
+                    char *c = strstr(entry->d_name, ".");
+                    if (c != NULL)
                     {
-                        char *c = strstr(entry->d_name, ".");
-                        if (c != NULL && c != entry->d_name)
+                        //verifie que le point n'est pas le 1er char du nom du fichier (style .git )
+                        if (entry->d_name[0] != c[0])
                         {
                             char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
                             memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
