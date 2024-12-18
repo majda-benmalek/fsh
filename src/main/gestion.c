@@ -65,8 +65,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         perror("Erreur Structure");
         return;
     }
-    if (args[0] == NULL)
-    {
+    else if (args[0] == NULL || args[0][0] == '\0' || args[0][0] == '\n'){
         return;
     }
     if (strcmp(args[0], "for") == 0 && est_cmdStruct(args) == false)
