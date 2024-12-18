@@ -43,8 +43,8 @@ void eleverSlash(char *path)
 //TODO A CHANGER PR QUE SOIT PR TT LES TYPES
 int nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
-    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
-    {
+    // if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
+    // {
         // printf("chui dans nouveau\n");
         int k = 0;
         while (cmd->cmdSimple->args[k] != NULL)
@@ -86,7 +86,7 @@ int nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
             if (ancienne_cmd != NULL)
                 free(ancienne_cmd);
         }
-    }
+    // }
     return 0;
 }
 
@@ -209,6 +209,9 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     }
     return 0;
 }
+
+
+
 
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 //  TODO Si ca ce passe mal ft faire un truc

@@ -431,7 +431,7 @@ cmdFor *make_for(char **args)
     // cmdFor->cmd->cmdsStruc[0] = malloc(sizeof(commandeStruct));
     // cmdFor->cmd->cmdsStruc[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(tab, cmdFor->cmd->cmdsStruc[0]);
-    // printf("chui ici\n");
+    // printf("chui ici fin du make for \n");
     return cmdFor;
 }
 
