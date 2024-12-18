@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -30,6 +31,14 @@ int compte_occ(char *chaine, char *sous_chaine)
     return res;
 }
 
+void eleverSlash(char *path) {
+    size_t len = strlen(path);
+    if (len > 0 && path[len - 1] == '/') {
+        path[len - 1] = '\0'; // Supprime le dernier '/'
+    }
+}
+
+
 void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
     if (cmd->type == CMD_EXTERNE || CMD_INTERNE)
@@ -48,6 +57,10 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
                 int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
                 char *realloue = realloc(cmd->cmdSimple->args[k], taille); // TODO TEst = null
+                if (realloue == NULL){
+                    perror("Reallocation");
+                    return 1 ;         
+                }
                 cmd->cmdSimple->args[k] = realloue;
                 char *prefixe = ancienne_cmd;
                 cmd->cmdSimple->args[k][0] = '\0'; // pour pas qu'il soit à null
@@ -76,11 +89,11 @@ int optionA(struct dirent *entry, cmdFor *cmdFor)
     return (rechercheDansArgs("-A", cmdFor->op) && entry->d_name[0] == '.' && entry->d_name[1] != '.' && entry->d_name[1] != '\0');
 }
 
-int arg_options(char **op)
+int arg_options(char **op,char *for_opt)
 {
     for (int i = 0; op[i] != NULL; i++)
     {
-        if (strcmp(op[i], "-e") == 0)
+        if (strcmp(op[i], for_opt) == 0)
         {
             return i + 1;
         }
@@ -90,7 +103,7 @@ int arg_options(char **op)
 
 int option_e(struct dirent *entry, cmdFor *cmdFor)
 {
-    char *ext = cmdFor->op[arg_options(cmdFor->op)];
+    char *ext = cmdFor->op[arg_options(cmdFor->op,"-e")];
     char *basename = entry->d_name;
     char *dot = strrchr(basename, '.');
 
@@ -104,7 +117,77 @@ int option_e(struct dirent *entry, cmdFor *cmdFor)
     return 0;
 }
 
+
+
+int option_t(struct dirent *entry, cmdFor *cmd){
+    int type = entry->d_type;
+    int indice_op = arg_options(cmd->op,"-t");
+    int for_type = -1;
+    if (indice_op != 0){
+        if (strcmp(cmd->op[indice_op],"f") == 0){
+            for_type = 8;
+        }
+        else if (strcmp(cmd->op[indice_op],"d") == 0){
+            for_type = 4;
+        }
+        else if (strcmp(cmd->op[indice_op],"l") == 0){
+            for_type = 10;
+        } 
+        else if (strcmp(cmd->op[indice_op],"p") == 0 ){
+            for_type = 1;
+        }
+        else {
+            return -1;
+        }
+        return type == for_type;
+    } 
+    else {
+        return -1;
+    }
+}
+
+int option_r(struct dirent *entry , cmdFor *cmd){
+    if(strcmp(entry->d_name , ".") != 0 && strcmp(entry->d_name , "..") != 0 ){
+        char path [PATH_MAX];
+         if (cmd->rep[strlen(cmd->rep) - 1] != '/')
+        {
+            if(snprintf(path, sizeof(path), "%s/%s/" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            {
+            perror("chemin trop long");
+            return 1;
+            }
+        }else{
+            if(snprintf(path, sizeof(path), "%s%s/" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            {
+            perror("chemin trop long");
+            return 1;
+            }
+
+        }       
+        // faire une copie pour pas modifier les champs de cmd
+        cmdFor cmdCopie = *cmd;
+        //copier le chemin 
+        cmdCopie.rep = strdup(path);
+        if(cmdCopie.rep == NULL){
+            perror("copie du chemin");
+            return 1;
+        }
+        int ret = boucle_for(&cmdCopie);
+        free(cmdCopie.rep);
+        if(ret == 1){
+            perror("fontion for dans -r");
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+
+
+//TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 // TODO Si ca ce passe mal ft faire un truc
+//TODO JE FERME PAS LE REP ? 
 int boucle_for(cmdFor *cmdFor)
 {
     int ret = 0; // TODO A CHANGER;
@@ -129,6 +212,23 @@ int boucle_for(cmdFor *cmdFor)
                 }
             }
 
+            if (rechercheDansArgs("-t",cmdFor->op)){
+                int res = option_t(entry,cmdFor);
+                if (res == 0){
+                    continue;
+                }
+                if (res == -1){
+                    dernier_exit=1;
+                    return 1;
+                }
+            }
+
+            if(rechercheDansArgs("-r",cmdFor->op) && entry->d_type == DT_DIR){
+                ret = option_r(entry,cmdFor);
+                if (ret == 1) break;
+                continue;
+            }
+
             int nbr_cmd = 0;
             while (cmdFor->cmd[nbr_cmd] != NULL)
             {
@@ -142,21 +242,26 @@ int boucle_for(cmdFor *cmdFor)
                     return 1;
                 }
                 strcpy(path, cmdFor->rep);
-                strcat(path, "/");
-                if (cmdFor->cmd[nbr_cmd]->type == CMD_EXTERNE)
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(path, "/");
+                }
+                if (cmdFor->cmd[nbr_cmd] == CMD_EXTERNE)
+                {
+                    if (cmdFor->cmd[nbr_cmd]->type == CMD_EXTERNE)
                 {
                     if (entry->d_name != NULL)
                     {
                         char *c = strstr(entry->d_name, ".");
-                        if (c != NULL && c != entry->d_name)
-                        {
-                            char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
-                            memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
-                            strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
-                            sprintf(entry->d_name, "%s", nom_sans_ext);
-                            if (nom_sans_ext != NULL)
-                                free(nom_sans_ext);
-                        }
+                            if (c != NULL && c != entry->d_name)
+                            {
+                                char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                                memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                                strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                                sprintf(entry->d_name, "%s", nom_sans_ext);
+                                if (nom_sans_ext != NULL)
+                                    free(nom_sans_ext);
+                    }                        }
                     }
                 }
                 strcat(path, entry->d_name);
@@ -170,7 +275,10 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 strcpy(ancienne, cmdFor->rep);
-                strcat(ancienne, "/");
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(ancienne, "/");
+                }
                 strcat(ancienne, entry->d_name);
                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(dollar, "$");

@@ -333,7 +333,6 @@ cmdFor *make_for(char **args)
 
     size_t taille = tailleArgs(args);
     cmdFor->variable = strdup(args[1]);
-    // perror("strdup variable");
     if (cmdFor->variable == NULL)
     {
         perror("erreur de duuuup");
@@ -369,7 +368,7 @@ cmdFor *make_for(char **args)
         }
         else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
         {
-            if (args[i + 1][0] != '-')
+            if (args[i + 1][0] != '-' && args[i+1][0] != '{')
             {
                 cmdFor->op[j] = strdup(args[i]); // TODO a changer
                 if (cmdFor->op[j] == NULL)
