@@ -20,9 +20,8 @@
 #include "../../utils/redirection.h"
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
+#include "../../utils/if.h"
 #define ARG_MAX 512
-
-
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -32,87 +31,87 @@ int rechercheDansArgs(char *tofind, char **args)
         if (strcmp(args[i], tofind) == 0)
         {
 
-            return 1;
+            return 1; // vrai
         }
     }
-    return 0;
-}
-
-bool est_cmdStruct(char **args){
-    int debutBloc = -1 , finBloc = -1;
-        bool pvoutbloc = false;
-
-        // arriver a la fin du bloc 
-        for (int i = 0; args[i] != NULL; i++){
-            if(strcmp(args[i] , "{") == 0){
-                debutBloc = i;
-            } else if (strcmp(args[i] , "}") == 0 && debutBloc != -1){
-                finBloc = i;
-            }
-            if(strcmp(args[i] , ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc))){
-                pvoutbloc = true;
-                break;
-            }
-        }
-    return pvoutbloc;
+    return 0; // faux
 }
 
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
-    // printf("dans gestion commande \n");
     if (!cmdstruct)
     {
         perror("Erreur Structure");
         return;
     }
-    else if (args[0] == NULL || args[0][0] == '\0' || args[0][0] == '\n'){
+    else if (args[0] == NULL || args[0][0] == '\0' || args[0][0] == '\n')
+    {
         return;
     }
-    if (strcmp(args[0], "for") == 0 && est_cmdStruct(args) == false)
+    else if (rechercheDansArgs(";", args))
     {
-        // printf("chui bien ds for\n");
+        int debutBloc = -1, finBloc = -1;
+        bool pvoutbloc = false;
+
+        // arriver a la fin du bloc
+        for (int i = 0; args[i] != NULL; i++)
+        {
+            if (strcmp(args[i], "{") == 0)
+            {
+                debutBloc = i;
+            }
+            else if (strcmp(args[i], "}") == 0 && debutBloc != -1)
+            {
+                finBloc = i;
+            }
+            if (strcmp(args[i], ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc)))
+            {
+                pvoutbloc = true;
+                break;
+            }
+        }
+
+        // une fois la fin du bloc detectecté tester si ya un ; apres
+        if (pvoutbloc)
+        {
+            // perror("je suis une commande struct");
+
+            remplissageCmdStructurees(args, cmdstruct);
+            if (cmdstruct->cmdsStruc == NULL)
+            {
+                perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
+                return;
+            }
+
+            if (cmdstruct->nbCommandes < 0)
+            {
+                perror("Erreur lors du découpage des commandes");
+                freeCmdStruct(cmdstruct); //
+                return;
+            }
+        }
+    }
+    else if (strcmp(args[0], "if") == 0)
+    {   
+        // perror("je suis un if");
+        cmdstruct->cmdIf = remplissageCmdIf(args);
+        cmdstruct->type = IF;
+        if (cmdstruct->cmdIf == NULL)
+        {
+            free_if(cmdstruct->cmdIf);
+            perror("erreur remplissage if");
+        }
+    }
+    else if (strcmp(args[0], "for") == 0)
+    {
+
         cmdstruct->cmdFor = make_for(args);
+        cmdstruct->type = FOR;
         if (cmdstruct->cmdFor == NULL)
         {
-            // printf("le for est null\n");
             // freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
         }
-        cmdstruct->type = FOR;
-    }
-    else if(rechercheDansArgs(";" , args)){
-        // int debutBloc = -1 , finBloc = -1;
-        // bool pvoutbloc = false;
-        bool pvoutbloc  = est_cmdStruct(args);
-        // // arriver a la fin du bloc 
-        // for (int i = 0; args[i] != NULL; i++){
-        //     if(strcmp(args[i] , "{") == 0){
-        //         debutBloc = i;
-        //     } else if (strcmp(args[i] , "}") == 0 && debutBloc != -1){
-        //         finBloc = i;
-        //     }
-        //     if(strcmp(args[i] , ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc))){
-        //         pvoutbloc = true;
-        //         break;
-        //     }
-        // }
-
-        // une fois la fin du bloc detectecté tester si ya un ; apres 
-        if(pvoutbloc){
-                // printf("chui avant remplissagecmd structure\n");
-                remplissageCmdStructurees(args, cmdstruct);
-                if (cmdstruct->cmdsStruc == NULL) {
-                    perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
-                return ;  
-                }
-
-                if (cmdstruct->nbCommandes < 0) {
-                    perror("Erreur lors du découpage des commandes");
-                    freeCmdStruct(cmdstruct);  // 
-                    return;  
-                }
-
-            }
     }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
@@ -134,8 +133,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else
     {
-        // printf("chui dans remplissage cmd simple\n");
-        // printf("args[%d] = %s\n",0,args[0]);
+        // perror("je suis une commande simple");
         cmdstruct->cmdSimple = remplissage_cmdSimple(args);
         if (cmdstruct->cmdSimple->type == CMD_INTERNE)
         {
@@ -150,12 +148,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
-    // printf("fin de gestion cmd\n");
 }
 
 int exec_redirection(cmd_redirection *cmd)
 {
-
     return redirection(cmd);
 }
 
@@ -232,6 +228,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             }
             return ret;
         }
+        // gestion de pwd
         else if (strcmp(cmd, "pwd") == 0)
         {
             if (tailleArgs(cmdstruct->cmdSimple->args) > 2)
@@ -255,14 +252,12 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret > 0)
             {
                 perror("ftype");
-                // printf("pb ftype arg = %s\n",arg);
                 return ret;
             }
         }
     }
     else if (cmdstruct->type == REDIRECTION)
     {
-
         ret = exec_redirection(cmdstruct->cmdRed);
     }
     else if (cmdstruct->type == PIPE)
@@ -274,9 +269,14 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
     }
-    else if(cmdstruct->type == CMD_STRUCT){
-        ret = execCmdStruct(cmdstruct->cmdsStruc , cmdstruct->nbCommandes , chemin);
-        return ret ;
+    else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc != NULL)
+    {
+        ret = execCmdStruct(cmdstruct->cmdsStruc, cmdstruct->nbCommandes, chemin);
+        return ret;
+    }
+    else if (cmdstruct->type == IF && cmdstruct->cmdIf != NULL)
+    {
+        ret = exec_if(cmdstruct->cmdIf, chemin);
     }
     return ret;
 }

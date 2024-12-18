@@ -1,13 +1,10 @@
-#ifndef COMMANDESTRUCTUREE_H
-#define COMMANDESTRUCTUREE_H
+#ifndef CMDSTRUCTUREE_H
+#define CMDSTRUCTUREE_H
 #include "commande.h"
 #include "gestion.h"
 #include "commandeStructuree.h"
 
 
-int execCmdStruct(commandeStruct ** cmds , int nbCommandes , char * chemin);
+int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin);
 
-
-
-
-#endif
+#endif // CMDSTRUCTUREE_H

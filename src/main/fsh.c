@@ -85,7 +85,7 @@ int main(void)
             token = strtok(NULL, " \t");
         }
         args[nb_args] = NULL;
-        // printf("chui dans main je vais appeler gestion_cmd\n");
+        
         gestion_cmd(args, cmdstruct);
         // printf("je vais appeler fsh\n");
         ret = fsh(chemin, &dernier_exit, cmdstruct);
