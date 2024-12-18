@@ -107,9 +107,13 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
         nouveau_var(ancienne,nouveau,cmd->cmdFor->cmd);
     }
     else if (cmd->type == PIPE){
-        for (int i = 0; i < cmd->pipe->nbCommandes; i++){
-            nouveau_var(ancienne,nouveau,cmd->pipe->commandes[i]);
+        int l = 0;
+        while(cmd->pipe->commandes[l] != NULL){
+            nouveau_var(ancienne,nouveau,cmd->pipe->commandes[l]);
+            l++;
         }
+        // for (int i = 0; i < cmd->pipe->nbCommandes; i++){
+        // }
     }
     else if (cmd->type == CMD_STRUCT){
         for (int i = 0; i< cmd->nbCommandes ; i++){
@@ -121,9 +125,13 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
         if (cmd->cmdIf->commandeElse!= NULL){
             nouveau_var(ancienne,nouveau,cmd->cmdIf->commandeElse);
         }
-        for (int i = 0 ; i < cmd->cmdIf->test->nbCommandes ; i++){
+        int i = 0;
+        while (cmd->cmdIf->test->commandes[i]!= NULL){
             nouveau_var(ancienne,nouveau,cmd->cmdIf->test->commandes[i]);
+            i++;
         }
+         // for (int i = 0 ; i < cmd->cmdIf->test->nbCommandes ; i++){
+        // }
     }
     return 0;
 }
