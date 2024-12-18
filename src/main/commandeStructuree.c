@@ -9,7 +9,26 @@
 #include "../../utils/freeStruct.h"
 #include "../../utils/gestion.h"
 
-
+int trouver_fin_bloc(char** args , int debut){
+    int fin = debut;
+    int imbrication = 0;
+    bool estDansBloc = false;
+    // trouver la fin du bloc 
+    while (args[fin] != NULL){
+        if(strcmp(args[fin], "{") == 0){
+            imbrication++;
+            estDansBloc = true;
+        }else if(strcmp(args[fin], "}") == 0){
+            imbrication--;
+            if(imbrication == 0) estDansBloc = false;
+        }else if (!estDansBloc && strcmp(args[fin], ";") == 0)
+        {
+            break;
+        }
+        fin++; 
+    }
+    return fin;
+}
 
 /*TO DO : refaire le ARG_mAX*/
 
@@ -35,9 +54,9 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
     size_t taille = tailleArgs(args);
     int debut = 0;
     int nbcommandes = 0;
-    while (debut < (int)taille)
+    while (debut < taille)
     {
-        int fin = debut;
+        /*int fin = debut;
         int imbrication = 0;
         bool estDansBloc = false;
         // trouver la fin du bloc 
@@ -53,7 +72,8 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
                 break;
             }
             fin++; 
-        }
+        }*/
+        int fin = trouver_fin_bloc(args, debut);
         int commandeSize = fin - debut + 1;
         char** commande = malloc(commandeSize * sizeof(char *));
         if(commande == NULL) {
@@ -69,12 +89,6 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
             free(commande);
             return -1; 
         }
-
-       
-        
-
-
-       
         if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) < 0) {
             for (int i = 0; i < commandeSize - 1; i++) { 
                 free(commande[i]);
@@ -82,13 +96,10 @@ int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
             free(commande);
             return -1;
         }
-    
-        
         for (int i = 0; i < commandeSize - 1; i++) { 
             free(commande[i]);
         }
         free(commande);
-
         debut = fin + 1; 
     }
 
