@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -48,6 +49,10 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                 int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
                 int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
                 char *realloue = realloc(cmd->cmdSimple->args[k], taille); // TODO TEst = null
+                if (realloue == NULL){
+                    perror("Reallocation");
+                    return 1 ;         
+                }
                 cmd->cmdSimple->args[k] = realloue;
                 char *prefixe = ancienne_cmd;
                 cmd->cmdSimple->args[k][0] = '\0'; // pour pas qu'il soit à null
@@ -135,6 +140,52 @@ int option_t(struct dirent *entry, cmdFor *cmd){
     }
 }
 
+int option_r(struct dirent *entry , cmdFor *cmd){
+    if(strcmp(entry->d_name , ".") != 0 && strcmp(entry->d_name , "..") != 0 ){
+        char path [PATH_MAX];
+        //nouveau chemin
+        /*if(snprintf(path, sizeof(path), "%s/%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            {
+            perror("chemin trop long");
+            return 1;
+            }*/
+        if (cmd->rep[strlen(cmd->rep) - 1] != '/')
+        {
+            if(snprintf(path, sizeof(path), "%s/%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            {
+            perror("chemin trop long");
+            return 1;
+            }
+        }else{
+            if(snprintf(path, sizeof(path), "%s%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            {
+            perror("chemin trop long");
+            return 1;
+            }
+
+        }
+        
+        // faire une copie pour pas modifier les champs de cmd
+        cmdFor cmdCopie = *cmd;
+        //copier le chemin 
+        cmdCopie.rep = strdup(path);
+        if(cmdCopie.rep == NULL){
+            perror("copie du chemin");
+            return 1;
+        }
+
+        int ret = boucle_for(&cmdCopie);
+        free(cmdCopie.rep);
+        if(ret == 1){
+            perror("fontion for dans -r");
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+
 
 //TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 // TODO Si ca ce passe mal ft faire un truc
@@ -172,6 +223,12 @@ int boucle_for(cmdFor *cmdFor)
                     dernier_exit=1;
                     return 1;
                 }
+            }
+
+            if(rechercheDansArgs("-r",cmdFor->op) && entry->d_type == DT_DIR){
+                ret = option_r(entry,cmdFor);
+                if (ret == 1) break;
+                continue;
             }
 
             int nbr_cmd = 0;
