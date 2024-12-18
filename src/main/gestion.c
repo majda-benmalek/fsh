@@ -74,8 +74,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         // une fois la fin du bloc detectecté tester si ya un ; apres
         if (pvoutbloc)
         {
-            perror("je suis une commande struct");
-            
+            // perror("je suis une commande struct");
+
             remplissageCmdStructurees(args, cmdstruct);
             if (cmdstruct->cmdsStruc == NULL)
             {
@@ -92,8 +92,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         }
     }
     else if (strcmp(args[0], "if") == 0)
-    {
-
+    {   
+        // perror("je suis un if");
         cmdstruct->cmdIf = remplissageCmdIf(args);
         cmdstruct->type = IF;
         if (cmdstruct->cmdIf == NULL)
@@ -104,6 +104,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0)
     {
+
         cmdstruct->cmdFor = make_for(args);
         cmdstruct->type = FOR;
         if (cmdstruct->cmdFor == NULL)
