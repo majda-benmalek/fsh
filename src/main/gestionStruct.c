@@ -351,8 +351,8 @@ cmdFor *make_for(char **args)
     }
     memset(cmdFor->op, 0, 12 * sizeof(char *));
     // ? ----------------- option-----------
-    int i = 4;
-    int j = 0;
+    size_t i = 4;
+    size_t j = 0;
     while (strcmp(args[i], "{") != 0)
     {
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
@@ -411,10 +411,13 @@ cmdFor *make_for(char **args)
     }
 
     char *tab[ARG_MAX];
-    unsigned int k = 0;
-    while (args[i] != NULL && i < taille && strcmp(args[i], "}") != 0)
+    size_t k = 0;
+    // printf("i = %ld\n",i);
+    // printf("taille = %ld\n",taille);
+    while (args[i] != NULL && i < taille - 2) // sauter { et le null
     { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
+        // printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
         i = i + 1;
     }
