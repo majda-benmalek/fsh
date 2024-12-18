@@ -149,29 +149,32 @@ int option_t(struct dirent *entry, cmdFor *cmd){
 }
 
 int option_r(struct dirent *entry , cmdFor *cmd){
+    printf("je suis iciiii\n");
     if(strcmp(entry->d_name , ".") != 0 && strcmp(entry->d_name , "..") != 0 ){
         char path [PATH_MAX];
         //nouveau chemin
-        /*if(snprintf(path, sizeof(path), "%s/%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+        /*if(snprintf(path, sizeof(path), "%s/%s/" , cmd->rep , entry->d_name ) >= PATH_MAX)
             {
             perror("chemin trop long");
             return 1;
             }*/
+           printf("%s le rep avant le paths\n" , cmd->rep);
          if (cmd->rep[strlen(entry->d_name) - 1] != '/')
         {
-            if(snprintf(path, sizeof(path), "%s/%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            if(snprintf(path, sizeof(path), "%s/%s/" , cmd->rep , entry->d_name ) >= PATH_MAX)
             {
             perror("chemin trop long");
             return 1;
             }
         }else{
-            if(snprintf(path, sizeof(path), "%s%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
+            if(snprintf(path, sizeof(path), "%s%s/" , cmd->rep , entry->d_name ) >= PATH_MAX)
             {
             perror("chemin trop long");
             return 1;
             }
 
         }
+        printf("%s le path dans option -r \n" , path);
         
         
         // faire une copie pour pas modifier les champs de cmd
