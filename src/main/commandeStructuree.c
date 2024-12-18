@@ -113,7 +113,7 @@ int decoupe_args(char **args, commandeStruct **cmds, int maxcmds)
         debut = fin + 1; 
     }
 
-    // cmds[nbcommandes] = NULL;
+    cmds[nbcommandes] = NULL;
 
     return nbcommandes;
 }

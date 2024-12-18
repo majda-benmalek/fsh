@@ -10,5 +10,6 @@
 // int make_for(char *input, cmdFor *cmdFor);
 
 // int boucle_for(char* input);
+int nouveau(char *ancienne, char *nouveau, commandeStruct *cmd);
 int boucle_for(cmdFor *cmdFor);
 #endif

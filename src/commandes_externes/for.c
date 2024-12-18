@@ -41,10 +41,11 @@ void eleverSlash(char *path)
 }
 
 //TODO A CHANGER PR QUE SOIT PR TT LES TYPES
-void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
+int nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
-    if (cmd->type == CMD_EXTERNE || CMD_INTERNE)
+    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
     {
+        // printf("chui dans nouveau\n");
         int k = 0;
         while (cmd->cmdSimple->args[k] != NULL)
         {
@@ -58,7 +59,7 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
             {
                 int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
                 int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
-                char *realloue = realloc(cmd->cmdSimple->args[k], taille); // TODO TEst = null
+                char *realloue = realloc(cmd->cmdSimple->args[k], taille); 
                 if (realloue == NULL)
                 {
                     perror("Reallocation");
@@ -79,12 +80,14 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                     a_changer = strstr(prefixe, ancienne);
                 }
                 strcat(cmd->cmdSimple->args[k], prefixe);
+                // printf("dans nouveau\n cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
                 k++;
             }
             if (ancienne_cmd != NULL)
                 free(ancienne_cmd);
         }
     }
+    return 0;
 }
 
 int optionA(struct dirent *entry, cmdFor *cmdFor)
@@ -154,6 +157,16 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         return -1;
     }
 }
+
+void print_arg(commandeStruct *cmd){
+    int k = 0;
+    while (cmd->cmdSimple->args[k] != NULL)
+    {
+        printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+        k++;
+    }
+}
+
 
 int option_r(struct dirent *entry, cmdFor *cmd)
 {
@@ -264,7 +277,7 @@ int boucle_for(cmdFor *cmdFor)
                     strcat(path, "/");
                 }
 
-                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == CMD_EXTERNE)
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd]->type == CMD_EXTERNE)
                 {
                     if (entry->d_name != NULL)
                     {
@@ -281,7 +294,14 @@ int boucle_for(cmdFor *cmdFor)
                     }
                 }
                 strcat(path, entry->d_name);
-                nouveau(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                // printf("path = %s\n",path);
+                int n = nouveau(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n!= 0){
+                    perror("problème dans nouveau");
+                    free_for(cmdFor);
+                    return 1;
+                }
+                // print_arg(cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
@@ -299,14 +319,24 @@ int boucle_for(cmdFor *cmdFor)
                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(dollar, "$");
                 strcat(dollar, cmdFor->variable);
-                nouveau(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
-                {
-                    perror("pb ds le changement de var");
+                // printf("ancienne = %s\n",ancienne);
+                n = nouveau(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n != 0){
+                    perror("problème dans le 2ème appel de nv");
                     free_for(cmdFor);
                     return 1;
                 }
+                // if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
+                // {
+                //     perror("pb ds le changement de var");
+                //     free_for(cmdFor);
+                //     // closedir(dir);
+                //     return 1;
+                // }
+                // printf("-----------\n");
                 nbr_cmd = nbr_cmd + 1;
+                // printf("nbr_cmd = %d\n",nbr_cmd);
+                // printf("-----------\n");
                 if (dollar != NULL)
                     free(dollar);
                 if (ancienne != NULL)

@@ -269,6 +269,7 @@ void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
     cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
     // printf("cmd->type dans remplissageCmdStructurees [%d]\n", cmdStruct->type);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
+    // printf("nbCommandes = %d\n",nbCommandes);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
         freeCmdStruct(cmdStruct);
@@ -427,9 +428,9 @@ cmdFor *make_for(char **args)
     // remplissage_cmdStruct(FOR,);
     // printf("chui avant l'appel\n");
     remplissageCmdStructurees(tab,cmdFor->cmd);
-    // cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
-    // cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
-    // gestion_cmd(tab, cmdFor->cmd[0]);
+    // cmdFor->cmd->cmdsStruc[0] = malloc(sizeof(commandeStruct));
+    // cmdFor->cmd->cmdsStruc[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
+    // gestion_cmd(tab, cmdFor->cmd->cmdsStruc[0]);
     // printf("chui ici\n");
     return cmdFor;
 }
