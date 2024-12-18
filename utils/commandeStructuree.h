@@ -3,6 +3,9 @@
 #include "commande.h"
 #include "gestion.h"
 
+
+int trouver_fin_bloc(char** args , int debut);
+
 /**
  * @brief Découpe une commande en arguments et remplit un tableau de commandeStruct.
  *
