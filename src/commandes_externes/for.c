@@ -299,23 +299,25 @@ int boucle_for(cmdFor *cmdFor)
                     strcat(path, "/");
                 }
 
-                // if (cmdFor->cmd->cmdsStruc[nbr_cmd]->type == CMD_EXTERNE)
-                // {
-                //     if (entry->d_name != NULL)
-                //     {
-                //         char *c = strstr(entry->d_name, ".");
-                //         if (c != NULL && c != entry->d_name)
-                //         {
-                //             char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
-                //             memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
-                //             strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
-                //             sprintf(entry->d_name, "%s", nom_sans_ext);
-                //             if (nom_sans_ext != NULL)
-                //                 free(nom_sans_ext);
-                //         }
-                //     }
-                // }
-                strcat(path, entry->d_name);
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd]->type == CMD_EXTERNE)
+                {
+                    if (entry->d_name != NULL)
+                    {
+                        char *c = strstr(entry->d_name, ".");
+                        if (c != NULL && c != entry->d_name)
+                        {
+                            char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                            memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                            strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                            // sprintf(entry->d_name, "%s", nom_sans_ext);
+                            strcat(path,nom_sans_ext);
+                            if (nom_sans_ext != NULL)
+                                free(nom_sans_ext);
+                        }
+                    }
+                }else{
+                    strcat(path, entry->d_name);
+                }
                 // printf("path = %s\n",path);
                 int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 if (n!= 0){
