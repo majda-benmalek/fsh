@@ -146,7 +146,7 @@ void free_if(cmdIf *cmd)
     {
         if (cmd->test != NULL)
         {
-            free_pipe(cmd->test);
+            freeCmdStruct(cmd->test);
         }
         if (cmd->commandeIf != NULL)
         {
