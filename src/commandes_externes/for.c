@@ -146,7 +146,7 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         {
             return -1;
         }
-        return type == for_type;
+        return type == for_type; //! retourne 0 si c'est faux 
     }
     else
     {
@@ -231,19 +231,19 @@ int boucle_for(cmdFor *cmdFor)
                 {
                     continue;
                 }
-                if (res == -1)
+                else if (res == -1)
                 {
                     dernier_exit = 1;
-                    return 1;
+                    return 2;
                 }
             }
 
             if (rechercheDansArgs("-r", cmdFor->op) && entry->d_type == DT_DIR)
             {
                 ret = option_r(entry, cmdFor);
-                if (ret == 1)
-                    break;
-                // continue ;
+                // if (ret == 1)
+                //     break;
+                continue ;
             }
 
             int nbr_cmd = 0;

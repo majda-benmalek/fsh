@@ -368,7 +368,7 @@ cmdFor *make_for(char **args)
         }
         else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
         {
-            if (args[i + 1][0] != '-' && args[i + 1][0] != '{')
+            if (args[i + 1][0] != '-' && args[i+1][0] != '{')
             {
                 cmdFor->op[j] = strdup(args[i]); // TODO a changer
                 if (cmdFor->op[j] == NULL)
@@ -467,9 +467,9 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    // TODO : appelé gestion psq ca peut etre une redirection aussi
-    cmd->test = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-    gestion_cmd(commande, cmd->test);
+    // TODO : appelé gestion psq ca peut etre une redirection aussi    
+    cmd->test = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL);
+    gestion_cmd(commande,cmd->test);
     if (cmd->test == NULL)
     {
         perror("remplissageCmdPipe");
@@ -580,3 +580,5 @@ cmdIf *remplissageCmdIf(char **args)
     }
     return cmd;
 }
+
+
