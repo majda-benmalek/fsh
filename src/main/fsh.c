@@ -87,7 +87,6 @@ int main(void)
         args[nb_args] = NULL;
         
         gestion_cmd(args, cmdstruct);
-        // printf("je vais appeler fsh\n");
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
         if (cmdstruct != NULL)

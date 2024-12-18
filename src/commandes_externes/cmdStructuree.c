@@ -19,7 +19,7 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
     //afficherTableauCommandes(cmds, nbCommandes);
   
     if (cmds == NULL || nbCommandes <= 0) {
-        // perror("tableau de commandes invalide");
+        perror("tableau de commandes invalide");
         return -1;
     }
     pid_t pid_fils[nbCommandes];

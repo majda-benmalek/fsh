@@ -302,15 +302,13 @@ void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
 
 cmdFor *make_for(char **args)
 {
-    // printf(" chui dans make for\n");
     cmdFor *cmdFor = malloc(sizeof(*cmdFor));
     if (cmdFor == NULL)
     {
         perror("problème d'allocation de mémoire pour for");
         return NULL;
     }
-    size_t taille = tailleArgs(args);
-    if (taille < 9)
+    if (tailleArgs(args) < 9)
     {
         perror("Erreur de synatxe");
         printf("la taille de l'argument = %ld\n", tailleArgs(args));
@@ -334,7 +332,7 @@ cmdFor *make_for(char **args)
         return NULL;
     }
 
-    // size_t taille = tailleArgs(args);
+    size_t taille = tailleArgs(args);
     cmdFor->variable = strdup(args[1]);
     if (cmdFor->variable == NULL)
     {
@@ -353,8 +351,8 @@ cmdFor *make_for(char **args)
     }
     memset(cmdFor->op, 0, 12 * sizeof(char *));
     // ? ----------------- option-----------
-    size_t i = 4;
-    size_t j = 0;
+    int i = 4;
+    int j = 0;
     while (strcmp(args[i], "{") != 0)
     {
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
@@ -413,12 +411,10 @@ cmdFor *make_for(char **args)
     }
 
     char *tab[ARG_MAX];
-    size_t k = 0;
-    // printf("avant le while pour construire tab\n");
-    while (args[i] != NULL && i < taille - 2)//pour sauter { et le null
+    unsigned int k = 0;
+    while (args[i] != NULL && i < taille && strcmp(args[i], "}") != 0)
     { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
-        // printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
         i = i + 1;
     }

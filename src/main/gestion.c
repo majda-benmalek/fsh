@@ -48,6 +48,55 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         return;
     }
+    if (strcmp(args[0], "if") == 0)
+    {
+        if (trouver_fin_bloc(args, 0) < tailleArgs(args))
+        {
+            // ! if [ 1 -eq 1 ] { echo 3 ; if [ 1 -eq 1 ] { echo ok ; echo 4 } } ; ls
+            if (args[trouver_fin_bloc(args, 0)] == NULL)
+            {
+                if (strcmp(args[trouver_fin_bloc(args, 0)-1], ";") != 0)
+                {
+                    // perror("je suis un if ");
+                    cmdstruct->cmdIf = remplissageCmdIf(args);
+                    cmdstruct->type = IF;
+                    if (cmdstruct->cmdIf == NULL)
+                    {
+                        free_if(cmdstruct->cmdIf);
+                        perror("erreur remplissage if");
+                    }
+                    return;
+                }
+            }
+        }
+    }
+    else if (strcmp(args[0],"for") == 0 || cmdstruct->type == FOR ){
+        // printf("chui bien ici\n");
+        if (trouver_fin_bloc(args,0) < tailleArgs(args)){
+            if (args[trouver_fin_bloc(args,0)] == NULL){
+                if (strcmp(args[trouver_fin_bloc(args,0)-1],";") != 0){
+                    cmdstruct->cmdFor = make_for(args);
+                    cmdstruct->type = FOR;
+                    if (cmdstruct->cmdFor == NULL)
+                    {
+                        perror("Erreur remplissage de for");
+                    }
+    }
+            }
+        }
+    }
+    //??
+    // else if (strcmp(args[0], "for") == 0)
+    // {
+
+    //     cmdstruct->cmdFor = make_for(args);
+    //     cmdstruct->type = FOR;
+    //     if (cmdstruct->cmdFor == NULL)
+    //     {
+    //         freeCmdStruct(cmdstruct);
+    //         perror("Erreur remplissage de for");
+    //     }
+    // }
     else if (rechercheDansArgs(";", args))
     {
         int debutBloc = -1, finBloc = -1;
@@ -74,7 +123,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         // une fois la fin du bloc detectecté tester si ya un ; apres
         if (pvoutbloc)
         {
-            // perror("je suis une commande struct");
 
             remplissageCmdStructurees(args, cmdstruct);
             if (cmdstruct->cmdsStruc == NULL)
@@ -91,28 +139,17 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             }
         }
     }
-    else if (strcmp(args[0], "if") == 0)
-    {   
-        // perror("je suis un if");
-        cmdstruct->cmdIf = remplissageCmdIf(args);
-        cmdstruct->type = IF;
-        if (cmdstruct->cmdIf == NULL)
-        {
-            free_if(cmdstruct->cmdIf);
-            perror("erreur remplissage if");
-        }
-    }
-    else if (strcmp(args[0], "for") == 0)
-    {
+    // else if (strcmp(args[0], "for") == 0)
+    // {
 
-        cmdstruct->cmdFor = make_for(args);
-        cmdstruct->type = FOR;
-        if (cmdstruct->cmdFor == NULL)
-        {
-            // freeCmdStruct(cmdstruct);
-            perror("Erreur remplissage de for");
-        }
-    }
+    //     cmdstruct->cmdFor = make_for(args);
+    //     cmdstruct->type = FOR;
+    //     if (cmdstruct->cmdFor == NULL)
+    //     {
+    //         freeCmdStruct(cmdstruct);
+    //         perror("Erreur remplissage de for");
+    //     }
+    // }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
         cmdstruct->cmdRed = remplissageCmdRedirection(args);
@@ -162,7 +199,6 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
-    // printf("dans fsh\n");
     int ret = *dernier_exit;
 
     if (cmdstruct == NULL)
@@ -173,8 +209,9 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 
     if (cmdstruct->type == FOR)
     {
-        if (cmdstruct->cmdFor != NULL){
-             ret = boucle_for(cmdstruct->cmdFor);
+        if (cmdstruct->cmdFor != NULL)
+        {
+            ret = boucle_for(cmdstruct->cmdFor);
             if (ret != 0)
             {
                 // perror("boucle_for");
@@ -182,12 +219,12 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
                 return ret;
             };
         }
-        else{
-            perror("for est null");
+        else
+        {
+            // perror("for est null");
             ret = 1;
             return ret;
         }
-       
     }
     else if (cmdstruct->type == CMD_INTERNE)
     {
