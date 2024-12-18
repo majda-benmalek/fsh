@@ -38,20 +38,8 @@ int rechercheDansArgs(char *tofind, char **args)
     return 0;
 }
 
-void gestion_cmd(char **args, commandeStruct *cmdstruct)
-{
-    printf("dans gestion commande \n");
-    if (!cmdstruct)
-    {
-        perror("Erreur Structure");
-        return;
-    }
-    if (args[0] == NULL)
-    {
-        return;
-    }
-    else if(rechercheDansArgs(";" , args)){
-        int debutBloc = -1 , finBloc = -1;
+bool est_cmdStruct(char **args){
+    int debutBloc = -1 , finBloc = -1;
         bool pvoutbloc = false;
 
         // arriver a la fin du bloc 
@@ -66,14 +54,58 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 break;
             }
         }
+    return pvoutbloc;
+}
+
+void gestion_cmd(char **args, commandeStruct *cmdstruct)
+{
+    // printf("dans gestion commande \n");
+    if (!cmdstruct)
+    {
+        perror("Erreur Structure");
+        return;
+    }
+    if (args[0] == NULL)
+    {
+        return;
+    }
+    if (strcmp(args[0], "for") == 0 && est_cmdStruct(args) == false)
+    {
+        // printf("chui bien ds for\n");
+        cmdstruct->cmdFor = make_for(args);
+        if (cmdstruct->cmdFor == NULL)
+        {
+            // printf("le for est null\n");
+            // freeCmdStruct(cmdstruct);
+            perror("Erreur remplissage de for");
+        }
+        cmdstruct->type = FOR;
+    }
+    else if(rechercheDansArgs(";" , args)){
+        // int debutBloc = -1 , finBloc = -1;
+        // bool pvoutbloc = false;
+        bool pvoutbloc  = est_cmdStruct(args);
+        // // arriver a la fin du bloc 
+        // for (int i = 0; args[i] != NULL; i++){
+        //     if(strcmp(args[i] , "{") == 0){
+        //         debutBloc = i;
+        //     } else if (strcmp(args[i] , "}") == 0 && debutBloc != -1){
+        //         finBloc = i;
+        //     }
+        //     if(strcmp(args[i] , ";") == 0 && ((debutBloc == -1 || i < debutBloc || i > finBloc))){
+        //         pvoutbloc = true;
+        //         break;
+        //     }
+        // }
 
         // une fois la fin du bloc detectecté tester si ya un ; apres 
         if(pvoutbloc){
+                // printf("chui avant remplissagecmd structure\n");
                 remplissageCmdStructurees(args, cmdstruct);
                 if (cmdstruct->cmdsStruc == NULL) {
                     perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
                 return ;  
-}
+                }
 
                 if (cmdstruct->nbCommandes < 0) {
                     perror("Erreur lors du découpage des commandes");
@@ -82,18 +114,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 }
 
             }
-    }
-    else if (strcmp(args[0], "for") == 0)
-    {
-        printf("chui bien ds for\n");
-        cmdstruct->cmdFor = make_for(args);
-        if (cmdstruct->cmdFor == NULL)
-        {
-            printf("le for est null\n");
-            // freeCmdStruct(cmdstruct);
-            perror("Erreur remplissage de for");
-        }
-        cmdstruct->type = FOR;
     }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
@@ -131,7 +151,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
-    printf("fin de gestion cmd\n");
+    // printf("fin de gestion cmd\n");
 }
 
 int exec_redirection(cmd_redirection *cmd)

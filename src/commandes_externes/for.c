@@ -214,7 +214,7 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                char *ancienne = malloc(strlen(entry->d_name) - 3 + strlen(cmdFor->rep) + 2);
+                char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 strcpy(ancienne, cmdFor->rep);
                 if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
                 {

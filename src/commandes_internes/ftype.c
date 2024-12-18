@@ -10,6 +10,7 @@
 
 int ftype(char *name)
 {
+    // printf("dans ftype\n name = %s\n",name);
     struct stat st;
     char *buf = malloc(BUFFERSIZE);
     if (buf == NULL)
