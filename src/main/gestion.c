@@ -40,6 +40,7 @@ int rechercheDansArgs(char *tofind, char **args)
 
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
+    // printf("dans gestion commande \n");
     if (!cmdstruct)
     {
         perror("Erreur Structure");
@@ -68,22 +69,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
 
         // une fois la fin du bloc detectecté tester si ya un ; apres 
         if(pvoutbloc){
-           
-                /*cmdstruct->cmdsStruc = malloc(sizeof(commandeStruct*) * ARG_MAX);
-                if(cmdstruct->cmdsStruc == NULL){
-                    perror("Erreur Allocation cmdsStruc ");
-                    return;
-                }
-
-                int nbCommandes = decoupe_args(args , cmdstruct->cmdsStruc , ARG_MAX);
-                if (nbCommandes < 0 && cmdstruct->cmdsStruc == NULL)
-                {
-                    freeCmdStruct(cmdstruct);
-                    perror("Erreur découpages commandes structurées");
-                    
-                }
-                cmdstruct->nbCommandes= nbCommandes;
-                cmdstruct->type = CMD_STRUCT;*/
                 remplissageCmdStructurees(args, cmdstruct);
                 if (cmdstruct->cmdsStruc == NULL) {
                     perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
@@ -100,6 +85,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0)
     {
+        // printf("chui bien ds for\n");
         cmdstruct->cmdFor = make_for(args);
         if (cmdstruct->cmdFor == NULL)
         {
@@ -128,6 +114,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else
     {
+        // printf("chui dans remplissage cmd simple\n");
+        // printf("args[%d] = %s\n",0,args[0]);
         cmdstruct->cmdSimple = remplissage_cmdSimple(args);
         if (cmdstruct->cmdSimple->type == CMD_INTERNE)
         {
@@ -142,6 +130,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
+    // printf("fin de gestion cmd\n");
     
 }
 
@@ -158,6 +147,7 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
+    // printf("dans fsh\n");
     int ret = *dernier_exit;
 
     if (cmdstruct == NULL)
