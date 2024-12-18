@@ -266,8 +266,8 @@ cmd_pipe *remplissageCmdPipe(char **args)
 
 void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
 {
-
     cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
+    // printf("cmd->type dans remplissageCmdStructurees [%d]\n", cmdStruct->type);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
@@ -276,6 +276,7 @@ void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
         return;
     }
     cmdStruct->nbCommandes = nbCommandes;
+    // ! en mettant realloc ca marche plus mais c'est pas grave ya pas de pertes au final
     // commandeStruct **tmp = realloc(cmdStruct->cmdsStruc, sizeof(commandeStruct *) * (nbCommandes + 1));
     // if (tmp != NULL)
     //     cmdStruct->cmdsStruc = tmp;
@@ -430,16 +431,17 @@ cmdIf *remplissageCmdIf(char **args)
     // ? {"if" , "[" , "TEST" , "]" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
     // * OU
     // ? {"if" , [" ,"TEST" , "]" ,"{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
+    // !  if test -d NOTADIR { echo bad ; ./ret 10 } else { echo good ; ./ret 11 }
 
+    // ? TEST_FOLDER_FILTER=jalon-2-B ./test.sh
+    // perror("remplissage if");
     // // testé si apres if y'a {
-    //* exécuté le pipe TEST et redirigé sa sortie sur dev/null
-    // testé si apres TEST y'a { si y'a pas erreur de syntaxe
-    // donné la commande a exécuté a gestion/appel fsh directe
-    // vu que c'est soit une commande structurés soit commande simples soit pipe (i guess)
+    // // testé si apres TEST y'a { si y'a pas erreur de syntaxe
 
     cmdIf *cmd = malloc(sizeof(cmdIf));
+    cmd->type = IF;
     cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-    cmd->commandeElse = NULL;
+    cmd->commandeElse = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     cmd->test = NULL;
 
     // pas besoin d'alloué cmd_pipe ca va être fais apres
@@ -450,6 +452,8 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
+
+    // ! TEST
     size_t taille = tailleArgs(args);
     int i = 0;
     while (i < taille && strcmp(args[i], "{") != 0)
@@ -457,7 +461,12 @@ cmdIf *remplissageCmdIf(char **args)
         i++;
     }
     // a la fin i= la pos de {
+
     char **commande = malloc(ARG_MAX * sizeof(char *));
+    for (int k = 0; k < ARG_MAX; k++)
+    {
+        commande[k] = NULL;
+    }
     if (arg_cmdsimple(args, commande, i, 1) == 1) // copie de 1 à i (exclu)
     {
         perror("arg_cmdsimple");
@@ -474,40 +483,98 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    if (commande != NULL)
-    {
-        for (int h = 0; commande[h] != NULL; h++)
-        {
-            free(commande[h]);
-        }
-    }
-    free(commande);
-    commande = malloc(ARG_MAX * sizeof(char *));
+
+    // ! commande dans le if
+    memset(commande, 0, ARG_MAX * sizeof(char *));
     int j = i + 1; // début de la commande a éxécuté
-    while (i < taille && /*strcmp(args[i], "else") != 0 &&*/ strcmp(args[i], "}"))
-    { // a revoir cette condition psq le for et les if imbriqué
-        i++;
+
+    int fin = j;
+    int imbrication = 0;
+    bool estDansBloc = false;
+    // trouver la fin du bloc
+    // ! FONCTION by SABRINA
+    while (args[fin] != NULL)
+    {
+        if (strcmp(args[fin], "{") == 0)
+        {
+            imbrication++;
+            estDansBloc = true;
+        }
+        else if (strcmp(args[fin], "}") == 0)
+        {
+            imbrication--;
+            if (imbrication == 0)
+                estDansBloc = false;
+        }
+        else if ((!estDansBloc && (strcmp(args[fin], "else") == 0 || (strcmp(args[fin - 1], "}") == 0 && strcmp(args[fin], ";") == 0))) || args[fin] == NULL)
+        {
+            break;
+        }
+        fin++;
     }
     memset(commande, 0, ARG_MAX * sizeof(char *));
 
-    if (arg_cmdsimple(args, commande, i, j) == 1) //
+    if (arg_cmdsimple(args, commande, fin - 1, j) == 1) //
     {
         perror("arg_cmdsimple");
         free(commande);
         free_if(cmd);
         return NULL;
     }
-
     remplissageCmdStructurees(commande, cmd->commandeIf);
+    memset(commande, 0, ARG_MAX * sizeof(char *));
 
-    // j = i + 1; // le else ou pas
-    // if (args[j] != NULL)
-    // {
-    //     if (strcmp(args[j], "else") == 0 && strcmp(args[j + 1], "{") == 0)
-    //     {
-    //         // TODO :alors on remplit commandeElse
-    //     }
-    // }
+    // ! commande dans le else
+    // ? if [ -d NOTADIR ] { echo bad } else { echo good }
+    j = fin; // le else ou pas
+    fin = j;
+    imbrication = 0;
+    estDansBloc = false;
+
+    if (args[j] != NULL)
+    {
+        if (strcmp(args[j], "else") == 0)
+        {
+            if (strcmp(args[j + 1], "{") != 0)
+            {
+                perror("erreur de syntaxe");
+                if (commande != NULL)
+                    free(commande);
+                if (cmd != NULL)
+                    free_if(cmd);
+                return NULL;
+            }
+            while (args[fin] != NULL)
+            {
+                if (strcmp(args[fin], "{") == 0)
+                {
+                    imbrication++;
+                    estDansBloc = true;
+                }
+                else if (strcmp(args[fin], "}") == 0)
+                {
+                    imbrication--;
+                    if (imbrication == 0)
+                        estDansBloc = false;
+                }
+                else if (!estDansBloc && (strcmp(args[fin], "}") == 0 || args[fin] == NULL))
+                {
+                    break;
+                }
+                fin++;
+            }
+            if (arg_cmdsimple(args, commande, fin - 1, j + 2) == 1)
+            {
+                perror("arg_cmdsimple");
+                if (commande != NULL)
+                    free(commande);
+                if (cmd != NULL)
+                    free_if(cmd);
+                return NULL;
+            }
+            remplissageCmdStructurees(commande, cmd->commandeElse);
+        }
+    }
 
     if (commande != NULL)
     {
@@ -515,7 +582,7 @@ cmdIf *remplissageCmdIf(char **args)
         {
             free(commande[h]);
         }
+        free(commande);
     }
-    free(commande);
     return cmd;
 }

@@ -20,7 +20,6 @@
 int exec_if(cmdIf *cmd, char *chemin)
 {
     // ! if [ 1 -eq 1 ] { echo 1=1 }
-
     // redirection de la sortie d'erreur et de la sortie standard OU l'exécuté sur un autre processus
     int pid_enf = fork();
     switch (pid_enf)
@@ -45,9 +44,28 @@ int exec_if(cmdIf *cmd, char *chemin)
         int r = 0;
         if (status == 0)
         {
-            r = fsh(chemin, &dernier_exit, cmd->commandeIf);
-            return r;
+            if (cmd->commandeIf != NULL)
+            {
+                r = fsh(chemin, &dernier_exit, cmd->commandeIf);
+                return r;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        else 
+        {
+            if (cmd->commandeElse != NULL)
+            {
+                r = fsh(chemin, &dernier_exit, cmd->commandeElse);
+                return r;
+            }
+            else
+            {
+                return 1;
+            }
         }
     }
-    return 0;
+    return 1;
 }

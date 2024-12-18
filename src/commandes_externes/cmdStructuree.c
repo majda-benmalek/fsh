@@ -18,7 +18,6 @@
 int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
     //afficherTableauCommandes(cmds, nbCommandes);
   
-
     if (cmds == NULL || nbCommandes <= 0) {
         perror("tableau de commandes invalide");
         return -1;
@@ -42,13 +41,7 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
             return -1;
         }
         else if (pid_fils[i] == 0) { 
-            char *chemin1 = malloc(PATH_MAX);
-                if (getcwd(chemin1, PATH_MAX) == NULL) {
-                    perror("getcwd");
-                    free(chemin1);
-                    exit(-1); 
-                }
-            int retour = fsh(chemin1, &dernier_exit, cmd);
+            int retour = fsh(chemin, &dernier_exit, cmd);
             exit(retour); 
         }
         else {

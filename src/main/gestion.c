@@ -31,10 +31,10 @@ int rechercheDansArgs(char *tofind, char **args)
         if (strcmp(args[i], tofind) == 0)
         {
 
-            return 1;
+            return 1; // vrai
         }
     }
-    return 0;
+    return 0; // faux
 }
 
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
@@ -74,6 +74,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         // une fois la fin du bloc detectecté tester si ya un ; apres
         if (pvoutbloc)
         {
+            perror("je suis une commande struct");
+            
             remplissageCmdStructurees(args, cmdstruct);
             if (cmdstruct->cmdsStruc == NULL)
             {
@@ -84,9 +86,20 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             if (cmdstruct->nbCommandes < 0)
             {
                 perror("Erreur lors du découpage des commandes");
-                freeCmdStruct(cmdstruct);
+                freeCmdStruct(cmdstruct); //
                 return;
             }
+        }
+    }
+    else if (strcmp(args[0], "if") == 0)
+    {
+
+        cmdstruct->cmdIf = remplissageCmdIf(args);
+        cmdstruct->type = IF;
+        if (cmdstruct->cmdIf == NULL)
+        {
+            free_if(cmdstruct->cmdIf);
+            perror("erreur remplissage if");
         }
     }
     else if (strcmp(args[0], "for") == 0)
@@ -97,16 +110,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         {
             freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
-        }
-    }
-    else if (strcmp(args[0], "if") == 0)
-    {
-        cmdstruct->cmdIf = remplissageCmdIf(args);
-        cmdstruct->type = IF;
-        if (cmdstruct->cmdIf == NULL)
-        {
-            free_if(cmdstruct->cmdIf);
-            perror("erreur remplissage if");
         }
     }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
@@ -129,6 +132,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else
     {
+        // perror("je suis une commande simple");
         cmdstruct->cmdSimple = remplissage_cmdSimple(args);
         if (cmdstruct->cmdSimple->type == CMD_INTERNE)
         {
