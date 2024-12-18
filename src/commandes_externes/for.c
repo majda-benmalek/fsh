@@ -153,6 +153,7 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         return -1;
     }
 }
+int boucle_for(cmdFor *cmdFor);
 
 int option_r(struct dirent *entry, cmdFor *cmd)
 {
