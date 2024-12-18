@@ -258,7 +258,10 @@ int boucle_for(cmdFor *cmdFor)
                     return 1;
                 }
                 strcpy(path, cmdFor->rep);
-                strcat(path, "/");
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(path, "/");
+                }
                 if (cmdFor->cmd[nbr_cmd] == CMD_EXTERNE)
                 {
                     char *c = strstr(entry->d_name, ".");
@@ -283,7 +286,10 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 strcpy(ancienne, cmdFor->rep);
-                strcat(ancienne, "/");
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(ancienne, "/");
+                }
                 strcat(ancienne, entry->d_name);
                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(dollar, "$");
