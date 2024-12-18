@@ -55,15 +55,15 @@ void free_pipe(cmd_pipe *cmd)
     {
         if (cmd->commandes != NULL)
         {
-            for (int i = 0; i < cmd->nbCommandes; i++)
+            for (int i = 0; cmd->commandes[i] != NULL; i++)
             {
                 if (cmd->commandes[i] != NULL)
                 {
                     freeCmdSimple(cmd->commandes[i]);
                 }
             }
-            free(cmd->commandes);
         }
+        free(cmd->commandes);
         free(cmd);
     }
 }
@@ -105,7 +105,6 @@ void free_for(cmdFor *cmdFor)
     return;
 }
 
-
 void freeCmdStruct(commandeStruct *cmd)
 {
     if (cmd != NULL)
@@ -129,11 +128,33 @@ void freeCmdStruct(commandeStruct *cmd)
 
             free_redirection(cmd->cmdRed);
         }
-        else if(cmd->cmdsStruc != NULL){
-            for (int i = 0 ; cmd->cmdsStruc[i] != NULL ; i++){
+        else if (cmd->cmdsStruc != NULL)
+        {
+            for (int i = 0; cmd->cmdsStruc[i] != NULL; i++)
+            {
                 freeCmdStruct(cmd->cmdsStruc[i]);
             }
             free(cmd->cmdsStruc);
+        }
+        free(cmd);
+    }
+}
+
+void free_if(cmdIf *cmd)
+{
+    if (cmd != NULL)
+    {
+        if (cmd->test != NULL)
+        {
+            free_pipe(cmd->test);
+        }
+        if (cmd->commandeIf != NULL)
+        {
+            freeCmdStruct(cmd->commandeIf);
+        }
+        if (cmd->commandeElse != NULL)
+        {
+            freeCmdStruct(cmd->commandeElse);
         }
         free(cmd);
     }
