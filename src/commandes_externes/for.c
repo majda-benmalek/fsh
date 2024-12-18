@@ -31,6 +31,14 @@ int compte_occ(char *chaine, char *sous_chaine)
     return res;
 }
 
+void eleverSlash(char *path) {
+    size_t len = strlen(path);
+    if (len > 0 && path[len - 1] == '/') {
+        path[len - 1] = '\0'; // Supprime le dernier '/'
+    }
+}
+
+
 void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
     if (cmd->type == CMD_EXTERNE || CMD_INTERNE)
@@ -149,7 +157,7 @@ int option_r(struct dirent *entry , cmdFor *cmd){
             perror("chemin trop long");
             return 1;
             }*/
-        if (cmd->rep[strlen(cmd->rep) - 1] != '/')
+         if (cmd->rep[strlen(entry->d_name) - 1] != '/')
         {
             if(snprintf(path, sizeof(path), "%s/%s" , cmd->rep , entry->d_name ) >= PATH_MAX)
             {
@@ -165,6 +173,7 @@ int option_r(struct dirent *entry , cmdFor *cmd){
 
         }
         
+        
         // faire une copie pour pas modifier les champs de cmd
         cmdFor cmdCopie = *cmd;
         //copier le chemin 
@@ -173,6 +182,8 @@ int option_r(struct dirent *entry , cmdFor *cmd){
             perror("copie du chemin");
             return 1;
         }
+
+       
 
         int ret = boucle_for(&cmdCopie);
         free(cmdCopie.rep);
@@ -267,7 +278,7 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                char *ancienne = malloc(strlen(entry->d_name) - 3 + strlen(cmdFor->rep) + 2);
+                char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 strcpy(ancienne, cmdFor->rep);
                 strcat(ancienne, "/");
                 strcat(ancienne, entry->d_name);
