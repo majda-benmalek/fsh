@@ -404,7 +404,10 @@ cmdFor *make_for(char **args)
         i = i + 1;
     }
     tab[k] = NULL;
-    decoupe_args(tab,cmdFor->cmd,ARG_MAX);
+    // decoupe_args(tab,cmdFor->cmd,ARG_MAX);
+    // remplissage_cmdStruct(FOR,);
+    printf("chui avant l'appel\n");
+    remplissageCmdStructurees(tab,cmdFor->cmd);
     // cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
     // cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(tab, cmdFor->cmd[0]);

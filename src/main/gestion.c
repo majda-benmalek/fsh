@@ -40,7 +40,7 @@ int rechercheDansArgs(char *tofind, char **args)
 
 void gestion_cmd(char **args, commandeStruct *cmdstruct)
 {
-    // printf("dans gestion commande \n");
+    printf("dans gestion commande \n");
     if (!cmdstruct)
     {
         perror("Erreur Structure");
@@ -85,10 +85,11 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0)
     {
-        // printf("chui bien ds for\n");
+        printf("chui bien ds for\n");
         cmdstruct->cmdFor = make_for(args);
         if (cmdstruct->cmdFor == NULL)
         {
+            printf("le for est null\n");
             // freeCmdStruct(cmdstruct);
             perror("Erreur remplissage de for");
         }
@@ -130,8 +131,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             perror("Erreur cmdSimple");
         }
     }
-    // printf("fin de gestion cmd\n");
-    
+    printf("fin de gestion cmd\n");
 }
 
 int exec_redirection(cmd_redirection *cmd)

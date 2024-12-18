@@ -175,7 +175,7 @@ int boucle_for(cmdFor *cmdFor)
             }
 
             int nbr_cmd = 0;
-            while (cmdFor->cmd[nbr_cmd] != NULL)
+            while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(inter, "$");
@@ -192,7 +192,7 @@ int boucle_for(cmdFor *cmdFor)
                     strcat(path, "/");
                 }
 
-                if (cmdFor->cmd[nbr_cmd] == CMD_EXTERNE)
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == CMD_EXTERNE)
                 {
                     char *c = strstr(entry->d_name, ".");
                     if (c != NULL)
@@ -206,9 +206,9 @@ int boucle_for(cmdFor *cmdFor)
                     }
                 }
                 strcat(path, entry->d_name);
-                nouveau(inter, path, cmdFor->cmd[nbr_cmd]);
-                ret = fsh("", &dernier_exit, cmdFor->cmd[nbr_cmd]);
-                if (cmdFor->cmd[nbr_cmd] == NULL)
+                nouveau(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
                     free_for(cmdFor);
@@ -224,8 +224,8 @@ int boucle_for(cmdFor *cmdFor)
                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(dollar, "$");
                 strcat(dollar, cmdFor->variable);
-                nouveau(ancienne, dollar, cmdFor->cmd[nbr_cmd]);
-                if (cmdFor->cmd[nbr_cmd] == NULL)
+                nouveau(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
                     free_for(cmdFor);

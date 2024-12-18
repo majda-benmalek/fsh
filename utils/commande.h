@@ -42,7 +42,7 @@ typedef struct
     char **op;
     char *variable;
     // int nbCommandes;
-    commandeStruct **cmd;
+    commandeStruct *cmd;
 } cmdFor;
 
 typedef struct cmd_redirection cmd_redirection;
