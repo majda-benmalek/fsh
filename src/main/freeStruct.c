@@ -92,12 +92,12 @@ void free_for(cmdFor *cmdFor)
         }
         if (cmdFor->cmd != NULL)
         {
-            int i = 0;
-            while (cmdFor->cmd[i] != NULL)
-            {
-                freeCmdStruct(cmdFor->cmd[i]);
-                i++;
-            }
+            // int i = 0;
+            // while (cmdFor->cmd[i] != NULL)
+            // {
+            //     freeCmdStruct(cmdFor->cmd[i]);
+            //     i++;
+            // }
             free(cmdFor->cmd);
         }
         free(cmdFor);

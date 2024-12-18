@@ -269,6 +269,7 @@ void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
     cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
     // printf("cmd->type dans remplissageCmdStructurees [%d]\n", cmdStruct->type);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
+    // printf("nbCommandes = %d\n",nbCommandes);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
         freeCmdStruct(cmdStruct);
@@ -350,8 +351,8 @@ cmdFor *make_for(char **args)
     }
     memset(cmdFor->op, 0, 12 * sizeof(char *));
     // ? ----------------- option-----------
-    int i = 4;
-    int j = 0;
+    size_t i = 4;
+    size_t j = 0;
     while (strcmp(args[i], "{") != 0)
     {
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
@@ -410,18 +411,26 @@ cmdFor *make_for(char **args)
     }
 
     char *tab[ARG_MAX];
-    unsigned int k = 0;
-    while (args[i] != NULL && i < taille && strcmp(args[i], "}") != 0)
+    size_t k = 0;
+    // printf("i = %ld\n",i);
+    // printf("taille = %ld\n",taille);
+    while (args[i] != NULL && i < taille - 2) // sauter { et le null
     { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
+        // printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
         i = i + 1;
     }
 
     tab[k] = NULL;
-    cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
-    cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
-    gestion_cmd(tab, cmdFor->cmd[0]);
+    // decoupe_args(tab,cmdFor->cmd,ARG_MAX);
+    // remplissage_cmdStruct(FOR,);
+    // printf("chui avant l'appel\n");
+    remplissageCmdStructurees(tab,cmdFor->cmd);
+    // cmdFor->cmd->cmdsStruc[0] = malloc(sizeof(commandeStruct));
+    // cmdFor->cmd->cmdsStruc[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
+    // gestion_cmd(tab, cmdFor->cmd->cmdsStruc[0]);
+    // printf("chui ici fin du make for \n");
     return cmdFor;
 }
 

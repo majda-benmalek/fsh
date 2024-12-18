@@ -70,7 +70,34 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             }
         }
     }
-    if (rechercheDansArgs(";", args))
+    else if (strcmp(args[0],"for") == 0 || cmdstruct->type == FOR ){
+        // printf("chui bien ici\n");
+        if (trouver_fin_bloc(args,0) < tailleArgs(args)){
+            if (args[trouver_fin_bloc(args,0)] == NULL){
+                if (strcmp(args[trouver_fin_bloc(args,0)-1],";") != 0){
+                    cmdstruct->cmdFor = make_for(args);
+                    cmdstruct->type = FOR;
+                    if (cmdstruct->cmdFor == NULL)
+                    {
+                        perror("Erreur remplissage de for");
+                    }
+    }
+            }
+        }
+    }
+    //??
+    // else if (strcmp(args[0], "for") == 0)
+    // {
+
+    //     cmdstruct->cmdFor = make_for(args);
+    //     cmdstruct->type = FOR;
+    //     if (cmdstruct->cmdFor == NULL)
+    //     {
+    //         freeCmdStruct(cmdstruct);
+    //         perror("Erreur remplissage de for");
+    //     }
+    // }
+    else if (rechercheDansArgs(";", args))
     {
         int debutBloc = -1, finBloc = -1;
         bool pvoutbloc = false;
@@ -112,17 +139,17 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             }
         }
     }
-    else if (strcmp(args[0], "for") == 0)
-    {
+    // else if (strcmp(args[0], "for") == 0)
+    // {
 
-        cmdstruct->cmdFor = make_for(args);
-        cmdstruct->type = FOR;
-        if (cmdstruct->cmdFor == NULL)
-        {
-            freeCmdStruct(cmdstruct);
-            perror("Erreur remplissage de for");
-        }
-    }
+    //     cmdstruct->cmdFor = make_for(args);
+    //     cmdstruct->type = FOR;
+    //     if (cmdstruct->cmdFor == NULL)
+    //     {
+    //         freeCmdStruct(cmdstruct);
+    //         perror("Erreur remplissage de for");
+    //     }
+    // }
     else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
     {
         cmdstruct->cmdRed = remplissageCmdRedirection(args);

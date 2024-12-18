@@ -40,10 +40,21 @@ void eleverSlash(char *path)
     }
 }
 
-void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
+//TODO A CHANGER PR QUE SOIT PR TT LES TYPES
+
+// //  CMD_EXTERNE,
+// //  CMD_INTERNE,
+//   REDIRECTION,
+//   CMD_STRUCT,
+//   FOR,
+//   IF,
+//   PIPE
+
+int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
-    if (cmd->type == CMD_EXTERNE || CMD_INTERNE)
+    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
     {
+        // printf("chui dans nouveau\n");
         int k = 0;
         while (cmd->cmdSimple->args[k] != NULL)
         {
@@ -77,7 +88,7 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
             {
                 int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
                 int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
-                char *realloue = realloc(cmd->cmdSimple->args[k], taille); // TODO TEst = null
+                char *realloue = realloc(cmd->cmdSimple->args[k], taille); 
                 if (realloue == NULL)
                 {
                     perror("Reallocation");
@@ -98,12 +109,24 @@ void nouveau(char *ancienne, char *nouveau, commandeStruct *cmd)
                     a_changer = strstr(prefixe, ancienne);
                 }
                 strcat(cmd->cmdSimple->args[k], prefixe);
+                // printf("dans nouveau\n cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
                 k++;
-                if (ancienne_cmd != NULL)
-                    free(ancienne_cmd);
             }
+            if (ancienne_cmd != NULL)
+                free(ancienne_cmd);
         }
     }
+    else if (cmd->type == FOR){
+        // printf("chui bien dans le else if\n et ancienne = %s et nouveau = %s\n",ancienne,nouveau);
+        if (strcmp(cmd->cmdFor->rep,ancienne) == 0){
+            free(cmd->cmdFor->rep);
+            cmd->cmdFor->rep=malloc(strlen(nouveau)+1);
+            cmd->cmdFor->rep=nouveau;
+            // printf("repertoire = %s\n",cmd->cmdFor->rep);
+        }
+        nouveau_var(ancienne,nouveau,cmd->cmdFor->cmd);
+    }
+    return 0;
 }
 
 int optionA(struct dirent *entry, cmdFor *cmdFor)
@@ -174,7 +197,16 @@ int option_t(struct dirent *entry, cmdFor *cmd)
     }
 }
 
-int boucle_for(cmdFor *cmdFor);
+void print_arg(commandeStruct *cmd){
+    int k = 0;
+    while (cmd->cmdSimple->args[k] != NULL)
+    {
+        printf("cmd->cmdSimple->args[%d] = %s\n",k,cmd->cmdSimple->args[k]);
+        k++;
+    }
+}
+
+
 int option_r(struct dirent *entry, cmdFor *cmd)
 {
     if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
@@ -216,6 +248,9 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     }
     return 1;
 }
+
+
+
 
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 //  TODO Si ca ce passe mal ft faire un truc
@@ -265,7 +300,7 @@ int boucle_for(cmdFor *cmdFor)
                 }
             }
             int nbr_cmd = 0;
-            while (cmdFor->cmd[nbr_cmd] != NULL)
+            while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(inter, "$");
@@ -281,11 +316,36 @@ int boucle_for(cmdFor *cmdFor)
                 {
                     strcat(path, "/");
                 }
-                // Pour savoir quand enlevé l'exetension
-                strcat(path, entry->d_name);
-                nouveau(inter, path, cmdFor->cmd[nbr_cmd]);
-                ret = fsh("", &dernier_exit, cmdFor->cmd[nbr_cmd]);
-                if (cmdFor->cmd[nbr_cmd] == NULL)
+
+                // if (cmdFor->cmd->cmdsStruc[nbr_cmd]->type == CMD_EXTERNE)
+                // {
+                //     if (entry->d_name != NULL)
+                //     {
+                //         char *c = strstr(entry->d_name, ".");
+                //         if (c != NULL && c != entry->d_name)
+                //         {
+                //             char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(c) + 1);
+                //             memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(c) + 1);
+                //             strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(c));
+                //             // sprintf(entry->d_name, "%s", nom_sans_ext);
+                //             strcat(path,nom_sans_ext);
+                //             if (nom_sans_ext != NULL)
+                //                 free(nom_sans_ext);
+                //         }
+                //     }
+                // }else{
+                    strcat(path, entry->d_name);
+                // }
+                // printf("path = %s\n",path);
+                int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n!= 0){
+                    perror("problème dans nouveau");
+                    free_for(cmdFor);
+                    return 1;
+                }
+                // print_arg(cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
                     free_for(cmdFor);
@@ -301,22 +361,32 @@ int boucle_for(cmdFor *cmdFor)
                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(dollar, "$");
                 strcat(dollar, cmdFor->variable);
-                nouveau(ancienne, dollar, cmdFor->cmd[nbr_cmd]);
-                if (cmdFor->cmd[nbr_cmd] == NULL)
-                {
-                    perror("pb ds le changement de var");
+                // printf("ancienne = %s\n",ancienne);
+                n = nouveau_var(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n != 0){
+                    perror("problème dans le 2ème appel de nv");
                     free_for(cmdFor);
                     return 1;
                 }
+                // if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
+                // {
+                //     perror("pb ds le changement de var");
+                //     free_for(cmdFor);
+                //     // closedir(dir);
+                //     return 1;
+                // }
+                // printf("-----------\n");
                 nbr_cmd = nbr_cmd + 1;
-                if (dollar != NULL)
-                    free(dollar);
-                if (ancienne != NULL)
-                    free(ancienne);
-                if (path != NULL)
-                    free(path);
-                if (inter != NULL)
-                    free(inter);
+                // printf("nbr_cmd = %d\n",nbr_cmd);
+                // printf("-----------\n");
+                // if (dollar != NULL)
+                //     free(dollar);
+                // if (ancienne != NULL)
+                //     free(ancienne);
+                // if (path != NULL)
+                //     free(path);
+                // if (inter != NULL)
+                //     free(inter);
             }
         }
     }
