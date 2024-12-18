@@ -32,7 +32,7 @@ int decoupe_commande(char** commande , commandeStruct ** cmds , int * nbCmds , i
 }
 
 int decoupe_args(char** args , commandeStruct** cmds , int maxcmds){
-    size_t taille = tailleArgs(args);
+    size_t taille = tailleArgs(args); 
     int debut = 0;
     int nbcommandes = 0;
     while (debut < (int)taille)

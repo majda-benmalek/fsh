@@ -284,13 +284,15 @@ void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct){
 
 cmdFor *make_for(char **args)
 {
+    printf(" chui dans make for\n");
     cmdFor *cmdFor = malloc(sizeof(*cmdFor));
     if (cmdFor == NULL)
     {
         perror("problème d'allocation de mémoire pour for");
         return NULL;
     }
-    if (tailleArgs(args) < 9)
+    size_t taille = tailleArgs(args);
+    if (taille < 9)
     {
         perror("Erreur de synatxe");
         printf("la taille de l'argument = %ld\n", tailleArgs(args));
@@ -314,7 +316,7 @@ cmdFor *make_for(char **args)
         return NULL;
     }
 
-    size_t taille = tailleArgs(args);
+    // size_t taille = tailleArgs(args);
     cmdFor->variable = strdup(args[1]);
     if (cmdFor->variable == NULL)
     {
@@ -333,8 +335,8 @@ cmdFor *make_for(char **args)
     }
     memset(cmdFor->op, 0, 12 * sizeof(char*));
     // ? ----------------- option-----------
-    int i = 4;
-    int j = 0;
+    size_t i = 4;
+    size_t j = 0;
     while (strcmp(args[i], "{") != 0)
     {
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
@@ -392,19 +394,20 @@ cmdFor *make_for(char **args)
     }
 
     char *tab[ARG_MAX];
-    unsigned int k = 0;
-    while (args[i] != NULL && i < taille /*&& strcmp(args[i], "}") != 0*/ )
+    size_t k = 0;
+    printf("avant le while pour construire tab\n");
+    while (args[i] != NULL && i < taille - 2)//pour sauter { et le null
     { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
+        printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
         i = i + 1;
     }
-
-
     tab[k] = NULL;
-    cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
-    cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
-    gestion_cmd(tab, cmdFor->cmd[0]);
+    decoupe_args(tab,cmdFor->cmd,ARG_MAX);
+    // cmdFor->cmd[0] = malloc(sizeof(commandeStruct));
+    // cmdFor->cmd[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
+    // gestion_cmd(tab, cmdFor->cmd[0]);
     // printf("chui ici\n");
     return cmdFor;
 }

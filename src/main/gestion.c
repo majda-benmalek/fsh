@@ -168,7 +168,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             };
         }
         else{
-            // perror("for est null");
+            perror("for est null");
             ret = 1;
             return ret;
         }
