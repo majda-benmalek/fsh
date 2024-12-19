@@ -30,7 +30,7 @@ typedef struct
 typedef struct
 {
     Type type;
-    cmd_pipe *test;
+    commandeStruct *test;
     //c'etait des tableaux de commandeStruct mais inutile mainteant
     commandeStruct *commandeIf;
     commandeStruct *commandeElse;
