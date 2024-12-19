@@ -318,11 +318,13 @@ cmdFor *make_for(char **args)
     if (tailleArgs(args) < 9)
     {
         perror("Erreur de synatxe");
-        printf("la taille de l'argument = %ld\n", tailleArgs(args));
-        for (size_t i = 0; i < tailleArgs(args); i++)
-        {
-            printf("%s\n", args[i]);
-        }
+        // printf("la taille de l'argument = %ld\n", tailleArgs(args));
+        // for (size_t i = 0; i < tailleArgs(args); i++)
+        // {
+        //     printf("%s\n", args[i]);
+        // }
+        dernier_exit=2;
+        // return NULL;
         return NULL;
     }
     cmdFor->rep = NULL;
@@ -394,15 +396,16 @@ cmdFor *make_for(char **args)
                 }
                 i = i + 2;
                 j = j + 2;
-                // flag = true;
-            }
-            else
-            {
-                perror("il manque un argument");
-                free_for(cmdFor);
-                return NULL;
             }
         }
+        else
+            {
+                perror("Ce n'est pas une option valide");
+                free_for(cmdFor);
+                dernier_exit=2;
+                return NULL;
+            }
+        
     }
     cmdFor->op[j] = NULL;
     if (strcmp(args[i], "{") == 0)
