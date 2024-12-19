@@ -98,6 +98,26 @@ void free_for(cmdFor *cmdFor)
     }
 }
 
+void free_if(cmdIf *cmd)
+{
+    if (cmd != NULL)
+    {
+        if (cmd->test != NULL)
+        {
+            freeCmdStruct(cmd->test);
+        }
+        if (cmd->commandeIf != NULL)
+        {
+            freeCmdStruct(cmd->commandeIf);
+        }
+        if (cmd->commandeElse != NULL)
+        {
+            freeCmdStruct(cmd->commandeElse);
+        }
+        free(cmd);
+    }
+}
+
 void freeCmdStruct(commandeStruct *cmd)
 {
     if (cmd != NULL)
@@ -127,25 +147,9 @@ void freeCmdStruct(commandeStruct *cmd)
             }
             free(cmd->cmdsStruc);
         }
-        free(cmd);
-    }
-}
-
-void free_if(cmdIf *cmd)
-{
-    if (cmd != NULL)
-    {
-        if (cmd->test != NULL)
+        if (cmd->cmdIf != NULL)
         {
-            freeCmdStruct(cmd->test);
-        }
-        if (cmd->commandeIf != NULL)
-        {
-            freeCmdStruct(cmd->commandeIf);
-        }
-        if (cmd->commandeElse != NULL)
-        {
-            freeCmdStruct(cmd->commandeElse);
+            free_if(cmd->cmdIf);
         }
         free(cmd);
     }

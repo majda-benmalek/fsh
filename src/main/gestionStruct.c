@@ -1,3 +1,7 @@
+//GESTION STRUCT
+
+
+
 #define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,10 +37,14 @@ int arg_cmdsimple(char **args, char **commande, int i, int j)
         commande[h] = strdup(args[h + j]);
         if (commande[h] == NULL)
         {
+            for (int i = 0 ; i< h ; i++){
+                free(commande[i]);
+            }
+            free(commande);
             return 1;
         }
     }
-    commande[i - j] = NULL; // pour le dernier élementp
+    commande[i - j] = NULL; // pour le dernier élement
     return 0;
 }
 
@@ -60,7 +68,6 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
     cmd->cmdsStruc = cmdsStrcu;
-
 
     return cmd;
 }
@@ -129,6 +136,11 @@ cmd_redirection *remplissageCmdRedirection(char **args)
     memset(commande, 0, 10 * sizeof(char *));
     if (arg_cmdsimple(args, commande, taille - 3, 0) == 1)
     {
+        for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
+        free(commande);
         perror("strdup cmd_redirection");
         free_redirection(cmd);
         return NULL;
@@ -208,6 +220,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
             if (arg_cmdsimple(args, commande, i, j) == 1)
             {
                 free_pipe(cmd);
+                
                 return NULL;
             }
             cmd->commandes[nb] = remplissage_cmdSimple(commande);
@@ -235,6 +248,11 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 if (arg_cmdsimple(args, commande, i, j) == 1)
                 {
                     free_pipe(cmd);
+                    // for (int i = 0; commande[i]!= NULL; i++)
+                    // {
+                    //     free(commande[i]);
+                    // }
+                    // free(commande);
                     return NULL;
                 }
                 cmd->commandes[nb] = remplissage_cmdSimple(commande);
@@ -243,6 +261,11 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 {
                     perror("remplissage cmd simple dans remplissage pipe");
                     free_pipe(cmd);
+                    // for (int i = 0; commande[i]!= NULL; i++)
+                    // {
+                    //    free(commande[i]);
+                    // }
+                    // free(commande);
                     return NULL;
                 }
                 nb += 1;
@@ -479,6 +502,10 @@ cmdIf *remplissageCmdIf(char **args)
     if (arg_cmdsimple(args, commande, i, 1) == 1) // copie de 1 à i (exclu)
     {
         perror("arg_cmdsimple");
+        for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
         free(commande);
         free_if(cmd);
         return NULL;
@@ -493,7 +520,10 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-
+    for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
     // ! commande dans le if
     memset(commande, 0, ARG_MAX * sizeof(char *));
     int j = i + 1; // début de la commande a éxécuté
@@ -522,16 +552,28 @@ cmdIf *remplissageCmdIf(char **args)
         }
         fin++;
     }
+    for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
     memset(commande, 0, ARG_MAX * sizeof(char *));
 
     if (arg_cmdsimple(args, commande, fin - 1, j) == 1) //
     {
         perror("arg_cmdsimple");
+        for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
         free(commande);
         free_if(cmd);
         return NULL;
     }
     remplissageCmdStructurees(commande, cmd->commandeIf);
+    for (int i = 0; commande[i]!= NULL; i++)
+        {
+                free(commande[i]);
+        }
     memset(commande, 0, ARG_MAX * sizeof(char *));
 
     // ! commande dans le else
@@ -548,8 +590,13 @@ cmdIf *remplissageCmdIf(char **args)
             if (strcmp(args[j + 1], "{") != 0)
             {
                 perror("erreur de syntaxe");
-                if (commande != NULL)
+                if (commande != NULL){
+                    for (int i = 0; commande[i]!= NULL; i++)
+                    {
+                        free(commande[i]);
+                    }
                     free(commande);
+                }
                 if (cmd != NULL)
                     free_if(cmd);
                 return NULL;
@@ -567,7 +614,7 @@ cmdIf *remplissageCmdIf(char **args)
                     if (imbrication == 0)
                         estDansBloc = false;
                 }
-                else if (!estDansBloc && (strcmp(args[fin], "}") == 0 || args[fin] == NULL))
+                else if ((!estDansBloc && (strcmp(args[fin], "}") == 0 ))|| args[fin] == NULL)
                 {
                     break;
                 }
@@ -577,7 +624,13 @@ cmdIf *remplissageCmdIf(char **args)
             {
                 perror("arg_cmdsimple");
                 if (commande != NULL)
+                {
+                    for (int i = 0; commande[i]!= NULL; i++)
+                    {
+                        free(commande[i]);
+                    }
                     free(commande);
+                }
                 if (cmd != NULL)
                     free_if(cmd);
                 return NULL;

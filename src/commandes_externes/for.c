@@ -14,6 +14,7 @@
 #include "../../utils/ftype.h"
 #include <linux/limits.h>
 #include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/exit.h"
 #define ARG_MAX 512
@@ -42,7 +43,6 @@ void eleverSlash(char *path)
     }
 }
 
-// TODO A CHANGER PR QUE SOIT PR TT LES TYPES
 
 int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
@@ -98,12 +98,16 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == PIPE){
         int l = 0;
-        commandeStruct *inter_type = malloc(sizeof(commandeStruct));
+         commandeStruct *inter_type;
         while(cmd->pipe->commandes[l] != NULL){
-            inter_type->cmdSimple=cmd->pipe->commandes[l];
-            inter_type->type=cmd->pipe->commandes[l]->type;
+             inter_type = remplissage_cmdStruct(cmd->pipe->commandes[l]->type,cmd->pipe->commandes[l],NULL,NULL,NULL,NULL,NULL,0,NULL);
+            // inter_type->cmdSimple=cmd->pipe->commandes[l];
+            // inter_type->type=cmd->pipe->commandes[l]->type;
             nouveau_var(ancienne,nouveau,inter_type);
             l++;
+        }
+        if (inter_type!= NULL){
+            freeCmdStruct(inter_type);
         }
     }
     else if (cmd->type == CMD_STRUCT){

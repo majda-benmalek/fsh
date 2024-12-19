@@ -84,6 +84,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                     if (cmdstruct->cmdFor == NULL)
                     {
                         perror("Erreur remplissage de for");
+                        
                     }
                 }
             }
