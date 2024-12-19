@@ -16,8 +16,7 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
-#include "../../utils/exit.h"
-#define ARG_MAX 512
+#include "../../utils/exit.h"   
 
 int max =0;
 
