@@ -10,7 +10,6 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
-#define ARG_MAX 512
 
 void freeCmdStruct(commandeStruct *cmd);
 

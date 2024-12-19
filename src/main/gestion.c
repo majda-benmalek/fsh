@@ -21,7 +21,6 @@
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/if.h"
-#define ARG_MAX 512
 
 int rechercheDansArgs(char *tofind, char **args)
 {

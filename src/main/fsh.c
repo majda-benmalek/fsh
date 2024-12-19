@@ -14,7 +14,6 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
-#define ARG_MAX 512
 
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour

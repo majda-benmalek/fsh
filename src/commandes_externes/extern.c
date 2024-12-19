@@ -7,8 +7,6 @@
 #include <sys/wait.h>
 #include "../../utils/commande.h"
 
-#define ARG_MAX 512
-
 int cmd_extern(cmd_simple *cmd){
 
     if(cmd-> type != CMD_EXTERNE){

@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
-#include <limits.h>
+#include <linux/limits.h>
 #include "../../utils/commande.h"
 #include "../../utils/gestion.h"
 #include "../../utils/for.h"
@@ -18,7 +18,7 @@
 #include "../../utils/exit.h"
 #include "../../utils/commandeStructuree.h"
 
-#define ARG_MAX 512
+
 // #include <stdbool.h>
 
 size_t tailleArgs(char **args)
