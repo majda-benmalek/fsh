@@ -92,17 +92,10 @@ void free_for(cmdFor *cmdFor)
         }
         if (cmdFor->cmd != NULL)
         {
-            // int i = 0;
-            // while (cmdFor->cmd[i] != NULL)
-            // {
-            //     freeCmdStruct(cmdFor->cmd[i]);
-            //     i++;
-            // }
-            free(cmdFor->cmd);
+            freeCmdStruct(cmdFor->cmd);
         }
         free(cmdFor);
     }
-    return;
 }
 
 void freeCmdStruct(commandeStruct *cmd)
@@ -113,22 +106,20 @@ void freeCmdStruct(commandeStruct *cmd)
         {
             freeCmdSimple(cmd->cmdSimple);
         }
-
-        else if (cmd->pipe != NULL)
+        if (cmd->pipe != NULL)
         {
             free_pipe(cmd->pipe);
         }
 
-        else if (cmd->cmdFor != NULL)
+        if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
         }
-        else if (cmd->cmdRed != NULL)
+        if (cmd->cmdRed != NULL)
         {
-
             free_redirection(cmd->cmdRed);
         }
-        else if (cmd->cmdsStruc != NULL)
+        if (cmd->cmdsStruc != NULL)
         {
             for (int i = 0; cmd->cmdsStruc[i] != NULL; i++)
             {

@@ -46,6 +46,11 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     if (cmd == NULL)
     {
         cmd = malloc(sizeof(commandeStruct));
+        if (cmd == NULL)
+        {
+            perror("malloc remplissage_cmdStruct");
+            return NULL;
+        }
     }
     cmd->type = type;
     cmd->cmdSimple = cmdSimple;
@@ -55,6 +60,8 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->cmdRed = cmdredirection;
     cmd->nbCommandes = nbcommandes;
     cmd->cmdsStruc = cmdsStrcu;
+
+
     return cmd;
 }
 
@@ -321,7 +328,7 @@ cmdFor *make_for(char **args)
     cmdFor->rep = NULL;
     cmdFor->op = NULL;
     cmdFor->variable = NULL;
-    cmdFor->cmd = NULL;
+    cmdFor->cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     // ? -------- Type ---------
     cmdFor->type = FOR;
 
@@ -369,7 +376,7 @@ cmdFor *make_for(char **args)
         }
         else if (strcmp(args[i], "-e") == 0 || strcmp(args[i], "-t") == 0 || strcmp(args[i], "-p") == 0)
         {
-            if (args[i + 1][0] != '-' && args[i+1][0] != '{')
+            if (args[i + 1][0] != '-' && args[i + 1][0] != '{')
             {
                 cmdFor->op[j] = strdup(args[i]); // TODO a changer
                 if (cmdFor->op[j] == NULL)
@@ -402,20 +409,20 @@ cmdFor *make_for(char **args)
     {
         i++; // pour sauter l'{
     }
-    cmdFor->cmd = malloc(sizeof(commandeStruct));
-    if (cmdFor->cmd == NULL)
-    {
-        perror("pb d'alloc de sous cmd de for");
-        free_for(cmdFor);
-        return NULL;
-    }
+    // cmdFor->cmd = remplissage;
+    // if (cmdFor->cmd == NULL)
+    // {
+    //     perror("pb d'alloc de sous cmd de for");
+    //     free_for(cmdFor);
+    //     return NULL;
+    // }
 
     char *tab[ARG_MAX];
     size_t k = 0;
     // printf("i = %ld\n",i);
     // printf("taille = %ld\n",taille);
     while (args[i] != NULL && i < taille - 2) // sauter { et le null
-    { // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
+    {                                         // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
         tab[k] = args[i];
         // printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
@@ -426,7 +433,7 @@ cmdFor *make_for(char **args)
     // decoupe_args(tab,cmdFor->cmd,ARG_MAX);
     // remplissage_cmdStruct(FOR,);
     // printf("chui avant l'appel\n");
-    remplissageCmdStructurees(tab,cmdFor->cmd);
+    remplissageCmdStructurees(tab, cmdFor->cmd);
     // cmdFor->cmd->cmdsStruc[0] = malloc(sizeof(commandeStruct));
     // cmdFor->cmd->cmdsStruc[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
     // gestion_cmd(tab, cmdFor->cmd->cmdsStruc[0]);
@@ -476,9 +483,9 @@ cmdIf *remplissageCmdIf(char **args)
         free_if(cmd);
         return NULL;
     }
-    // TODO : appelé gestion psq ca peut etre une redirection aussi    
-    cmd->test = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL);
-    gestion_cmd(commande,cmd->test);
+    // TODO : appelé gestion psq ca peut etre une redirection aussi
+    cmd->test = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+    gestion_cmd(commande, cmd->test);
     if (cmd->test == NULL)
     {
         perror("remplissageCmdPipe");
@@ -589,5 +596,3 @@ cmdIf *remplissageCmdIf(char **args)
     }
     return cmd;
 }
-
-

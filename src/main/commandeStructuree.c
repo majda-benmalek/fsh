@@ -36,13 +36,13 @@ int decoupe_commande(char **commande, commandeStruct **cmds, int *nbCmds, int ma
 {
     // perror("decoupe_commande");
     // if(*nbCmds >= maxCmds) return -1;
-    commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
+    commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL);
     if (cmdstruct == NULL)
     {
         perror("Erreur allocation cmdStruct dans decoupe_commande");
         return -1;
     }
-    cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct);
+    // cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct);
     gestion_cmd(commande, cmdstruct);
     cmds[*nbCmds] = cmdstruct;
     (*nbCmds)++;

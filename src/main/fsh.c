@@ -47,17 +47,17 @@ int main(void)
     int ret = 0;
     while (1)
     {
-        commandeStruct *cmdstruct = malloc(sizeof(commandeStruct));
+        commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, NULL);
         if (cmdstruct == NULL)
         {
             perror("erreur malloc cmdStruct");
             free(input);
             free(chemin);
-            if (cmdstruct != NULL)
-                freeCmdStruct(cmdstruct); // ? si c null y'a rien a free nan ?
+            // if (cmdstruct != NULL)
+            //     freeCmdStruct(cmdstruct); // ? si c null y'a rien a free nan ?
             exit(1);
         }
-        cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
+        // cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
