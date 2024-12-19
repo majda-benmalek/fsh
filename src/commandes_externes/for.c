@@ -18,6 +18,8 @@
 #include "../../utils/exit.h"
 #define ARG_MAX 512
 
+int max =0;
+
 int compte_occ(char *chaine, char *sous_chaine)
 {
     int res = 0;
@@ -262,7 +264,6 @@ int option_r(struct dirent *entry, cmdFor *cmd)
 int boucle_for(cmdFor *cmdFor)
 {
     int ret = 0; // TODO A CHANGER;
-    int max = 0; 
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
@@ -332,8 +333,9 @@ int boucle_for(cmdFor *cmdFor)
                 }
 
                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-
-                // printf("ret = [%d]\n", ret);
+                if(ret>max){
+                    max=ret;
+                }
                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
