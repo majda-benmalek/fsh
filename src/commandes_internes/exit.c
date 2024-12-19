@@ -5,7 +5,7 @@ extern int dernier_exit;
 
 int commande_exit(char *valeur)
 {
-    if (valeur[0] != '\0')
+    if (valeur != NULL)
     {
         return atoi(valeur);
     }

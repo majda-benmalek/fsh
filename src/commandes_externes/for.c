@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -12,150 +13,370 @@
 #include "../../utils/extern.h"
 #include "../../utils/ftype.h"
 #include <linux/limits.h>
+#include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
+#include "../../utils/freeStruct.h"
+#include "../../utils/exit.h"
 #define ARG_MAX 512
 
-int boucle_for(char *input)
+int max =0;
+
+int compte_occ(char *chaine, char *sous_chaine)
 {
-    /**
-     * for i in rep { ls -l $i ; echo $i ; }
-     * 1- ectraire la variable i
-     * 2- extraire rep
-     * 3- extraire les commande ls -l $i ; echo $i ;
-     * 4- pour chaque commande remplacer $i par le nom du fichier
-     * 5- utiliser strok pour separer les commandes avec le separateur " ;"
-     * 6- pour chaque commande verifier si c'est une redirection donc appeler la fonction redirection
-     * sinon utiliser execvp pour executer la commande
-     */
-
-    // pour la variable i
-    char var;
-    char *debut_variable = input + 4;
-    char *fin_variable = strstr(debut_variable, " in");
-    int ret = 0;
-
-    if (fin_variable != NULL)
+    int res = 0;
+    char *c = strstr(chaine, sous_chaine);
+    while (c != NULL)
     {
-        int len = fin_variable - debut_variable;
-        if (len != 1)
+        c += strlen(sous_chaine);
+        res++;
+        c = strstr(c, sous_chaine);
+    }
+    return res;
+}
+
+void eleverSlash(char *path)
+{
+    size_t len = strlen(path);
+    if (len > 0 && path[len - 1] == '/')
+    {
+        path[len - 1] = '\0'; // Supprime le dernier '/'
+    }
+}
+
+
+int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
+{
+    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
+    {
+        int k = 0;
+        while (cmd->cmdSimple->args[k] != NULL)
         {
-            perror("Erreur de syntaxe, la variable doit contenir un seul caractère");
-            return 1;
+            char *ancienne_cmd = strdup(cmd->cmdSimple->args[k]);
+            char *a_changer = strstr(ancienne_cmd, ancienne);
+            if (a_changer == NULL)
+            {
+                k++;
+            }
+            else
+            {
+                int occ_ancienne = compte_occ(cmd->cmdSimple->args[k], ancienne);
+                int taille = strlen(cmd->cmdSimple->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
+                char *realloue = realloc(cmd->cmdSimple->args[k], taille); 
+                if (realloue == NULL)
+                {
+                    perror("Reallocation");
+                    return 1;
+                }
+                cmd->cmdSimple->args[k] = realloue;
+                char *prefixe = ancienne_cmd;
+                cmd->cmdSimple->args[k][0] = '\0'; // pour pas qu'il soit à null
+                while (a_changer != NULL)
+                {
+                    int taille_prefixe = strlen(prefixe) - strlen(a_changer);
+                    if (taille_prefixe > 0)
+                    {
+                        strncat(cmd->cmdSimple->args[k], prefixe, taille_prefixe);
+                    }
+                    strcat(cmd->cmdSimple->args[k], nouveau);
+                    prefixe = a_changer + strlen(ancienne);
+                    a_changer = strstr(prefixe, ancienne);
+                }
+                strcat(cmd->cmdSimple->args[k], prefixe);
+                strcat(cmd->cmdSimple->args[k],"\0");
+                k++;
+            }
+            if (ancienne_cmd != NULL)
+                free(ancienne_cmd);
         }
-        var = *debut_variable;
+    }
+    else if (cmd->type == FOR){
+        if (strcmp(cmd->cmdFor->rep,ancienne) == 0){
+            cmd->cmdFor->rep = realloc(cmd->cmdFor->rep ,strlen(nouveau) + 1);
+            sprintf(cmd->cmdFor->rep,"%s",nouveau);
+        }
+        nouveau_var(ancienne,nouveau,cmd->cmdFor->cmd);
+    }
+    else if (cmd->type == PIPE){
+        int l = 0;
+         commandeStruct *inter_type;
+        while(cmd->pipe->commandes[l] != NULL){
+             inter_type = remplissage_cmdStruct(cmd->pipe->commandes[l]->type,cmd->pipe->commandes[l],NULL,NULL,NULL,NULL,NULL,0,NULL);
+            // inter_type->cmdSimple=cmd->pipe->commandes[l];
+            // inter_type->type=cmd->pipe->commandes[l]->type;
+            nouveau_var(ancienne,nouveau,inter_type);
+            l++;
+        }
+        if (inter_type!= NULL){
+            freeCmdStruct(inter_type);
+        }
+    }
+    else if (cmd->type == CMD_STRUCT){
+        for (int i = 0; i< cmd->nbCommandes ; i++){
+            nouveau_var(ancienne,nouveau,cmd->cmdsStruc[i]);
+        }
+    }
+    else if(cmd->type == IF){
+
+        nouveau_var(ancienne,nouveau,cmd->cmdIf->test);
+        nouveau_var(ancienne,nouveau,cmd->cmdIf->commandeIf);
+        if (cmd->cmdIf->commandeElse!= NULL){
+            nouveau_var(ancienne,nouveau,cmd->cmdIf->commandeElse);
+        }
+    }
+    return 0;
+}
+
+
+int optionA(struct dirent *entry, cmdFor *cmdFor)
+{
+    return (rechercheDansArgs("-A", cmdFor->op) && entry->d_name[0] == '.' && entry->d_name[1] != '.' && entry->d_name[1] != '\0');
+}
+
+int arg_options(char **op, char *for_opt)
+{
+    for (int i = 0; op[i] != NULL; i++)
+    {
+        if (strcmp(op[i], for_opt) == 0)
+        {
+            return i + 1;
+        }
+    }
+    return 0;
+}
+
+int option_e(struct dirent *entry, cmdFor *cmdFor)
+{
+    char *ext = cmdFor->op[arg_options(cmdFor->op, "-e")];
+    char *basename = entry->d_name;
+    char *dot = strrchr(basename, '.');
+
+    if (dot != NULL && strcmp(dot + 1, ext) == 0 && basename[0] != '.') // pas un . a la 1ere pos
+    {
+        char *p = strstr(entry->d_name, ".");
+        if (p != NULL)
+        {
+            if (entry->d_name[0] != p[0])
+            {
+                char *nom_sans_ext = malloc(strlen(entry->d_name) - strlen(p) + 1);
+                memset(nom_sans_ext, 0, strlen(entry->d_name) - strlen(p) + 1);
+                strncpy(nom_sans_ext, entry->d_name, strlen(entry->d_name) - strlen(p));
+                sprintf(entry->d_name, "%s", nom_sans_ext);
+                if (nom_sans_ext != NULL)
+                    free(nom_sans_ext);
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int option_t(struct dirent *entry, cmdFor *cmd)
+{
+    int type = entry->d_type;
+    int indice_op = arg_options(cmd->op, "-t");
+    int for_type = -1;
+    if (indice_op != 0)
+    {
+        if (strcmp(cmd->op[indice_op], "f") == 0)
+        {
+            for_type = 8;
+        }
+        else if (strcmp(cmd->op[indice_op], "d") == 0)
+        {
+            for_type = 4;
+        }
+        else if (strcmp(cmd->op[indice_op], "l") == 0)
+        {
+            for_type = 10;
+        }
+        else if (strcmp(cmd->op[indice_op], "p") == 0)
+        {
+            for_type = 1;
+        }
+        else
+        {
+            return -1;
+        }
+        return type == for_type; //! retourne 0 si c'est faux
     }
     else
     {
-        perror("in attendu");
-        ret=1;
-        return ret;
+        return -1;
     }
-    // extraction de rep
-    // for i in rep { ls -l $i ; echo $i ; }
-    // rep avant le " {" et aprés le " in"
+}
 
-    char *debut_rep = strstr(input, "in ");
-    char *fin_rep = strstr(input, " {");
-    char *fin_cmd = strstr(input, " }");
-
-    if (fin_rep == NULL || fin_cmd == NULL || debut_rep == NULL)
+void print_arg(commandeStruct *cmd)
+{
+    int k = 0;
+    while (cmd->cmdSimple->args[k] != NULL)
     {
-        perror("Erreur de syntaxe");
-        ret=1;
-        return ret;
+        printf("cmd->cmdSimple->args[%d] = %s\n", k, cmd->cmdSimple->args[k]);
+        k++;
     }
+}
 
-    debut_rep += 3;
-    int len_rep = fin_rep - debut_rep;
-    char rep[len_rep + 1];
-    strncpy(rep, debut_rep, len_rep);
-    rep[len_rep] = '\0';
+int boucle_for(cmdFor *cmdFor);
 
-    // extraction des commandes
-    char *debut_cmd = fin_rep + 2;
-    int len_cmd = fin_cmd - debut_cmd;
-    char commandes[len_cmd + 1];
-    strncpy(commandes, debut_cmd, len_cmd);
-    commandes[len_cmd] = '\0';
-    // printf("cmd = %s\n var = %c\n rep = %s\n", commandes, var, rep);
+int option_r(struct dirent *entry, cmdFor *cmd)
+{
+    if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
+    {
+        char path[PATH_MAX];
+        if (cmd->rep[strlen(cmd->rep) - 1] != '/')
+        {
+            if (snprintf(path, sizeof(path), "%s/%s/", cmd->rep, entry->d_name) >= PATH_MAX)
+            {
+                perror("chemin trop long");
+                return 1;
+            }
+        }
+        else
+        {
+            if (snprintf(path, sizeof(path), "%s%s/", cmd->rep, entry->d_name) >= PATH_MAX)
+            {
+                perror("chemin trop long");
+                return 1;
+            }
+        }
+        // faire une copie pour pas modifier les champs de cmd
+        cmdFor cmdCopie = *cmd;
+        // copier le chemin
+        cmdCopie.rep = strdup(path);
+        if (cmdCopie.rep == NULL)
+        {
+            perror("copie du chemin");
+            return 1;
+        }
+        int ret = boucle_for(&cmdCopie);
+        free(cmdCopie.rep);
+        if (ret == 1)
+        {
+            perror("fontion for dans -r");
+            return 1;
+        }
+        return 0;
+    }
+    return 1;
+}
 
-    // remplacer les $i
-
-    DIR *dir = opendir(rep);
+// TODO ERREUR DE SYNTAXE CODE ERREUR = 2
+//  TODO Si ca ce passe mal ft faire un truc
+// TODO JE FERME PAS LE REP ?
+int boucle_for(cmdFor *cmdFor)
+{
+    int ret = 0; // TODO A CHANGER;
+    DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
-        perror("Erreur d'ouverture du repertoire");
-        ret=1;
+        fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
+        ret = 1;
         return ret;
     }
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
-
-        // pour ignorer les fichiers cachés
-        if (entry->d_name[0] != '.')
+        if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
         {
-            // printf("Fichier trouvé : %s\n", entry->d_name);
-            char commandes_modifiee[len_cmd + 1000];
-            strcpy(commandes_modifiee, commandes);
-            /* maintenant que j'ai le nom du fichier je vais chercher dans les commande si je trouve des occurence de $i pour ça je vais utiliser un autre pointeur ui va parcourir la liste*/
-            char *ptr = commandes_modifiee;
-            while ((ptr = strchr(ptr, '$')) != NULL)
-            {
-                // verifier si c'est bien i
-                if (*(ptr + 1) == var)
-                {
-                    // deplacer la portion aprés la variable de pos + strlen d->d_name
-                    /*deplacer la chaine qui se situe apres la varible donc aprs pos+2 ($i) de longueur strlen(pos+2) donc ca nous donne le nombre de caractére a deplacer enfin les deplacer vers la position pos+strlen(d->d_name)*/
-                    char chemin[1000];
 
-                    snprintf(chemin, sizeof(chemin), "%s/%s", rep, entry->d_name);
-                    memmove(ptr + strlen(chemin), ptr + 2, strlen(ptr + 2) + 1);
-                    // puisque c'est deplacer on va copier
-                    memcpy(ptr, chemin, strlen(chemin));
-                    ptr += strlen(chemin);
-                }
-                else
+            if (rechercheDansArgs("-e", cmdFor->op))
+            {
+                if (!option_e(entry, cmdFor))
                 {
-                    ptr++;
+                    continue;
                 }
             }
-            //  séparer les cmd avec le separateur ;
-            //  appliquer chaque commande
-            char *cmd = strtok(commandes_modifiee, ";");
-            char *cmd1 = cmd;
-            snprintf(cmd, strlen(cmd1), "%s", cmd1 + 1);
-
-            while (cmd != NULL)
+            if (rechercheDansArgs("-r", cmdFor->op) && entry->d_type == DT_DIR)
             {
-                char *arg1 = malloc(ARG_MAX);
-                char *cmd1 = malloc(ARG_MAX);
-                gestion_cmd(cmd, arg1, cmd1);
-                int dernier_exit = 0;
-                char chemin_fsh[4096] = "";
-                if (getcwd(chemin_fsh, 4096) == NULL)
+                int r = option_r(entry, cmdFor);
+                if (r == 1)
+                    break;
+                // continue ;
+            }
+
+            if (rechercheDansArgs("-t", cmdFor->op))
+            {
+                int res = option_t(entry, cmdFor);
+                if (res == 0)
                 {
-                    perror("Erreur de getcwd");
-                    closedir(dir);
-                    free(arg1);
-                    free(cmd1);
-                    ret=1;
-                    return ret;
+                    continue;
+                }
+                if (res == -1)
+                {
+                    dernier_exit = 1;
+                    return 2;
+                }
+            }
+            int nbr_cmd = 0;
+            while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
+            {
+                char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                strcpy(inter, "$");
+                strcat(inter, cmdFor->variable);
+
+                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
+                if (path == NULL)
+                {
+                    return 1;
+                }
+                strcpy(path, cmdFor->rep);
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(path, "/");
+                }
+                strcat(path, entry->d_name);
+                strcat(path,"\0");
+                // printf("path = %s\n",path);
+                int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n != 0)
+                {
+                    perror("problème dans nouveau");
+                    free_for(cmdFor);
+                    return 1;
                 }
 
-                ret = fsh(cmd1, arg1, cmd, chemin_fsh, &dernier_exit);
-                if (ret < 0)
-                {
-                    perror("Erreur de fsh");
-                    closedir(dir);
-                    free(arg1);
-                    free(cmd1);
-                    return ret;
+                ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if(ret>max){
+                    max=ret;
                 }
-                cmd = strtok(NULL, ";");
+                if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
+                {
+                    perror("pb ds le changement de var");
+                    free_for(cmdFor);
+                    return 1;
+                }
+                char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
+                strcpy(ancienne, cmdFor->rep);
+                if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+                {
+                    strcat(ancienne, "/");
+                }
+                strcat(ancienne, entry->d_name);
+                char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                strcpy(dollar, "$");
+                strcat(dollar, cmdFor->variable);
+                strcat(path,"\0");
+                // printf("ancienne = %s\n",ancienne);
+                n = nouveau_var(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (n != 0)
+                {
+                    perror("problème dans le 2ème appel de nv");
+                    free_for(cmdFor);
+                    return 1;
+                }
+
+                nbr_cmd = nbr_cmd + 1;
+
+                if (dollar != NULL)
+                    free(dollar);
+                if (ancienne != NULL)
+                    free(ancienne);
+                if (path != NULL)
+                    free(path);
+                if (inter != NULL)
+                    free(inter);
             }
         }
     }
-
     closedir(dir);
 
     return ret;

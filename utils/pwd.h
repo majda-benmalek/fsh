@@ -6,6 +6,9 @@
 
 /**
  * Affiche le chemin absolu du répertoire courant.
+ *
+ * Cette fonction utilise `chemin_absolu` pour obtenir le chemin absolu du
+ * répertoire courant et l'affiche sur la sortie standard.
  */
 int pwd(void);
 

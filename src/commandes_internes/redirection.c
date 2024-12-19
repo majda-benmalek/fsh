@@ -1,138 +1,192 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
-#define BUFFERSIZE 1024
+#include "../../utils/commande.h"
+#include "../../utils/gestionStruct.h"
+#include "../../utils/gestion.h"
+#include "../../utils/freeStruct.h"
+#include "linux/limits.h"
 
-int redirection(char* input){
-    char * args[1000]; // le tableau d'argument qu'on va utiliser dans excvp 
-    char * filename = NULL ; 
-    int fd ; 
-    int i = 0 ; 
-    const char* separateur = " " ;
-    int append = 0 ;
-    // ls -l cmd > f1
-    char *token = strtok(input, separateur);
-    // token -> ls
-    int inverse=0;
-
-    /*on va commencer par separer la chaine input selon les espaces pour extraire le fichier vers lequel redirigier + la commande à executer*/
-
-    while(token != NULL){
-        if(strcmp(token,">")==0){  // token -> f1
-            filename = strtok(NULL, separateur); //filname = f1
-        }
-        else if(strcmp(token,">>")==0){
-            filename = strtok(NULL, separateur); //filname = f1
-            append = 1 ; 
-        }
-        else if(strcmp(token,"<")==0){
-            filename=strtok(NULL,separateur);
-            inverse=1;
-
-        }
-        else{
-            args[i] = token; /* [ls , -l] ici si c'est pas > ou >> on prend cmd et ses option */
-            i++; 
-        }
-
-        // lire ce qu'il y a aprés 
-        token = strtok(NULL,separateur);
-
+int dterminer_flags(const char *separateur)
+{
+    if (strcmp(separateur, ">>") == 0 || strcmp(separateur, "2>>") == 0)
+    {
+        return O_WRONLY | O_CREAT | O_APPEND;
     }
-    args[i] = NULL ;
+    else if (strcmp(separateur, ">") == 0 || strcmp(separateur, "2>") == 0)
+    {
+        return O_WRONLY | O_CREAT | O_EXCL;
+    }
+    else if (strcmp(separateur, "<") == 0)
+    {
+        return O_RDONLY;
+    }
+    else if (strcmp(separateur, ">|") == 0 || strcmp(separateur, "2>|") == 0)
+    {
+        return O_WRONLY | O_CREAT | O_TRUNC;
+    }
+    else
+    {
+        perror("separateur non reconnu");
+        return 1;
+    }
+}
 
-    if(filename != NULL){
-        if (inverse){
-            fd = open(filename, O_WRONLY);
-        }else{
-            if(append){
-                fd = open(filename , O_WRONLY|O_CREAT|O_APPEND, 0644);
-            }else{
-                fd = open(filename , O_WRONLY|O_CREAT|O_EXCL, 0644);
-            }
-        }
-        if(fd<0){
-            perror("erreur lors de l'ouverture du fichier");
-            return 1;
-        }
-    }else{
-        perror("erreur fichier non specifié");
+int ouvrir_fichier(const char *fichier, const char *separateur)
+{
+
+    int flags = dterminer_flags(separateur);
+    if (flags == -1)
+    {
+        return 1;
+    }
+    int fd = open(fichier, flags, 0644);
+    return fd;
+}
+
+int sauvgarde_descripteurs(int descripteur, int *copie)
+{
+    if (!copie)
+    {
+        perror("pointeur null pour le copie");
+        return 1;
+    }
+    *copie = dup(descripteur);
+    if (*copie < 0)
+    {
+        perror("erreur lors de la sauvegarde");
+        return 1;
+    }
+    return 0;
+}
+
+int restauration_descipteur(int copie, int descripteur)
+{
+    if (dup2(copie, descripteur) < 0)
+    {
+        perror("erreur lors de la restauration");
+        close(copie);
+        return 1;
+    }
+    close(copie);
+    return 0;
+}
+
+int duplication_fd(int fd, char *separateur)
+{
+    int cible = 1;
+    if (strcmp(separateur, ">>") == 0 || strcmp(separateur, ">") == 0 || strcmp(separateur, ">|") == 0)
+    {
+        cible = STDOUT_FILENO;
+    }
+    else if (strstr(separateur, "2") != NULL)
+    {
+        // perror("ya un 2");
+        cible = STDERR_FILENO;
+    }
+    else
+    {
+        cible = STDIN_FILENO;
+    }
+
+    if (dup2(fd, cible) < 0)
+    {
+        perror("erreur duplication fd");
+        return 1;
+    }
+    return 0;
+}
+
+int redirection(cmd_redirection *cmdredirect)
+{
+    int ret = 0;
+    if (cmdredirect == NULL || cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
+    {
+        perror("Arguments pour la redirection manquants");
         return 1;
     }
 
-    int avant;
-    if (inverse){
-         avant=dup(STDIN_FILENO);
-        dup2(fd,STDIN_FILENO);
-        close(fd);
-    }else{
-        // garder le df de la sortie standard pour la rétablir aprés 
-        avant = dup(STDOUT_FILENO);  // comme si sortie_avant = STDOUT_FILENO 
-        if(avant < 0){
-            perror("dup");
-            return 1; 
-        }
-        // faire en sorte que STDOUT_FILENO pointe vers le fichier fd
-        dup2(fd,STDOUT_FILENO); // comme si STDOUT_FILENO = fd 
-        close(fd);
-        }
-    
-    // creer un fils qui va executer la commande 
-    if(args[0] != NULL){
+    char *fichier = cmdredirect->fichier;
+    char *separateur = cmdredirect->separateur;
 
-    switch (fork()){
-        case -1:
-            perror("erreur lors de la creation du fils");
-            return 1 ; 
-        case 0 :
-            if(execvp(args[0] , args) < 0){
-                perror("execvp"); 
-                exit(1);
-            }
-        default :
-            wait(NULL); // attends son fils
-            //retablir la sortie
-            if(filename != NULL){
-                if(inverse){
-                    if(dup2(avant,STDIN_FILENO)<0){
-                        perror("aaaaammmsss dup");
-                        close(avant);
-                        return 1;
-                    }
-                }else{
-                    if(dup2(avant, STDOUT_FILENO)<0){
-                    perror("dup2");
-                    close(avant);
-                    return 1;
-                }
-                close(avant);
-                }
-            }
+    int fd = ouvrir_fichier(fichier, separateur);
+    if (fd == -1)
+    {
+        perror("pipeline_run");
+        return 1;
     }
-}else{
-    perror("erreur lors de l'execution de la commande ");
+    int copie_stdout = -1, copie_stdin = -1, copie_stderr = -1;
+    if (sauvgarde_descripteurs(STDOUT_FILENO, &copie_stdout) != 0)
+    {
+        perror("sauvgarde descripteurs");
+        close(fd);
+        return 1;
+    }
+    if (sauvgarde_descripteurs(STDIN_FILENO, &copie_stdin) != 0)
+    {
+        perror("sauvgarde descripteurs");
+        close(fd);
+        return 1;
+    }
+
+    if (sauvgarde_descripteurs(STDERR_FILENO, &copie_stderr) != 0)
+    {
+        perror("sauvegarde descripteurs");
+        close(fd);
+        return 1;
+    }
+
+    if (duplication_fd(fd, separateur) != 0)
+    {
+        perror("duplication fd");
+        restauration_descipteur(copie_stdout, STDOUT_FILENO);
+        restauration_descipteur(copie_stdin, STDIN_FILENO);
+        restauration_descipteur(copie_stderr, STDERR_FILENO);
+        close(fd);
+        return 1;
+    }
+    close(fd);
+
+    int dernier_exit = 0;
+    char *chemin = malloc(PATH_MAX);
+    if (chemin == NULL)
+    {
+        perror("Erreur lors de l'allocation de mémoire");
+        close(copie_stdin);
+        close(copie_stdout);
+        close(copie_stderr);
+        return 1;
+    }
+    if (getcwd(chemin, PATH_MAX) == NULL)
+    {
+        perror("getcwd");
+        free(chemin);
+        close(copie_stdin);
+        close(copie_stdout);
+        close(copie_stderr);
+        return 1;
+    }
+
+    commandeStruct *cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL , NULL, 0, NULL);
+    gestion_cmd(cmdredirect->cmd->args, cmd);
+    ret = fsh(chemin, &dernier_exit, cmd);
+    // ! pour évité les pertes de mémoire
+    if (cmd != NULL)
+        freeCmdStruct(cmd);
+    if (chemin)
+        free(chemin);
+    if (restauration_descipteur(copie_stdout, STDOUT_FILENO) != 0 ||
+        restauration_descipteur(copie_stdin, STDIN_FILENO) != 0 || restauration_descipteur(copie_stderr, STDERR_FILENO) != 0)
+    {
+        perror("restaurer descripteur");
+        return 1;
+    }
+
+    return ret;
 }
-
-return 0;
-
-}
-
-
-
-
-
-    // char *buf=malloc(BUFFERSIZE);
-        //     if (buf==NULL){
-        //         perror("buffer nulle");
-        //         return 1;
-        // }
-        // int r=read(fd,buf,BUFFERSIZE);
-        // if (r<0){
-        //     perror("erreur lecture");
-        //     return 1;
-        // }

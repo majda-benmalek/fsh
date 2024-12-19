@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +25,7 @@ int ftype(char *name)
     }
     if (lstat(name,&st)!=0)
         {
-            perror("problème avec le lstat");
+            // perror("problème avec le lstat");
             goto error;
         }
 
