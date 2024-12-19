@@ -42,7 +42,6 @@ void eleverSlash(char *path)
     }
 }
 
-// TODO A CHANGER PR QUE SOIT PR TT LES TYPES
 
 int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
