@@ -14,7 +14,7 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
-
+//TEST SYNCHRO
 
 int dernier_exit = 0; // pour initialiser la derniére valeur de retour
 
