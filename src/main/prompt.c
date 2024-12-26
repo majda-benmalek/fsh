@@ -41,11 +41,12 @@ char *decoupe(char *chemin, int *ret)
 {
     char *new_path = malloc(PATH_MAX);
     strcpy(new_path, chemin);
-    if (strlen(new_path) > (30 - compter_chiffres(*ret) + 4))
+    int espace = (*ret == -255) ? 1 : 0;
+    if (strlen(new_path) > (30 - compter_chiffres(*ret) + 4 - espace))
     {
         new_path[strlen(new_path)] = '\0';
         int len = strlen(new_path);
-        int out = compter_chiffres(*ret) + 4;
+        int out = compter_chiffres(*ret) + 4 - espace;
         int enlever = len - (30 - out);
         strcpy(new_path, new_path + enlever);
         new_path[30 - out] = '\0';
