@@ -8,6 +8,7 @@
 #include <readline/history.h>
 #include <limits.h>
 #include <stdbool.h>
+#include "../../utils/signaux.h"
 
 int compter_chiffres(int nombre)
 {
@@ -68,6 +69,8 @@ int prompt(char *chemin, char *input, int *ret)
     if (*ret == 0)
     {
         sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", vert, reset_color, *(ret), new, bleu, reset_color);
+    }else if(*ret == -255){
+       sprintf(readline_prompt, "%s[%sSIG]%s%s$%s ", rouge, reset_color,  new, bleu, reset_color);
     }
     else
     {

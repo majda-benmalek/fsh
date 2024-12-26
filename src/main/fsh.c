@@ -5,6 +5,7 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include "../../utils/exit.h"
 #include "../../utils/prompt.h"
 #include <stdbool.h>
@@ -14,12 +15,18 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
+#include "../../utils/signaux.h"
 
 
-int dernier_exit = 0; // pour initialiser la derniére valeur de retour
+int dernier_exit = 0;
+ // pour initialiser la derniére valeur de retour
 
 int main(void)
 {
+
+    // signaux 
+    sigaux_main();
+   
 
     char *input = malloc(MAX_INPUT);
     if (input == NULL)
@@ -44,8 +51,11 @@ int main(void)
     }
     rl_outstream = stderr;
     int ret = 0;
+
     while (1)
     {
+       
+        
         commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, NULL);
         if (cmdstruct == NULL)
         {
@@ -57,6 +67,7 @@ int main(void)
             exit(1);
         }
         // cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
+
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
         {
@@ -88,7 +99,7 @@ int main(void)
         gestion_cmd(args, cmdstruct);
         ret = fsh(chemin, &dernier_exit, cmdstruct);
         dernier_exit = ret;
-        if (cmdstruct != NULL)
-            freeCmdStruct(cmdstruct);
+        if (cmdstruct != NULL){
+            freeCmdStruct(cmdstruct);}
     }
 }
