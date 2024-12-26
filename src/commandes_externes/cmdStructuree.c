@@ -13,6 +13,7 @@
 #include "../../utils/exit.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/cd.h"
+#include "../../utils/signaux.h"
 
 
 int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
@@ -41,6 +42,7 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
             return -1;
         }
         else if (pid_fils[i] == 0) { 
+            signaux_fils();
             int retour = fsh(chemin, &dernier_exit, cmd);
             exit(retour); 
         }
@@ -50,8 +52,11 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
             if (pid == -1) {
                 perror("waitpid");
                 return -1;
-            }
-            if (WIFEXITED(status)) {
+            };
+            if(WIFSIGNALED(status)){
+            return -255;
+             }
+            else if (WIFEXITED(status)) {
                 last_ret = WEXITSTATUS(status); 
             } 
             

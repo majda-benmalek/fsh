@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/wait.h>
 #include "../../utils/commande.h"
+#include "../../utils/signaux.h"
 
 int cmd_extern(cmd_simple *cmd){
 
@@ -17,6 +19,10 @@ int cmd_extern(cmd_simple *cmd){
         write(2, "Commande invalide\n", strlen("Commande invalide\n\n"));
         return -4;
     } 
+    
+
+
+
     int child_pid;
     int status = 0;
 
@@ -28,6 +34,8 @@ int cmd_extern(cmd_simple *cmd){
         return -4;
         
     case 0 :
+        signaux_fils();
+    
         if(execvp(cmd->args[0] , cmd->args) == -1){
             perror("redirect_exec");
             exit(1);
@@ -36,7 +44,11 @@ int cmd_extern(cmd_simple *cmd){
 
     default:
         waitpid(child_pid, &status, 0);
-        if (WIFEXITED(status)) // 0 C TRUE 1 C FALSE
+        if(WIFSIGNALED(status)){
+           return -255;
+        }
+        
+        else if (WIFEXITED(status)) // 0 C TRUE 1 C FALSE
         {
             int exit_status = WEXITSTATUS(status);
             return exit_status;
