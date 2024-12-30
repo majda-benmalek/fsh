@@ -17,13 +17,14 @@
 
 
 int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
+   
     //afficherTableauCommandes(cmds, nbCommandes);
   
     if (cmds == NULL || nbCommandes <= 0) {
         perror("tableau de commandes invalide");
         return -1;
     }
-    pid_t pid_fils[nbCommandes];
+    //pid_t pid_fils[nbCommandes];
     int last_ret = -1;
     for (int i = 0; i < nbCommandes; i++) {
         commandeStruct *cmd = cmds[i];
@@ -36,31 +37,43 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
             continue;
         }
 
-        pid_fils[i] = fork();
+        /*pid_fils[i] = fork();
         if (pid_fils[i] == -1) {
             perror("fork");
             return -1;
         }
         else if (pid_fils[i] == 0) { 
-            signaux_fils();
+            signaux_fils();*/
             int retour = fsh(chemin, &dernier_exit, cmd);
-            exit(retour); 
-        }
+            //exit(retour); 
+        /*}
         else {
             int status;
             pid_t pid = waitpid(pid_fils[i], &status, 0);
+            
             if (pid == -1) {
-                perror("waitpid");
-                return -1;
+                if(sigint_received){
+                    return -255;
+                }
             };
-            if(WIFSIGNALED(status)){
+
+            if(sigint_received){
             return -255;
-             }
-            else if (WIFEXITED(status)) {
+            }
+            
+            if(WIFSIGNALED(status)){
+                if(WTERMSIG(status) == SIGINT){
+                    sigint_received = 1;
+                    //return -255;
+                }
+                return -255;
+            }
+             if (WIFEXITED(status)) {
                 last_ret = WEXITSTATUS(status); 
             } 
             
-        }
+        }*/
+       last_ret = retour;
     }
    
 

@@ -10,6 +10,7 @@
 #include "../../utils/signaux.h"
 
 int cmd_extern(cmd_simple *cmd){
+    
 
     if(cmd-> type != CMD_EXTERNE){
         write(2, "Commande externe attendue\n", strlen("Commande externe attendue\n"));
@@ -43,9 +44,23 @@ int cmd_extern(cmd_simple *cmd){
         break;
 
     default:
-        waitpid(child_pid, &status, 0);
+        pid_t pid = waitpid(child_pid, &status, 0);
+        if (pid == -1) {
+                if(sigint_received){
+                    return -255;
+                }
+                //perror("waitpid");
+                //return -1;
+            };
+        if(sigint_received){
+            return -255;
+        }
         if(WIFSIGNALED(status)){
-           return -255;
+            if(WTERMSIG(status) == SIGINT){
+                sigint_received = 1;
+                return -255;
+            }
+            return -255;
         }
         
         else if (WIFEXITED(status)) // 0 C TRUE 1 C FALSE
