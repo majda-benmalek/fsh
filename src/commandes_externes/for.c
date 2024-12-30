@@ -16,9 +16,10 @@
 #include "../../utils/commande.h"
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
-#include "../../utils/exit.h"   
+#include "../../utils/exit.h"
+#include "../../utils/signaux.h"
 
-int max =0;
+int max =-255;
 
 int compte_occ(char *chaine, char *sous_chaine)
 {
@@ -247,6 +248,9 @@ int option_r(struct dirent *entry, cmdFor *cmd)
             return 1;
         }
         int ret = boucle_for(&cmdCopie);
+        if(ret>max){
+            max=ret;
+        }
         free(cmdCopie.rep);
         if (ret == 1)
         {
@@ -263,7 +267,8 @@ int option_r(struct dirent *entry, cmdFor *cmd)
 // TODO JE FERME PAS LE REP ?
 int boucle_for(cmdFor *cmdFor)
 {
-    int ret = 0; // TODO A CHANGER;
+   
+    int ret = -255; // TODO A CHANGER;
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
@@ -274,6 +279,7 @@ int boucle_for(cmdFor *cmdFor)
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
+      
         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
         {
 
@@ -308,6 +314,7 @@ int boucle_for(cmdFor *cmdFor)
             int nbr_cmd = 0;
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
+                
                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
                 strcpy(inter, "$");
                 strcat(inter, cmdFor->variable);
@@ -375,8 +382,9 @@ int boucle_for(cmdFor *cmdFor)
                     free(inter);
             }
         }
+         //printf(" la valeur de retour du while est %d\n",ret);
     }
     closedir(dir);
-
+   
     return ret;
 }

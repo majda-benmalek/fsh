@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <limits.h>
 
-volatile sig_atomic_t sigint_received = 0;
+volatile sig_atomic_t sigint_received;
 
 
 void configuration_signaux(sigset_t *block_mask){
@@ -38,6 +38,7 @@ void sigaux_main(){
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGTERM, &sa, NULL);
+    sa.sa_handler = sigint_handleur;
     sigaction(SIGINT, &sa, NULL);
 
 }

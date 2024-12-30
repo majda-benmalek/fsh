@@ -21,6 +21,8 @@
 #include "../../utils/pipe.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/if.h"
+#include "../../utils/signaux.h"
+
 
 int rechercheDansArgs(char *tofind, char **args)
 {
@@ -203,14 +205,18 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
+    if(sigint_received){
+        return -255;
+    }
     int ret = *dernier_exit;
+    
 
     if (cmdstruct == NULL)
     {
         perror("Structure commande");
         return -1;
     }
-
+    
     if (cmdstruct->type == FOR)
     {
         if (cmdstruct->cmdFor != NULL)
@@ -219,10 +225,12 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret == 1 || ret == 0)
             {
                 return ret;
-            }
+            }/*else if(ret == -255){
+                return -255;
+            }*/
             else
             {
-                // printf("max = [%d]\n", max);
+                //printf("max = [%d]\n", max);
                 return max;
             }
             // if (ret != 0)
