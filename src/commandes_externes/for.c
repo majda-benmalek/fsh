@@ -105,8 +105,6 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
         while (cmd->pipe->commandes[l] != NULL)
         {
             inter_type = remplissage_cmdStruct(cmd->pipe->commandes[l]->type, cmd->pipe->commandes[l], NULL, NULL, NULL, NULL, 0, NULL);
-            // inter_type->cmdSimple=cmd->pipe->commandes[l];
-            // inter_type->type=cmd->pipe->commandes[l]->type;
             nouveau_var(ancienne, nouveau, inter_type);
             l++;
         }
@@ -134,16 +132,74 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == REDIRECTION)
     {
+        if(cmd->cmdSimple->red->cmd->args != NULL){
+            perror("pas null");
+        }else{
+            perror("null");
+        }
         commandeStruct *inter = remplissage_cmdStruct(cmd->cmdSimple->red->cmd->type, cmd->cmdSimple->red->cmd, NULL, NULL, NULL, NULL, 0, NULL);
-        nouveau_var(ancienne, nouveau, inter);
+        if (inter == NULL)
+        {
+            perror("remplissage_cmdStruct");
+            return 1;
+        }
+
+        // if (nouveau_var(ancienne, nouveau, inter) != 0)
+        // {
+        //     perror("nouveau_var");
+        //     freeCmdStruct(inter);
+        //     return 1;
+        // }
+
+        size_t nb_args = 0;
+        perror("iciiiii");
+        if (inter->cmdSimple == NULL || inter->cmdSimple->red == NULL || inter->cmdSimple->red->cmd == NULL || inter->cmdSimple->red->cmd->args == NULL)
+        {
+            perror("Invalid cmd structure");
+            freeCmdStruct(inter);
+            return 1;
+        }
+
+        while (inter->cmdSimple->red->cmd->args[nb_args] != NULL)
+        {
+            nb_args++;
+        }
+
+        cmd->cmdSimple->red->cmd->args = malloc((nb_args + 1) * sizeof(char *));
+        if (cmd->cmdSimple->red->cmd->args == NULL)
+        {
+            perror("malloc");
+            freeCmdStruct(inter);
+            return 1;
+        }
+
+        for (size_t i = 0; i < nb_args; i++)
+        {
+            cmd->cmdSimple->red->cmd->args[i] = strdup(inter->cmdSimple->red->cmd->args[i]);
+            if (cmd->cmdSimple->red->cmd->args[i] == NULL)
+            {
+                perror("strdup");
+                for (size_t j = 0; j < i; j++)
+                {
+                    free(cmd->cmdSimple->red->cmd->args[j]);
+                }
+                free(cmd->cmdSimple->red->cmd->args);
+                freeCmdStruct(inter);
+                return 1;
+            }
+        }
+        cmd->cmdSimple->red->cmd->args[nb_args] = NULL;
+
         if (cmd->cmdSimple->red->fichier != NULL && strstr(cmd->cmdSimple->red->fichier, "$") != NULL)
         {
             sprintf(cmd->cmdSimple->red->fichier, "%s", nouveau);
         }
+
         if (inter != NULL)
         {
             freeCmdStruct(inter);
         }
+        perror("apres");
     }
     return 0;
 }

@@ -14,6 +14,7 @@
 #include "../../utils/freeStruct.h"
 #include "../../utils/exit.h"
 #include "../../utils/commandeStructuree.h"
+#include <assert.h>
 
 // #include <stdbool.h>
 cmd_redirection *remplissageCmdRedirection(char **args);
@@ -66,6 +67,18 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
     cmd->nbCommandes = nbcommandes;
     cmd->cmdsStruc = cmdsStrcu;
 
+    if (cmd != NULL)
+    {
+        assert(cmd->type == type);
+        assert(cmd->cmdSimple == cmdSimple);
+        assert(cmd->pipe == pipestruct);
+        assert(cmd->cmdIf == cmdIfStruct);
+        assert(cmd->cmdFor == cmdForStruct);
+        assert(cmd->nbCommandes == nbcommandes);
+        assert(cmd->cmdsStruc == cmdsStrcu);
+    }else{
+        perror("null");
+    }
     return cmd;
 }
 

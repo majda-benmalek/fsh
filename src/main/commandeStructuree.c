@@ -9,23 +9,30 @@
 #include "../../utils/freeStruct.h"
 #include "../../utils/gestion.h"
 
-int trouver_fin_bloc(char** args , int debut){
+int trouver_fin_bloc(char **args, int debut)
+{
     int fin = debut;
     int imbrication = 0;
     bool estDansBloc = false;
-    // trouver la fin du bloc 
-    while (args[fin] != NULL){
-        if(strcmp(args[fin], "{") == 0){
+    // trouver la fin du bloc
+    while (args[fin] != NULL)
+    {
+        if (strcmp(args[fin], "{") == 0)
+        {
             imbrication++;
             estDansBloc = true;
-        }else if(strcmp(args[fin], "}") == 0){
+        }
+        else if (strcmp(args[fin], "}") == 0)
+        {
             imbrication--;
-            if(imbrication == 0) estDansBloc = false;
-        }else if (!estDansBloc && strcmp(args[fin], ";") == 0)
+            if (imbrication == 0)
+                estDansBloc = false;
+        }
+        else if (!estDansBloc && strcmp(args[fin], ";") == 0)
         {
             break;
         }
-        fin++; 
+        fin++;
     }
     return fin;
 }
@@ -36,14 +43,21 @@ int decoupe_commande(char **commande, commandeStruct **cmds, int *nbCmds, int ma
 {
     // perror("decoupe_commande");
     // if(*nbCmds >= maxCmds) return -1;
-    commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT,NULL,NULL,NULL,NULL,NULL,0,NULL);
+    commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     if (cmdstruct == NULL)
     {
         perror("Erreur allocation cmdStruct dans decoupe_commande");
         return -1;
     }
-    // cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, NULL, 0, cmdstruct);
-    gestion_cmd(commande, cmdstruct);
+    if (commande != NULL)
+    {
+        gestion_cmd(commande, cmdstruct);
+    }
+    else
+    {
+        perror("commande est null");
+    }
+
     cmds[*nbCmds] = cmdstruct;
     (*nbCmds)++;
     return *nbCmds;
@@ -76,18 +90,21 @@ int decoupe_args(char **args, commandeStruct **cmds, int maxcmds)
             free(commande);
             return -1;
         }
-        if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) < 0) {
-            for (int i = 0; i < commandeSize - 1; i++) { 
+        if (decoupe_commande(commande, cmds, &nbcommandes, maxcmds) < 0)
+        {
+            for (int i = 0; i < commandeSize - 1; i++)
+            {
                 free(commande[i]);
             }
             free(commande);
             return -1;
         }
-        for (int i = 0; i < commandeSize - 1; i++) { 
+        for (int i = 0; i < commandeSize - 1; i++)
+        {
             free(commande[i]);
         }
         free(commande);
-        debut = fin + 1; 
+        debut = fin + 1;
     }
 
     cmds[nbcommandes] = NULL;
