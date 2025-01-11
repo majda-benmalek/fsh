@@ -72,7 +72,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     }
     else if (strcmp(args[0], "for") == 0 || cmdstruct->type == FOR)
     {
-        // printf("chui bien ici\n");
         if (trouver_fin_bloc(args, 0) < tailleArgs(args))
         {
             if (args[trouver_fin_bloc(args, 0)] == NULL)
@@ -88,19 +87,8 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 }
             }
         }
+        return;
     }
-    //??
-    // else if (strcmp(args[0], "for") == 0)
-    // {
-
-    //     cmdstruct->cmdFor = make_for(args);
-    //     cmdstruct->type = FOR;
-    //     if (cmdstruct->cmdFor == NULL)
-    //     {
-    //         freeCmdStruct(cmdstruct);
-    //         perror("Erreur remplissage de for");
-    //     }
-    // }
     else if (rechercheDansArgs(";", args))
     {
         int debutBloc = -1, finBloc = -1;
@@ -132,6 +120,7 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             if (cmdstruct->cmdsStruc == NULL)
             {
                 perror("Erreur d'allocation de mémoire ou découpage des arguments échoué");
+                freeCmdStruct(cmdstruct);
                 return;
             }
 
@@ -141,19 +130,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                 freeCmdStruct(cmdstruct); //
                 return;
             }
+            cmdstruct->type = CMD_STRUCT;
         }
+        return;
     }
-    // else if (strcmp(args[0], "for") == 0)
-    // {
-
-    //     cmdstruct->cmdFor = make_for(args);
-    //     cmdstruct->type = FOR;
-    //     if (cmdstruct->cmdFor == NULL)
-    //     {
-    //         freeCmdStruct(cmdstruct);
-    //         perror("Erreur remplissage de for");
-    //     }
-    // }
     else if (rechercheDansArgs("|", args))
     {
         cmdstruct->pipe = remplissageCmdPipe(args);
@@ -162,10 +142,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         {
             perror("erreur remplissage pipe");
         }
+        return;
     }
     else
     {
-        // perror("je suis une commande simple");
         cmdstruct->cmdSimple = remplissage_cmdSimple(args);
         if (!cmdstruct->cmdSimple)
         {
@@ -174,14 +154,17 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         if (cmdstruct->cmdSimple->type == CMD_INTERNE)
         {
             cmdstruct->type = CMD_INTERNE;
+            return;
         }
         else if (cmdstruct->cmdSimple->type == CMD_EXTERNE)
         {
             cmdstruct->type = CMD_EXTERNE;
+            return;
         }
         else if (cmdstruct->cmdSimple->type == REDIRECTION)
         {
             cmdstruct->type = REDIRECTION;
+            return;
         }
     }
 }
@@ -213,9 +196,7 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret == 1 || ret == 0)
             {
                 return ret;
-            } /*else if(ret == -255){
-                 return -255;
-             }*/
+            }
             else
             {
                 return max;
@@ -226,6 +207,10 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
+        for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
+        {
+            printf("fsh simple args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
+        }
         if (strcmp(cmd, "exit") == 0)
         {
             // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
@@ -295,12 +280,20 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     else if (cmdstruct->type == CMD_EXTERNE)
     {
+        for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
+        {
+            printf("fsh externe args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
+        }
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
     }
-    else if (cmdstruct->type == REDIRECTION)
+    else if (cmdstruct->type == REDIRECTION && cmdstruct->cmdSimple->red != NULL)
     {
-        return redirection(cmdstruct->cmdSimple);
+        for (int i = 0; cmdstruct->cmdSimple->red->cmd->args[i] != NULL; i++)
+        {
+            printf("fsh redirection args[%d] = [%s]\n", i, cmdstruct->cmdSimple->red->cmd->args[i]);
+        }
+        return redirection(cmdstruct->cmdSimple->red);
     }
     else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc != NULL)
     {

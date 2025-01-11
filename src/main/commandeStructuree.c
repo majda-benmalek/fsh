@@ -57,29 +57,6 @@ int decoupe_args(char **args, commandeStruct **cmds, int maxcmds)
     int nbcommandes = 0;
     while (debut < taille)
     {
-        /*int fin = debut;
-        int imbrication = 0;
-        bool estDansBloc = false;
-        // trouver la fin du bloc
-        while (args[fin] != NULL)
-        {
-            if (strcmp(args[fin], "{") == 0)
-            {
-                imbrication++;
-                estDansBloc = true;
-            }
-            else if (strcmp(args[fin], "}") == 0)
-            {
-                imbrication--;
-                if (imbrication == 0)
-                    estDansBloc = false;
-            }
-            else if (!estDansBloc && strcmp(args[fin], ";") == 0)
-            {
-                break;
-            }
-            fin++; 
-        }*/
         int fin = trouver_fin_bloc(args, debut);
         int commandeSize = fin - debut + 1;
         char **commande = malloc(commandeSize * sizeof(char *));

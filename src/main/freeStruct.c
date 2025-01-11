@@ -56,7 +56,6 @@ void free_redirection(cmd_redirection *cmd)
         free(cmd);
     }
 }
-
 void free_pipe(cmd_pipe *cmd)
 {
     if (cmd != NULL)
