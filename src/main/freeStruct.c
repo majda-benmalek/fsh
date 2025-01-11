@@ -12,6 +12,7 @@
 #include "../../utils/for.h"
 
 void freeCmdStruct(commandeStruct *cmd);
+void free_redirection(cmd_redirection *cmd);
 
 void freeCmdSimple(cmd_simple *cmd)
 {
@@ -29,6 +30,10 @@ void freeCmdSimple(cmd_simple *cmd)
         }
         free(cmd->args);
     }
+    if (cmd->red != NULL)
+    {
+        free_redirection(cmd->red);
+    }
     free(cmd);
 }
 
@@ -43,6 +48,10 @@ void free_redirection(cmd_redirection *cmd)
         if (cmd->cmd != NULL)
         {
             freeCmdSimple(cmd->cmd);
+        }
+        if (cmd->fichier != NULL)
+        {
+            free(cmd->fichier);
         }
         free(cmd);
     }
@@ -133,10 +142,6 @@ void freeCmdStruct(commandeStruct *cmd)
         if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
-        }
-        if (cmd->cmdRed != NULL)
-        {
-            free_redirection(cmd->cmdRed);
         }
         if (cmd->cmdsStruc != NULL)
         {

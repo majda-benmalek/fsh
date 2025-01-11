@@ -23,7 +23,6 @@
 #include "../../utils/if.h"
 #include "../../utils/signaux.h"
 
-
 int rechercheDansArgs(char *tofind, char **args)
 {
     for (int i = 0; i < tailleArgs(args) - 1; i++)
@@ -85,7 +84,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                     if (cmdstruct->cmdFor == NULL)
                     {
                         perror("Erreur remplissage de for");
-                        
                     }
                 }
             }
@@ -156,15 +154,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     //         perror("Erreur remplissage de for");
     //     }
     // }
-    else if (rechercheDansArgs(">", args) || rechercheDansArgs(">>", args) || rechercheDansArgs("<", args) || rechercheDansArgs(">|", args) || rechercheDansArgs("2>", args) || rechercheDansArgs("2>>", args) || rechercheDansArgs("2>|", args))
-    {
-        cmdstruct->cmdRed = remplissageCmdRedirection(args);
-        cmdstruct->type = REDIRECTION;
-        if (cmdstruct->cmdRed == NULL)
-        {
-            perror("Erreur remplissage redirection");
-        }
-    }
     else if (rechercheDansArgs("|", args))
     {
         cmdstruct->pipe = remplissageCmdPipe(args);
@@ -178,6 +167,10 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
     {
         // perror("je suis une commande simple");
         cmdstruct->cmdSimple = remplissage_cmdSimple(args);
+        if (!cmdstruct->cmdSimple)
+        {
+            perror("Erreur cmdSimple");
+        }
         if (cmdstruct->cmdSimple->type == CMD_INTERNE)
         {
             cmdstruct->type = CMD_INTERNE;
@@ -186,16 +179,11 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
         {
             cmdstruct->type = CMD_EXTERNE;
         }
-        if (!cmdstruct->cmdSimple)
+        else if (cmdstruct->cmdSimple->type == REDIRECTION)
         {
-            perror("Erreur cmdSimple");
+            cmdstruct->type = REDIRECTION;
         }
     }
-}
-
-int exec_redirection(cmd_redirection *cmd)
-{
-    return redirection(cmd);
 }
 
 int exec_pipe(cmd_pipe *cmd)
@@ -205,18 +193,18 @@ int exec_pipe(cmd_pipe *cmd)
 
 int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
 {
-    if(sigint_received){
+    if (sigint_received)
+    {
         return -255;
     }
     int ret = *dernier_exit;
-    
 
     if (cmdstruct == NULL)
     {
         perror("Structure commande");
         return -1;
     }
-    
+
     if (cmdstruct->type == FOR)
     {
         if (cmdstruct->cmdFor != NULL)
@@ -225,12 +213,12 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             if (ret == 1 || ret == 0)
             {
                 return ret;
-            }/*else if(ret == -255){
-                return -255;
-            }*/
+            } /*else if(ret == -255){
+                 return -255;
+             }*/
             else
             {
-                //printf("max = [%d]\n", max);
+                // printf("max = [%d]\n", max);
                 return max;
             }
             // if (ret != 0)
@@ -308,10 +296,6 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
             }
         }
     }
-    else if (cmdstruct->type == REDIRECTION)
-    {
-        ret = exec_redirection(cmdstruct->cmdRed);
-    }
     else if (cmdstruct->type == PIPE)
     {
         ret = exec_pipe(cmdstruct->pipe);
@@ -320,6 +304,10 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
+    }
+    else if (cmdstruct->type == REDIRECTION)
+    {
+        return redirection(cmdstruct->cmdSimple);
     }
     else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc != NULL)
     {

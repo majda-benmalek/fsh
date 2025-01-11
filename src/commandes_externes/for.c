@@ -100,7 +100,7 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
         int l = 0;
          commandeStruct *inter_type;
         while(cmd->pipe->commandes[l] != NULL){
-             inter_type = remplissage_cmdStruct(cmd->pipe->commandes[l]->type,cmd->pipe->commandes[l],NULL,NULL,NULL,NULL,NULL,0,NULL);
+             inter_type = remplissage_cmdStruct(cmd->pipe->commandes[l]->type,cmd->pipe->commandes[l],NULL,NULL,NULL,NULL,0,NULL);
             // inter_type->cmdSimple=cmd->pipe->commandes[l];
             // inter_type->type=cmd->pipe->commandes[l]->type;
             nouveau_var(ancienne,nouveau,inter_type);

@@ -103,9 +103,10 @@ int duplication_fd(int fd, char *separateur)
     return 0;
 }
 
-int redirection(cmd_redirection *cmdredirect)
+int redirection(cmd_simple *cmd)
 {
     int ret = 0;
+    cmd_redirection *cmdredirect = cmd->red;
     if (cmdredirect == NULL || cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
     {
         perror("Arguments pour la redirection manquants");
@@ -173,12 +174,12 @@ int redirection(cmd_redirection *cmdredirect)
         return 1;
     }
 
-    commandeStruct *cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL , NULL, 0, NULL);
-    gestion_cmd(cmdredirect->cmd->args, cmd);
-    ret = fsh(chemin, &dernier_exit, cmd);
+    commandeStruct *cmdstr = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+    gestion_cmd(cmdredirect->cmd->args, cmdstr);
+
+    ret = fsh(chemin, &dernier_exit, cmdstr);
     // ! pour évité les pertes de mémoire
-    if (cmd != NULL)
-        freeCmdStruct(cmd);
+    freeCmdStruct(cmdstr);
     if (chemin)
         free(chemin);
     if (restauration_descipteur(copie_stdout, STDOUT_FILENO) != 0 ||
@@ -187,6 +188,5 @@ int redirection(cmd_redirection *cmdredirect)
         perror("restaurer descripteur");
         return 1;
     }
-
     return ret;
 }
