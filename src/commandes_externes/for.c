@@ -306,6 +306,7 @@ int boucle_for(cmdFor *cmdFor)
     pid_t pid = getpid();
     int nbr_fic = 0;
     int maxp=0;
+    int k =0;
     while ((entry = readdir(dir)) != NULL)
     {
       
@@ -346,18 +347,18 @@ int boucle_for(cmdFor *cmdFor)
                     int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                     maxp = atoi(cmdFor->op[i]);
                 }
-               if (pid == getpid()){
+                if (pid == getpid()){
                     nbr_fic = 0;
                     break; 
-               }else{
-                    // printf(" nbr_fic = %d\n",nbr_fic);
-                    if (cmp_p < maxp-1){
+                }else{
+                    // printf(" nbr_fic = %d et cmp_p = %d\n",nbr_fic,cmp_p);
+                    if (cmp_p < nbr_fic-1+k*maxp){
                         cmp_p++;
                         continue;
                     }
                     // printf("je viens ici\n");
                     cmp_p = 0;
-               }
+                }
             }
             int nbr_cmd = 0;
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
@@ -429,6 +430,7 @@ int boucle_for(cmdFor *cmdFor)
                 if (inter != NULL)
                     free(inter);
             }
+            k++;
         }
          //printf(" la valeur de retour du while est %d\n",ret);
     }
