@@ -2,6 +2,7 @@
 #define COMMANDE_H
 
 typedef struct commandeStruct commandeStruct;
+typedef struct cmd_redirection cmd_redirection;
 
 typedef enum
 {
@@ -18,6 +19,7 @@ typedef struct
 {
     Type type;
     char **args;
+    cmd_redirection *red;
 } cmd_simple;
 
 typedef struct
@@ -31,7 +33,7 @@ typedef struct
 {
     Type type;
     commandeStruct *test;
-    //c'etait des tableaux de commandeStruct mais inutile mainteant
+    // c'etait des tableaux de commandeStruct mais inutile mainteant
     commandeStruct *commandeIf;
     commandeStruct *commandeElse;
 } cmdIf;
@@ -46,15 +48,12 @@ typedef struct
     commandeStruct *cmd;
 } cmdFor;
 
-typedef struct cmd_redirection cmd_redirection;
-
 struct cmd_redirection
 {
-    Type type;
     cmd_simple *cmd;
     char *fichier;
     char *separateur;
-} ;
+};
 
 struct commandeStruct
 {
@@ -63,8 +62,7 @@ struct commandeStruct
     cmd_pipe *pipe;
     cmdIf *cmdIf;
     cmdFor *cmdFor;
-    cmd_redirection *cmdRed;
-    commandeStruct ** cmdsStruc;
+    commandeStruct **cmdsStruc;
     int nbCommandes;
 };
 
