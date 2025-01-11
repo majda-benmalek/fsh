@@ -262,9 +262,29 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     return 1;
 }
 
+int option_p(struct dirent *entry, cmdFor *cmd){
+    int i = arg_options(cmd->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+    int max = atoi(cmd->op[i]);
+    pid_t pid = getpid();
+    int nbrfichier = 0;
+    for (int i = 1; i < max + 1; i++ ){
+        if (pid  != 0){
+            nbrfichier=i;
+            pid = fork();
+        }
+        else if (pid == -1){
+            perror("fork");
+            return 1;
+        }else{
+            break;
+        }
+    }
+    return nbrfichier;
+}
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 //  TODO Si ca ce passe mal ft faire un truc
 // TODO JE FERME PAS LE REP ?
+
 int boucle_for(cmdFor *cmdFor)
 {
    
@@ -277,6 +297,9 @@ int boucle_for(cmdFor *cmdFor)
         return ret;
     }
     struct dirent *entry;
+    int cmp_p=0; 
+    bool flag_p = false;
+    pid_t pid = getpid();
     while ((entry = readdir(dir)) != NULL)
     {
       
@@ -297,7 +320,6 @@ int boucle_for(cmdFor *cmdFor)
                     break;
                 // continue ;
             }
-
             if (rechercheDansArgs("-t", cmdFor->op))
             {
                 int res = option_t(entry, cmdFor);
@@ -311,6 +333,23 @@ int boucle_for(cmdFor *cmdFor)
                     return 2;
                 }
             }
+        if (rechercheDansArgs("-p",cmdFor->op)){
+                int nbr_fic;
+                if (flag_p == false){
+                    nbr_fic = option_p(entry,cmdFor);
+                }
+                flag_p=true;
+               if (pid == getpid()){
+                    nbr_fic = 0;
+                    break; 
+               }else{
+                    while (cmp_p < nbr_fic){
+                        cmp_p++;
+                        continue;
+                    }
+                    cmp_p = 0;
+               }
+        }
             int nbr_cmd = 0;
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
@@ -384,7 +423,136 @@ int boucle_for(cmdFor *cmdFor)
         }
          //printf(" la valeur de retour du while est %d\n",ret);
     }
+    if (flag_p){
+        if (pid == getpid()){
+          int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+            int max = atoi(cmdFor->op[i]);
+            for (int i = 0; i< max ; i++){
+                wait(NULL);
+            }
+            closedir(dir);
+            return ret;
+        }
+        // else{
+        //     closedir(dir);
+        //     exit(0);
+        // }
+    }
     closedir(dir);
-   
     return ret;
 }
+
+
+// int boucle_for(cmdFor *cmdFor)
+// {
+//     int ret = -255; // TODO A CHANGER;
+//     DIR *dir = opendir(cmdFor->rep);
+//     if (dir == NULL)
+//     {
+//         fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
+//         ret = 1;
+//         return ret;
+//     }
+//     struct dirent *entry;
+//     while ((entry = readdir(dir)) != NULL)
+//     {    
+//         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
+//         {
+//             if (rechercheDansArgs("-e", cmdFor->op))
+//             {
+//                 if (!option_e(entry, cmdFor))
+//                 {
+//                     continue;
+//                 }
+//             }
+//             if (rechercheDansArgs("-r", cmdFor->op) && entry->d_type == DT_DIR)
+//             {
+//                 int r = option_r(entry, cmdFor);
+//                 if (r == 1)
+//                     break;
+//                 // continue ;
+//             }
+//             if (rechercheDansArgs("-t", cmdFor->op))
+//             {
+//                 int res = option_t(entry, cmdFor);
+//                 if (res == 0)
+//                 {
+//                     continue;
+//                 }
+//                 if (res == -1)
+//                 {
+//                     dernier_exit = 1;
+//                     return 2;
+//                 }
+//             }
+//             int nbr_cmd = 0;
+//             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
+//             {          
+//                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+//                 strcpy(inter, "$");
+//                 strcat(inter, cmdFor->variable);
+//                 char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
+//                 if (path == NULL)
+//                 {
+//                     return 1;
+//                 }
+//                 strcpy(path, cmdFor->rep);
+//                 if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+//                 {
+//                     strcat(path, "/");
+//                 }
+//                 strcat(path, entry->d_name);
+//                 strcat(path,"\0");
+//                 // printf("path = %s\n",path);
+//                 int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+//                 if (n != 0)
+//                 {
+//                     perror("problème dans nouveau");
+//                     free_for(cmdFor);
+//                     return 1;
+//                 }
+//                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+//                 if(ret>max){
+//                     max=ret;
+//                 }
+//                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
+//                 {
+//                     perror("pb ds le changement de var");
+//                     free_for(cmdFor);
+//                     return 1;
+//                 }
+//                 char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
+//                 strcpy(ancienne, cmdFor->rep);
+//                 if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
+//                 {
+//                     strcat(ancienne, "/");
+//                 }
+//                 strcat(ancienne, entry->d_name);
+//                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+//                 strcpy(dollar, "$");
+//                 strcat(dollar, cmdFor->variable);
+//                 strcat(path,"\0");
+//                 // printf("ancienne = %s\n",ancienne);
+//                 n = nouveau_var(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+//                 if (n != 0)
+//                 {
+//                     perror("problème dans le 2ème appel de nv");
+//                     free_for(cmdFor);
+//                     return 1;
+//                 }
+//                 nbr_cmd = nbr_cmd + 1;
+//                 if (dollar != NULL)
+//                     free(dollar);
+//                 if (ancienne != NULL)
+//                     free(ancienne);
+//                 if (path != NULL)
+//                     free(path);
+//                 if (inter != NULL)
+//                     free(inter);
+//             }
+//         }
+//          //printf(" la valeur de retour du while est %d\n",ret);
+//     }
+//     closedir(dir);
+//     return ret;
+// }
