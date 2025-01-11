@@ -279,6 +279,10 @@ int option_p(struct dirent *entry, cmdFor *cmd){
             break;
         }
     }
+    // if (pid == getpid()){
+    //     nbrfichier = 0;
+    // }
+    // printf(" nbrfic = %d\n",nbrfichier);
     return nbrfichier;
 }
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
@@ -300,6 +304,8 @@ int boucle_for(cmdFor *cmdFor)
     int cmp_p=0; 
     bool flag_p = false;
     pid_t pid = getpid();
+    int nbr_fic = 0;
+    int maxp=0;
     while ((entry = readdir(dir)) != NULL)
     {
       
@@ -333,23 +339,26 @@ int boucle_for(cmdFor *cmdFor)
                     return 2;
                 }
             }
-        if (rechercheDansArgs("-p",cmdFor->op)){
-                int nbr_fic;
+            if (rechercheDansArgs("-p",cmdFor->op)){
                 if (flag_p == false){
+                    flag_p = true;
                     nbr_fic = option_p(entry,cmdFor);
+                    int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+                    maxp = atoi(cmdFor->op[i]);
                 }
-                flag_p=true;
                if (pid == getpid()){
                     nbr_fic = 0;
                     break; 
                }else{
-                    while (cmp_p < nbr_fic){
+                    // printf(" nbr_fic = %d\n",nbr_fic);
+                    if (cmp_p < maxp-1){
                         cmp_p++;
                         continue;
                     }
+                    // printf("je viens ici\n");
                     cmp_p = 0;
                }
-        }
+            }
             int nbr_cmd = 0;
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
@@ -423,20 +432,24 @@ int boucle_for(cmdFor *cmdFor)
         }
          //printf(" la valeur de retour du while est %d\n",ret);
     }
-    if (flag_p){
+    if (flag_p == true){
         if (pid == getpid()){
           int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
-            int max = atoi(cmdFor->op[i]);
-            for (int i = 0; i< max ; i++){
-                wait(NULL);
+            int maxp = atoi(cmdFor->op[i]);
+            for (int i = 0; i < maxp; i++) {
+                int status;
+                wait(&status);
+                if (WIFEXITED(status)) {
+                    ret = WEXITSTATUS(status);
+                }
             }
             closedir(dir);
             return ret;
         }
-        // else{
-        //     closedir(dir);
-        //     exit(0);
-        // }
+        else{
+            closedir(dir);
+            exit(0);
+        }
     }
     closedir(dir);
     return ret;
