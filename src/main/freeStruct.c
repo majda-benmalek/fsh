@@ -16,25 +16,25 @@ void free_redirection(cmd_redirection *cmd);
 
 void freeCmdSimple(cmd_simple *cmd)
 {
-    if (cmd == NULL)
-        return;
-
-    if (cmd->args != NULL)
+    if (cmd != NULL)
     {
-        for (char **arg = cmd->args; *arg; ++arg)
+        if (cmd->args != NULL)
         {
-            if (*arg != NULL)
+            for (char **arg = cmd->args; *arg; ++arg)
             {
-                free(*arg);
+                if (*arg != NULL)
+                {
+                    free(*arg);
+                }
             }
+            free(cmd->args);
         }
-        free(cmd->args);
+        if (cmd->red != NULL)
+        {
+            free_redirection(cmd->red);
+        }
+        free(cmd);
     }
-    if (cmd->red != NULL)
-    {
-        free_redirection(cmd->red);
-    }
-    free(cmd);
 }
 
 void free_redirection(cmd_redirection *cmd)
