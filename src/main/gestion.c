@@ -218,15 +218,8 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
              }*/
             else
             {
-                // printf("max = [%d]\n", max);
                 return max;
             }
-            // if (ret != 0)
-            // {
-            //     // perror("boucle_for");
-            //     // perror("command_for_run");
-            //     return ret;
-            // };
         }
     }
     else if (cmdstruct->type == CMD_INTERNE)
