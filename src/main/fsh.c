@@ -15,18 +15,16 @@
 #include "../../utils/gestionStruct.h"
 #include "../../utils/freeStruct.h"
 #include "../../utils/commandeStructuree.h"
-<<<<<<< HEAD
-//TEST SYNCHRO
-=======
 #include "../../utils/signaux.h"
 
->>>>>>> 9a207a4 (signaux)
 
 int dernier_exit = 0;
  // pour initialiser la derniére valeur de retour
 
 int main(void)
 {
+
+    // signaux 
     sigaux_main();
    
 
@@ -56,15 +54,19 @@ int main(void)
 
     while (1)
     {
-        sigint_received = 0;
-        commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL,NULL, NULL, 0, NULL);
+       
+        
+        commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, NULL);
         if (cmdstruct == NULL)
         {
             perror("erreur malloc cmdStruct");
             free(input);
             free(chemin);
+            // if (cmdstruct != NULL)
+            //     freeCmdStruct(cmdstruct); // ? si c null y'a rien a free nan ?
             exit(1);
         }
+        // cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, cmdstruct); // tout initialisé a NULL
 
         int r = prompt(chemin, input, &ret);
         if (r == 1) // Ctrl-D pressed
