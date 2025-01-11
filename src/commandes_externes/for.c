@@ -64,6 +64,7 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
                 if (realloue == NULL)
                 {
                     perror("Reallocation");
+                    free(ancienne_cmd);
                     return 1;
                 }
                 cmd->cmdSimple->args[k] = realloue;
@@ -133,9 +134,16 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == REDIRECTION)
     {
-        // nouveau_var(ancienne, nouveau, cmd->cmdSimple->red->fichier);
-        nouveau_var(ancienne, nouveau, cmd->cmdSimple->red->cmd);
-
+        commandeStruct *inter = remplissage_cmdStruct(cmd->cmdSimple->red->cmd->type, cmd->cmdSimple->red->cmd, NULL, NULL, NULL, NULL, 0, NULL);
+        nouveau_var(ancienne, nouveau, inter);
+        if (cmd->cmdSimple->red->fichier != NULL && strstr(cmd->cmdSimple->red->fichier, "$") != NULL)
+        {
+            sprintf(cmd->cmdSimple->red->fichier, "%s", nouveau);
+        }
+        if (inter != NULL)
+        {
+            freeCmdStruct(inter);
+        }
     }
     return 0;
 }
@@ -354,10 +362,13 @@ int boucle_for(cmdFor *cmdFor)
                     return 1;
                 }
 
+                perror("fsh for");
                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-                if(ret == -255){
+                if (ret == -255)
+                {
                     max = -255;
-                }else if (ret > max)
+                }
+                else if (ret > max)
                 {
                     max = ret;
                 }

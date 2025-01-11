@@ -23,6 +23,6 @@
  * @return 0 si la commande est exécutée avec succès, 1 sinon.
  */
 
-int redirection(cmd_simple *cmd);
+int redirection(cmd_redirection *cmd);
 
 #endif

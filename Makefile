@@ -12,4 +12,7 @@ clean:
 run: 
 	./$(EXEC)
 
+val :
+	clear
+	valgrind ./$(EXEC)
 .PHONY: all clean 
