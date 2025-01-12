@@ -103,17 +103,18 @@ int duplication_fd(int fd, char *separateur)
     return 0;
 }
 
-int redirection(cmd_redirection *cmdredirect)
+int redirection(cmd_redirection *cmd)
 {
     int ret = 0;
-    if (cmdredirect == NULL || cmdredirect->cmd == NULL || cmdredirect->fichier == NULL || cmdredirect->separateur == NULL)
+
+    if (cmd == NULL || cmd->cmd == NULL || cmd->fichier == NULL || cmd->separateur == NULL || cmd->cmd->args == NULL)
     {
         perror("Arguments pour la redirection manquants");
         return 1;
     }
 
-    char *fichier = cmdredirect->fichier;
-    char *separateur = cmdredirect->separateur;
+    char *fichier = cmd->fichier;
+    char *separateur = cmd->separateur;
 
     int fd = ouvrir_fichier(fichier, separateur);
     if (fd == -1)
@@ -173,12 +174,20 @@ int redirection(cmd_redirection *cmdredirect)
         return 1;
     }
 
-    commandeStruct *cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL , NULL, 0, NULL);
-    gestion_cmd(cmdredirect->cmd->args, cmd);
-    ret = fsh(chemin, &dernier_exit, cmd);
+    commandeStruct *cmdstr = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
+
+    // if(cmd->cmd->args[0] == NULL){
+    //     perror("bien null");
+    // }
+    // for (int i = 0; cmd->cmd->args[i]; i++)
+    // {
+    //     printf("redirection cmd->cmd->args[%d] = [%s]\n", i, cmd->cmd->args[i]);
+    // }
+    gestion_cmd(cmd->cmd->args, cmdstr);
+
+    ret = fsh(chemin, &dernier_exit, cmdstr);
     // ! pour évité les pertes de mémoire
-    if (cmd != NULL)
-        freeCmdStruct(cmd);
+    freeCmdStruct(cmdstr); // Ajouté pour éviter les pertes de mémoire
     if (chemin)
         free(chemin);
     if (restauration_descipteur(copie_stdout, STDOUT_FILENO) != 0 ||
@@ -187,6 +196,7 @@ int redirection(cmd_redirection *cmdredirect)
         perror("restaurer descripteur");
         return 1;
     }
-
     return ret;
 }
+
+// ? for i in . { cat $i >> res }

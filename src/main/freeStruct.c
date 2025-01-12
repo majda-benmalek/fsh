@@ -12,24 +12,29 @@
 #include "../../utils/for.h"
 
 void freeCmdStruct(commandeStruct *cmd);
+void free_redirection(cmd_redirection *cmd);
 
 void freeCmdSimple(cmd_simple *cmd)
 {
-    if (cmd == NULL)
-        return;
-
-    if (cmd->args != NULL)
+    if (cmd != NULL)
     {
-        for (char **arg = cmd->args; *arg; ++arg)
+        if (cmd->args != NULL)
         {
-            if (*arg != NULL)
+            for (char **arg = cmd->args; *arg; ++arg)
             {
-                free(*arg);
+                if (*arg != NULL)
+                {
+                    free(*arg);
+                }
             }
+            free(cmd->args);
         }
-        free(cmd->args);
+        if (cmd->red != NULL)
+        {
+            free_redirection(cmd->red);
+        }
+        free(cmd);
     }
-    free(cmd);
 }
 
 void free_redirection(cmd_redirection *cmd)
@@ -44,29 +49,31 @@ void free_redirection(cmd_redirection *cmd)
         {
             freeCmdSimple(cmd->cmd);
         }
+        if (cmd->fichier != NULL)
+        {
+            free(cmd->fichier);
+        }
         free(cmd);
     }
 }
-
 void free_pipe(cmd_pipe *cmd)
 {
     if (cmd != NULL)
     {
         if (cmd->commandes != NULL)
         {
-            for (int i = 0; cmd->commandes[i] != NULL; i++)
+            for (int i = 0; i < cmd->nbCommandes; i++)
             {
                 if (cmd->commandes[i] != NULL)
                 {
                     freeCmdSimple(cmd->commandes[i]);
                 }
             }
+            free(cmd->commandes);
         }
-        free(cmd->commandes);
         free(cmd);
     }
 }
-
 void free_for(cmdFor *cmdFor)
 {
     if (cmdFor != NULL)
@@ -133,10 +140,6 @@ void freeCmdStruct(commandeStruct *cmd)
         if (cmd->cmdFor != NULL)
         {
             free_for(cmd->cmdFor);
-        }
-        if (cmd->cmdRed != NULL)
-        {
-            free_redirection(cmd->cmdRed);
         }
         if (cmd->cmdsStruc != NULL)
         {

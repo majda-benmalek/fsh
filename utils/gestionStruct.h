@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include "commande.h"
 
-
 int arg_cmdsimple(char **args, char **commande, int i, int j);
 
 /**
@@ -18,8 +17,7 @@ int arg_cmdsimple(char **args, char **commande, int i, int j);
  * @param nbcommandes Nombre de commandes dans la structure.
  * @return Pointeur vers la structure commandeStruct allouée, ou NULL en cas d'échec. */
 
-commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct , cmd_redirection* cmdredirection, commandeStruct** cmdsStrcut , int nbcommandes, commandeStruct *cmd);
-
+commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe *pipestruct, cmdIf *cmdIfStruct, cmdFor *cmdForStruct, commandeStruct **cmdsStrcut, int nbcommandes, commandeStruct *cmd);
 
 /**
  * @brief Alloue et remplit une structure cmd_simple à partir d'une liste d'arguments.
@@ -32,14 +30,12 @@ cmd_simple *remplissage_cmdSimple(char **args);
 cmd_redirection *remplissageCmdRedirection(char **args);
 
 cmd_pipe *remplissageCmdPipe(char **args);
-void remplissageCmdStructurees(char ** args , commandeStruct * cmdStruct);
+void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct);
 
 size_t tailleArgs(char **args);
 
-
-cmdFor* make_for(char ** args);
+cmdFor *make_for(char **args);
 
 cmdIf *remplissageCmdIf(char **args);
-
 
 #endif
