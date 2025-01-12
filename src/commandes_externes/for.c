@@ -45,8 +45,14 @@ void eleverSlash(char *path)
 
 int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
 {
-    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE)
+    if (cmd == NULL)
+        return 1;
+
+    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE || cmd->type == REDIRECTION)
     {
+        if (cmd->cmdSimple == NULL || cmd->cmdSimple->args == NULL)
+            return 1;
+
         int k = 0;
         while (cmd->cmdSimple->args[k] != NULL)
         {
@@ -91,6 +97,9 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == FOR)
     {
+        if (cmd->cmdFor == NULL)
+            return 1;
+
         if (strcmp(cmd->cmdFor->rep, ancienne) == 0)
         {
             cmd->cmdFor->rep = realloc(cmd->cmdFor->rep, strlen(nouveau) + 1);
@@ -100,6 +109,9 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == PIPE)
     {
+        if (cmd->pipe == NULL || cmd->pipe->commandes == NULL)
+            return 1;
+
         int l = 0;
         commandeStruct *inter_type;
         while (cmd->pipe->commandes[l] != NULL)
@@ -115,6 +127,9 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == CMD_STRUCT)
     {
+        if (cmd->cmdsStruc == NULL)
+            return 1;
+
         for (int i = 0; i < cmd->nbCommandes; i++)
         {
             nouveau_var(ancienne, nouveau, cmd->cmdsStruc[i]);
@@ -122,6 +137,8 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == IF)
     {
+        if (cmd->cmdIf == NULL)
+            return 1;
 
         nouveau_var(ancienne, nouveau, cmd->cmdIf->test);
         nouveau_var(ancienne, nouveau, cmd->cmdIf->commandeIf);
@@ -132,74 +149,51 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == REDIRECTION)
     {
-        if(cmd->cmdSimple->red->cmd->args != NULL){
-            perror("pas null");
-        }else{
-            perror("null");
-        }
-        commandeStruct *inter = remplissage_cmdStruct(cmd->cmdSimple->red->cmd->type, cmd->cmdSimple->red->cmd, NULL, NULL, NULL, NULL, 0, NULL);
-        if (inter == NULL)
-        {
-            perror("remplissage_cmdStruct");
+        perror("la");
+        if (cmd->cmdSimple->red->cmd == NULL || cmd->cmdSimple->red->cmd->args == NULL)
             return 1;
-        }
 
-        // if (nouveau_var(ancienne, nouveau, inter) != 0)
-        // {
-        //     perror("nouveau_var");
-        //     freeCmdStruct(inter);
-        //     return 1;
-        // }
-
-        size_t nb_args = 0;
-        perror("iciiiii");
-        if (inter->cmdSimple == NULL || inter->cmdSimple->red == NULL || inter->cmdSimple->red->cmd == NULL || inter->cmdSimple->red->cmd->args == NULL)
+        int k = 0;
+        while (cmd->cmdSimple->red->cmd->args[k] != NULL)
         {
-            perror("Invalid cmd structure");
-            freeCmdStruct(inter);
-            return 1;
-        }
-
-        while (inter->cmdSimple->red->cmd->args[nb_args] != NULL)
-        {
-            nb_args++;
-        }
-
-        cmd->cmdSimple->red->cmd->args = malloc((nb_args + 1) * sizeof(char *));
-        if (cmd->cmdSimple->red->cmd->args == NULL)
-        {
-            perror("malloc");
-            freeCmdStruct(inter);
-            return 1;
-        }
-
-        for (size_t i = 0; i < nb_args; i++)
-        {
-            cmd->cmdSimple->red->cmd->args[i] = strdup(inter->cmdSimple->red->cmd->args[i]);
-            if (cmd->cmdSimple->red->cmd->args[i] == NULL)
+            char *ancienne_cmd = strdup(cmd->cmdSimple->red->cmd->args[k]);
+            char *a_changer = strstr(ancienne_cmd, ancienne);
+            if (a_changer == NULL)
             {
-                perror("strdup");
-                for (size_t j = 0; j < i; j++)
-                {
-                    free(cmd->cmdSimple->red->cmd->args[j]);
-                }
-                free(cmd->cmdSimple->red->cmd->args);
-                freeCmdStruct(inter);
-                return 1;
+                k++;
             }
+            else
+            {
+                int occ_ancienne = compte_occ(cmd->cmdSimple->red->cmd->args[k], ancienne);
+                int taille = strlen(cmd->cmdSimple->red->cmd->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
+                char *realloue = realloc(cmd->cmdSimple->red->cmd->args[k], taille);
+                if (realloue == NULL)
+                {
+                    perror("Reallocation");
+                    free(ancienne_cmd);
+                    return 1;
+                }
+                cmd->cmdSimple->red->cmd->args[k] = realloue;
+                char *prefixe = ancienne_cmd;
+                cmd->cmdSimple->red->cmd->args[k][0] = '\0'; // pour pas qu'il soit à null
+                while (a_changer != NULL)
+                {
+                    int taille_prefixe = strlen(prefixe) - strlen(a_changer);
+                    if (taille_prefixe > 0)
+                    {
+                        strncat(cmd->cmdSimple->red->cmd->args[k], prefixe, taille_prefixe);
+                    }
+                    strcat(cmd->cmdSimple->red->cmd->args[k], nouveau);
+                    prefixe = a_changer + strlen(ancienne);
+                    a_changer = strstr(prefixe, ancienne);
+                }
+                strcat(cmd->cmdSimple->red->cmd->args[k], prefixe);
+                strcat(cmd->cmdSimple->red->cmd->args[k], "\0");
+                k++;
+            }
+            if (ancienne_cmd != NULL)
+                free(ancienne_cmd);
         }
-        cmd->cmdSimple->red->cmd->args[nb_args] = NULL;
-
-        if (cmd->cmdSimple->red->fichier != NULL && strstr(cmd->cmdSimple->red->fichier, "$") != NULL)
-        {
-            sprintf(cmd->cmdSimple->red->fichier, "%s", nouveau);
-        }
-
-        if (inter != NULL)
-        {
-            freeCmdStruct(inter);
-        }
-        perror("apres");
     }
     return 0;
 }
@@ -418,7 +412,6 @@ int boucle_for(cmdFor *cmdFor)
                     return 1;
                 }
 
-                perror("fsh for");
                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 if (ret == -255)
                 {

@@ -207,10 +207,10 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     {
         char *cmd = cmdstruct->cmdSimple->args[0];
         char *arg = cmdstruct->cmdSimple->args[1];
-        for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
-        {
-            printf("fsh simple args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
-        }
+        // for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
+        // {
+        //     printf("fsh simple args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
+        // }
         if (strcmp(cmd, "exit") == 0)
         {
             // ! c'est ça qui fais invalid read (test sur un truc qui est NULL)
@@ -280,19 +280,19 @@ int fsh(char *chemin, int *dernier_exit, commandeStruct *cmdstruct)
     }
     else if (cmdstruct->type == CMD_EXTERNE)
     {
-        for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
-        {
-            printf("fsh externe args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
-        }
+        // for (int i = 0; cmdstruct->cmdSimple->args[i] != NULL; i++)
+        // {
+        //     printf("fsh externe args[%d] = [%s]\n", i, cmdstruct->cmdSimple->args[i]);
+        // }
         ret = cmd_extern(cmdstruct->cmdSimple);
         return ret;
     }
     else if (cmdstruct->type == REDIRECTION && cmdstruct->cmdSimple->red != NULL)
     {
-        for (int i = 0; cmdstruct->cmdSimple->red->cmd->args[i] != NULL; i++)
-        {
-            printf("fsh redirection args[%d] = [%s]\n", i, cmdstruct->cmdSimple->red->cmd->args[i]);
-        }
+        // for (int i = 0; cmdstruct->cmdSimple->red->cmd->args[i] != NULL; i++)
+        // {
+        //     printf("fsh redirection args[%d] = [%s]\n", i, cmdstruct->cmdSimple->red->cmd->args[i]);
+        // }
         return redirection(cmdstruct->cmdSimple->red);
     }
     else if (cmdstruct->type == CMD_STRUCT && cmdstruct->cmdsStruc != NULL)
