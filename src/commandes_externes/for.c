@@ -298,7 +298,6 @@ int option_r(struct dirent *entry, cmdFor *cmd)
 
 int option_p(commandeStruct *cmd,int maxp){
     if (nombre_fils < max){
-        nombre_fils++;
         pid_t pid = fork();
         if (pid < 0){
             perror("fork");
@@ -307,6 +306,7 @@ int option_p(commandeStruct *cmd,int maxp){
             int r = fsh("",&dernier_exit,cmd);
             exit(r);
         }else{
+            nombre_fils++;
             return 3;
             // int status;
             // pid_t fini = waitpid(pid,&status,0);
@@ -344,6 +344,7 @@ int boucle_for(cmdFor *cmdFor)
     struct dirent *entry;
     bool flag_p = false;
     int maxp = 0;
+    pid_t pid_pere = getpid();
     while ((entry = readdir(dir)) != NULL)
     {
 
@@ -405,17 +406,20 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                if (rechercheDansArgs("-p",cmdFor->op)){
+                if ( flag_p || rechercheDansArgs("-p",cmdFor->op)){
                     if (flag_p == false){
                         flag_p = true;
                         int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                         maxp = atoi(cmdFor->op[i]);
                     }
-                    int g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
+                    int g;
+                    if (pid_pere == getpid()){
+                        g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
+                    }
                     if (g == 3){
-                        while (nombre_fils >= maxp) {
-                            wait(NULL);
-                            nombre_fils--;
+                        if (nombre_fils > maxp) {
+                            printf("Trop d'itérations en parallèle !");
+                            break;
                         }
                     }else{
                         ret = g;
@@ -477,9 +481,17 @@ int boucle_for(cmdFor *cmdFor)
         // printf(" la valeur de retour du while est %d\n",ret);
     }
     if (flag_p == true){
-        while (nombre_fils >= maxp) {
-            wait(NULL);
-            nombre_fils--;
+        while (nombre_fils > 0) {
+            int status;
+            pid_t pid = wait(&status);
+            if (pid > 0) {
+                nombre_fils--;
+                if (WIFEXITED(status)) {
+                    ret = WEXITSTATUS(status);
+                }
+            // wait(NULL);
+            // nombre_fils--;
+            }
         }
     }
 
