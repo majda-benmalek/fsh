@@ -84,12 +84,12 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
                     {
                         perror("Erreur remplissage de for");
                     }
+                    return;
                 }
             }
         }
-        return;
     }
-    else if (rechercheDansArgs(";", args))
+    if (rechercheDansArgs(";", args))
     {
         int debutBloc = -1, finBloc = -1;
         bool pvoutbloc = false;
