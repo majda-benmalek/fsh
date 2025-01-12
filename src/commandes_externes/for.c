@@ -309,7 +309,16 @@ int option_p(commandeStruct *cmd, int maxp)
         }
         else if (pid == 0)
         {
-            int r = fsh("", &dernier_exit, cmd);
+            char *chemin = malloc(PATH_MAX);
+            if (getcwd(chemin, PATH_MAX) == NULL)
+            {
+                perror("getcwd");
+                free(chemin);
+                return 1;
+            }
+            int r = fsh(chemin, &dernier_exit, cmd);
+            if (chemin != NULL)
+                free(chemin);
             exit(r);
         }
         else
@@ -364,7 +373,6 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 if (res == -1)
                 {
-                    dernier_exit = 1;
                     closedir(dir);
                     return 2;
                 }
@@ -428,6 +436,7 @@ int boucle_for(cmdFor *cmdFor)
                                 {
                                     max = -255;
                                 }
+                                dernier_exit = max;
                             }
                         }
                     }
@@ -461,6 +470,7 @@ int boucle_for(cmdFor *cmdFor)
                                     {
                                         max = -255;
                                     }
+                                    dernier_exit = max;
                                 }
                             }
                         }
@@ -468,7 +478,16 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 else
                 {
-                    ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                    char *chemin = malloc(PATH_MAX);
+                    if (getcwd(chemin, PATH_MAX) == NULL)
+                    {
+                        perror("getcwd");
+                        free(chemin);
+                        return 1;
+                    }
+                    ret = fsh(chemin, &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                    if (chemin != 0)
+                        free(chemin);
                 }
                 if (ret == -255)
                 {
@@ -478,6 +497,8 @@ int boucle_for(cmdFor *cmdFor)
                 {
                     max = ret;
                 }
+                dernier_exit = max;
+
                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
@@ -540,6 +561,7 @@ int boucle_for(cmdFor *cmdFor)
                     {
                         max = -255;
                     }
+                    dernier_exit = max;
                 }
             }
         }

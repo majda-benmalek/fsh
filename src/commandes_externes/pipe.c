@@ -79,9 +79,6 @@ int cmdpipe(cmd_pipe *p)
         close(tpipe[i][1]);
     }
 
-    // TODO récupérer les valeurs de retour des fils
-    //  Attendre la fin de tous les processus enfants
-    // récupérer les valeurs de retour des fils
     int ret;
     int status;
     for (int i = 0; i < n; i++)
