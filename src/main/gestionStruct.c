@@ -355,10 +355,8 @@ cmdFor *make_for(char **args)
     cmdFor->op = NULL;
     cmdFor->variable = NULL;
     cmdFor->cmd = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-    // ? -------- Type ---------
     cmdFor->type = FOR;
-
-    // * ------------------ variable ---------------
+    //  --- variable ----
     if (strlen(args[1]) != 1)
     {
         perror("Erreur de syntaxe, la variable doit contenir un seul caractère");
@@ -382,14 +380,14 @@ cmdFor *make_for(char **args)
         return NULL;
     }
     memset(cmdFor->op, 0, 12 * sizeof(char *));
-    // ? ----------------- option-----------
+    // ---  option  --------
     size_t i = 4;
     size_t j = 0;
     while (strcmp(args[i], "{") != 0)
     {
         if (strcmp(args[i], "-A") == 0 || strcmp(args[i], "-r") == 0)
         {
-            cmdFor->op[j] = strdup(args[i]); // TODO utiliser strdup
+            cmdFor->op[j] = strdup(args[i]);
             if (cmdFor->op[j] == NULL)
             {
                 perror("strdup for");
@@ -403,7 +401,7 @@ cmdFor *make_for(char **args)
         {
             if (args[i + 1][0] != '-' && args[i + 1][0] != '{')
             {
-                cmdFor->op[j] = strdup(args[i]); // TODO a changer
+                cmdFor->op[j] = strdup(args[i]);
                 if (cmdFor->op[j] == NULL)
                 {
                     perror("strdup for");
@@ -422,11 +420,16 @@ cmdFor *make_for(char **args)
             }
             else
             {
-                perror("il manque un argument");
                 dernier_exit=2;
                 free_for(cmdFor);
                 return NULL;
             }
+        }
+        else{
+                perror("erreur de syntaxe");
+                dernier_exit=2;
+                free_for(cmdFor);
+                return NULL;
         }
     }
     cmdFor->op[j] = NULL;

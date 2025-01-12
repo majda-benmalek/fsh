@@ -69,7 +69,7 @@ int nouveau_var_simple(char *ancienne, char *nouveau, cmd_simple *cmd)
             }
             cmd->args[k] = realloue;
             char *prefixe = ancienne_cmd;
-            cmd->args[k][0] = '\0'; // pour pas qu'il soit à null
+            cmd->args[k][0] = '\0';
             while (a_changer != NULL)
             {
                 int taille_prefixe = strlen(prefixe) - strlen(a_changer);
@@ -231,7 +231,7 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         {
             return -1;
         }
-        return type == for_type; //! retourne 0 si c'est faux
+        return type == for_type;
     }
     else
     {
@@ -321,10 +321,6 @@ int option_p(commandeStruct *cmd, int maxp)
     return -7;
 }
 
-// TODO ERREUR DE SYNTAXE CODE ERREUR = 2
-//  TODO Si ca ce passe mal ft faire un truc
-// TODO JE FERME PAS LE REP ?
-
 int boucle_for(cmdFor *cmdFor)
 {
 
@@ -377,11 +373,11 @@ int boucle_for(cmdFor *cmdFor)
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
 
-                char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                char *inter = malloc(strlen(cmdFor->variable) + 2);
                 strcpy(inter, "$");
                 strcat(inter, cmdFor->variable);
 
-                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
+                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 if (path == NULL)
                 {
                     closedir(dir);
@@ -408,11 +404,6 @@ int boucle_for(cmdFor *cmdFor)
                         flag_p = true;
                         int i = arg_options(cmdFor->op, "-p");
                         maxp = atoi(cmdFor->op[i]);
-                        if (maxp < 0){
-                            closedir(dir);
-                            dernier_exit =1;
-                            return 2;
-                        }
                     }
                     if (nombre_fils > maxp)
                     {
@@ -500,7 +491,7 @@ int boucle_for(cmdFor *cmdFor)
                     strcat(ancienne, "/");
                 }
                 strcat(ancienne, entry->d_name);
-                char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                char *dollar = malloc(strlen(cmdFor->variable) + 2);
                 strcpy(dollar, "$");
                 strcat(dollar, cmdFor->variable);
                 strcat(path, "\0");
