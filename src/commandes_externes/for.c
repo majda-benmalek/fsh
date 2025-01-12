@@ -307,7 +307,7 @@ int option_p(commandeStruct *cmd,int maxp){
             exit(r);
         }else{
             nombre_fils++;
-            return 3;
+            return -7;
             // int status;
             // pid_t fini = waitpid(pid,&status,0);
             // if (fini > 0){
@@ -320,7 +320,7 @@ int option_p(commandeStruct *cmd,int maxp){
             // }
         }
     }else{
-        return 3;
+        return -7;
         //  int r = fsh("",&dernier_exit,cmd);
         //  return r;
     }
@@ -411,28 +411,33 @@ int boucle_for(cmdFor *cmdFor)
                         flag_p = true;
                         int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                         maxp = atoi(cmdFor->op[i]);
+                        if (maxp<0){
+                            ret = 2;
+                            dernier_exit=2;
+                            break;
+                        }
                     }
                     if (nombre_fils > maxp) {
                         printf("Trop d'itérations en parallèle !\n");
                         break;
                     }
-                    while (nombre_fils> maxp -1){
+                    while (nombre_fils== maxp){
                         int status;
                         pid_t pid = wait(&status);
                         if (pid > 0) {
                             nombre_fils--;
                         }
                     }
-                    int g;
+                    int g = 0;
                     if (pid_pere == getpid()){
                         g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
                     }
-                    if (g == 3){
+                    if (g == -7){
                         if (nombre_fils > maxp) {
                             printf("Trop d'itérations en parallèle !\n");
                             break;
-                        }
-                         while (nombre_fils> maxp -1){
+                        } 
+                        while (nombre_fils == maxp){
                             int status;
                             pid_t pid = wait(&status);
                             if (pid > 0) {
