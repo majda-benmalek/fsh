@@ -343,12 +343,7 @@ cmdFor *make_for(char **args)
     }
     if (tailleArgs(args) < 9)
     {
-        perror("Erreur de synatxe");
-        printf("la taille de l'argument = %ld\n", tailleArgs(args));
-        for (size_t i = 0; i < tailleArgs(args); i++)
-        {
-            printf("%s\n", args[i]);
-        }
+        perror("Erreur de syntaxe");
         return NULL;
     }
     cmdFor->rep = NULL;
@@ -361,7 +356,7 @@ cmdFor *make_for(char **args)
     // * ------------------ variable ---------------
     if (strlen(args[1]) != 1)
     {
-        perror("Erreur de syntaxe, la variabme doit contenir un seul caractère");
+        perror("Erreur de syntaxe");
         return NULL;
     }
 

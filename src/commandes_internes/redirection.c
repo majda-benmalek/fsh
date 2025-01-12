@@ -12,6 +12,7 @@
 #include "../../utils/gestion.h"
 #include "../../utils/freeStruct.h"
 #include "linux/limits.h"
+#include "../../utils/exit.h"
 
 int dterminer_flags(const char *separateur)
 {
@@ -154,7 +155,6 @@ int redirection(cmd_redirection *cmd)
     }
     close(fd);
 
-    int dernier_exit = 0;
     char *chemin = malloc(PATH_MAX);
     if (chemin == NULL)
     {
