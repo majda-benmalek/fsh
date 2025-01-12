@@ -16,7 +16,6 @@
 #include "../../utils/commandeStructuree.h"
 #include <assert.h>
 
-// #include <stdbool.h>
 cmd_redirection *remplissageCmdRedirection(char **args);
 
 size_t tailleArgs(char **args)
@@ -319,16 +318,11 @@ cmd_pipe *remplissageCmdPipe(char **args)
 
     return cmd;
 }
-// si vous voulez teste les pipes
-// cat fichier.txt | sort | head -n 5 | ftype fichier.txt
-//  cat fichier.txt | sort | head -n 5
 
 void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
 {
     cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
-    // printf("cmd->type dans remplissageCmdStructurees [%d]\n", cmdStruct->type);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
-    // printf("nbCommandes = %d\n",nbCommandes);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
         freeCmdStruct(cmdStruct);
@@ -441,46 +435,22 @@ cmdFor *make_for(char **args)
     {
         i++; // pour sauter l'{
     }
-    // cmdFor->cmd = remplissage;
-    // if (cmdFor->cmd == NULL)
-    // {
-    //     perror("pb d'alloc de sous cmd de for");
-    //     free_for(cmdFor);
-    //     return NULL;
-    // }
-
     char *tab[ARG_MAX];
     size_t k = 0;
-    // printf("i = %ld\n",i);
-    // printf("taille = %ld\n",taille);
     while (args[i] != NULL && i < taille - 2) // sauter { et le null
-    {                                         // TODO ATTENTION PR LES CMD PLUS COMPLEXE LE STRCMP } PAS OUF
+    {                                        
         tab[k] = args[i];
-        // printf("tab[%ld] = %s\n",k,tab[k]);
         k = k + 1;
         i = i + 1;
     }
 
     tab[k] = NULL;
-    // decoupe_args(tab,cmdFor->cmd,ARG_MAX);
-    // remplissage_cmdStruct(FOR,);
-    // printf("chui avant l'appel\n");
     remplissageCmdStructurees(tab, cmdFor->cmd);
-    // cmdFor->cmd->cmdsStruc[0] = malloc(sizeof(commandeStruct));
-    // cmdFor->cmd->cmdsStruc[1] = NULL; // TODO A CHANGER si j'ai plusieurs commande ça ne marche pas hein
-    // gestion_cmd(tab, cmdFor->cmd->cmdsStruc[0]);
-    // printf("chui ici fin du make for \n");
     return cmdFor;
 }
 
 cmdIf *remplissageCmdIf(char **args)
 {
-    // ? {"if" , "[" , "TEST" , "]" , "{" , "cmd1" , ";" , "cmd2" , "}" , NULL}
-    // * OU
-    // ? {"if" , [" ,"TEST" , "]" ,"{" , "cmd1" , ";" , "cmd2" , "}" , "else" , "{" , "cmd3" , "}" , NULL}
-    // !  if test -d NOTADIR { echo bad ; ./ret 10 } else { echo good ; ./ret 11 }
-    // ? TEST_FOLDER_FILTER=jalon-2-B ./test.sh
-
     cmdIf *cmd = malloc(sizeof(cmdIf));
     cmd->type = IF;
     cmd->commandeIf = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
@@ -586,7 +556,6 @@ cmdIf *remplissageCmdIf(char **args)
     memset(commande, 0, ARG_MAX * sizeof(char *));
 
     // ! commande dans le else
-    // ? if [ -d NOTADIR ] { echo bad } else { echo good }
     j = fin; // le else ou pas
     fin = j;
     imbrication = 0;
