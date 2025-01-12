@@ -1,9 +1,0 @@
-AUTHORS.md
-erreurs.txt
-fichiers.txt
-fsh
-Makefile
-README.md
-src
-test.sh
-utils
