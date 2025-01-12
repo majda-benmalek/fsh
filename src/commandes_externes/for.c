@@ -48,7 +48,7 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     if (cmd == NULL)
         return 1;
 
-    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE || cmd->type == REDIRECTION)
+    if (cmd->type == CMD_EXTERNE || cmd->type == CMD_INTERNE )
     {
         if (cmd->cmdSimple == NULL || cmd->cmdSimple->args == NULL)
             return 1;
@@ -149,7 +149,6 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == REDIRECTION)
     {
-        perror("la");
         if (cmd->cmdSimple->red->cmd == NULL || cmd->cmdSimple->red->cmd->args == NULL)
             return 1;
 
