@@ -435,11 +435,11 @@ int boucle_for(cmdFor *cmdFor)
                                 retF = WEXITSTATUS(status);
                                 if (retF > max)
                                 {
-                                    max = retF;
+                                    max = ret;
                                 }
                                 if (retF == -255)
                                 {
-                                    retF = -255;
+                                    max = -255;
                                 }
                             }
                         }
@@ -466,11 +466,11 @@ int boucle_for(cmdFor *cmdFor)
                                 if (WIFEXITED(status))
                                 {
                                     ret = WEXITSTATUS(status);
-                                    if (ret > max)
+                                    if (retF > max)
                                     {
                                         max = ret;
                                     }
-                                    if (ret == -255)
+                                    if (retF == -255)
                                     {
                                         max = -255;
                                     }
