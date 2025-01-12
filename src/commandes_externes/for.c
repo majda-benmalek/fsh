@@ -21,6 +21,7 @@
 
 int max = 0;
 int nombre_fils = 0;
+int retF = -233;
 
 int compte_occ(char *chaine, char *sous_chaine)
 {
@@ -296,16 +297,23 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     return 1;
 }
 
-int option_p(commandeStruct *cmd,int maxp){
-    if (nombre_fils < maxp){
+int option_p(commandeStruct *cmd, int maxp)
+{
+    if (nombre_fils < maxp)
+    {
         pid_t pid = fork();
-        if (pid < 0){
+        if (pid < 0)
+        {
             perror("fork");
             return pid;
-        }else if (pid == 0){
-            int r = fsh("",&dernier_exit,cmd);
+        }
+        else if (pid == 0)
+        {
+            int r = fsh("", &dernier_exit, cmd);
             exit(r);
-        }else{
+        }
+        else
+        {
             nombre_fils++;
             return 3;
             // int status;
@@ -316,13 +324,9 @@ int option_p(commandeStruct *cmd,int maxp){
             // if (WIFEXITED(status)) {
             //     return WEXITSTATUS(status);
             // } else {
-            //     return -1; 
+            //     return -1;
             // }
         }
-    }else{
-        return 3;
-        //  int r = fsh("",&dernier_exit,cmd);
-        //  return r;
     }
 }
 
@@ -406,51 +410,84 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                if ( flag_p || rechercheDansArgs("-p",cmdFor->op)){
-                    if (flag_p == false){
+                if (flag_p || rechercheDansArgs("-p", cmdFor->op))
+                {
+                    if (flag_p == false)
+                    {
                         flag_p = true;
-                        int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+                        int i = arg_options(cmdFor->op, "-p"); // TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                         maxp = atoi(cmdFor->op[i]);
                     }
-                    if (nombre_fils > maxp) {
+                    if (nombre_fils > maxp)
+                    {
                         printf("Trop d'itérations en parallèle !\n");
                         break;
                     }
-                    while (nombre_fils> maxp -1){
+                    while (nombre_fils > maxp - 1)
+                    {
                         int status;
                         pid_t pid = wait(&status);
-                        if (pid > 0) {
+                        if (pid > 0)
+                        {
                             nombre_fils--;
+                            if (WIFEXITED(status))
+                            {
+                                retF = WEXITSTATUS(status);
+                                if (retF > max)
+                                {
+                                    max = retF;
+                                }
+                                if (retF == -255)
+                                {
+                                    retF = -255;
+                                }
+                            }
                         }
                     }
                     int g;
-                    if (pid_pere == getpid()){
-                        g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
+                    if (pid_pere == getpid())
+                    {
+                        g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd], maxp);
                     }
-                    if (g == 3){
-                        if (nombre_fils > maxp) {
+                    if (g == 3)
+                    {
+                        if (nombre_fils > maxp)
+                        {
                             printf("Trop d'itérations en parallèle !\n");
                             break;
                         }
-                         while (nombre_fils> maxp -1){
+                        while (nombre_fils > maxp - 1)
+                        {
                             int status;
                             pid_t pid = wait(&status);
-                            if (pid > 0) {
+                            if (pid > 0)
+                            {
                                 nombre_fils--;
+                                if (WIFEXITED(status))
+                                {
+                                    ret = WEXITSTATUS(status);
+                                    if (ret > max)
+                                    {
+                                        max = ret;
+                                    }
+                                    if (ret == -255)
+                                    {
+                                        max = -255;
+                                    }
+                                }
                             }
                         }
-                    }else{
-                        ret = g;
                     }
-                } 
-                else{
+                }
+                else
+                {
                     ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 }
                 if (ret == -255)
                 {
                     max = -255;
                 }
-                else if (ret > max)
+                if (ret > max)
                 {
                     max = ret;
                 }
@@ -492,28 +529,33 @@ int boucle_for(cmdFor *cmdFor)
                     free(inter);
             }
         }
-         //printf(" la valeur de retour du while est %d\n",ret);
+        // printf(" la valeur de retour du while est %d\n",ret);
     }
-    if (flag_p == true){
-        if (nombre_fils > maxp) {
+    if (flag_p == true)
+    {
+        if (nombre_fils > maxp)
+        {
             printf("Trop d'itérations en parallèle !\n");
         }
-        while (nombre_fils > 0) {
+        while (nombre_fils > 0)
+        {
             int status;
             pid_t pid = wait(&status);
-            if (pid > 0) {
+            if (pid > 0)
+            {
                 nombre_fils--;
-                if (WIFEXITED(status)) {
-                    ret = WEXITSTATUS(status);
-                    if (ret > max){
-                        max = ret;
+                if (WIFEXITED(status))
+                {
+                    retF = WEXITSTATUS(status);
+                    if (retF > max)
+                    {
+                        max = retF;
                     }
-                    if (ret == -255){
+                    if (retF == -255)
+                    {
                         max = -255;
                     }
                 }
-            // wait(NULL);
-            // nombre_fils--;
             }
         }
     }
@@ -521,7 +563,6 @@ int boucle_for(cmdFor *cmdFor)
     closedir(dir);
     return ret;
 }
-
 
 // int boucle_for(cmdFor *cmdFor)
 // {
@@ -535,7 +576,7 @@ int boucle_for(cmdFor *cmdFor)
 //     }
 //     struct dirent *entry;
 //     while ((entry = readdir(dir)) != NULL)
-//     {    
+//     {
 //         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
 //         {
 //             if (rechercheDansArgs("-e", cmdFor->op))
@@ -567,7 +608,7 @@ int boucle_for(cmdFor *cmdFor)
 //             }
 //             int nbr_cmd = 0;
 //             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
-//             {          
+//             {
 //                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
 //                 strcpy(inter, "$");
 //                 strcat(inter, cmdFor->variable);

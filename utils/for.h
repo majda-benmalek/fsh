@@ -2,6 +2,7 @@
 #define FOR_H
 
 extern int max;
+extern int retF;
 /**
  * @param input : une chaîne de caractére sous la forme  "for f in rep { cmd ; cmd ; ... }"
  * parcourt le repertoire rep et execute les commandes cmd pour chaque fichier du répertoir
