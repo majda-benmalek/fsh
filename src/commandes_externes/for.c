@@ -484,10 +484,6 @@ int boucle_for(cmdFor *cmdFor)
                 if (inter != NULL)
                     free(inter);
             }
-<<<<<<< HEAD
-            k++;
-=======
->>>>>>> cfd4dd3 (push pr tester sur lulu)
         }
         // printf(" la valeur de retour du while est %d\n",ret);
     }
@@ -507,10 +503,6 @@ int boucle_for(cmdFor *cmdFor)
     }
 
     closedir(dir);
-<<<<<<< HEAD
-=======
-
->>>>>>> ce686a9 (redirection)
     return ret;
 }
 

@@ -56,7 +56,7 @@ int main(void)
     {
        
         
-        commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0, NULL);
+        commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL,NULL, NULL, 0);
         if (cmdstruct == NULL)
         {
             perror("erreur malloc cmdStruct");
