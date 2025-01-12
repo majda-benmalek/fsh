@@ -20,6 +20,7 @@
 #include "../../utils/signaux.h"
 
 int max = 0;
+int nombre_fils = 0;
 
 int compte_occ(char *chaine, char *sous_chaine)
 {
@@ -295,29 +296,36 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     return 1;
 }
 
-int option_p(struct dirent *entry, cmdFor *cmd){
-    int i = arg_options(cmd->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
-    int max = atoi(cmd->op[i]);
-    pid_t pid = getpid();
-    int nbrfichier = 0;
-    for (int i = 1; i < max + 1; i++ ){
-        if (pid  != 0){
-            nbrfichier=i;
-            pid = fork();
-        }
-        else if (pid == -1){
+int option_p(commandeStruct *cmd,int maxp){
+    if (nombre_fils < max){
+        nombre_fils++;
+        pid_t pid = fork();
+        if (pid < 0){
             perror("fork");
-            return 1;
+            return pid;
+        }else if (pid == 0){
+            int r = fsh("",&dernier_exit,cmd);
+            exit(r);
         }else{
-            break;
+            return 3;
+            // int status;
+            // pid_t fini = waitpid(pid,&status,0);
+            // if (fini > 0){
+            //     nombre_fils--;
+            // }
+            // if (WIFEXITED(status)) {
+            //     return WEXITSTATUS(status);
+            // } else {
+            //     return -1; 
+            // }
         }
+    }else{
+        return 3;
+        //  int r = fsh("",&dernier_exit,cmd);
+        //  return r;
     }
-    // if (pid == getpid()){
-    //     nbrfichier = 0;
-    // }
-    // printf(" nbrfic = %d\n",nbrfichier);
-    return nbrfichier;
 }
+
 // TODO ERREUR DE SYNTAXE CODE ERREUR = 2
 //  TODO Si ca ce passe mal ft faire un truc
 // TODO JE FERME PAS LE REP ?
@@ -334,12 +342,8 @@ int boucle_for(cmdFor *cmdFor)
         return ret;
     }
     struct dirent *entry;
-    int cmp_p=0; 
     bool flag_p = false;
-    pid_t pid = getpid();
-    int nbr_fic = 0;
-    int maxp=0;
-    int k =0;
+    int maxp = 0;
     while ((entry = readdir(dir)) != NULL)
     {
 
@@ -373,26 +377,6 @@ int boucle_for(cmdFor *cmdFor)
                     return 2;
                 }
             }
-            if (rechercheDansArgs("-p",cmdFor->op)){
-                if (flag_p == false){
-                    flag_p = true;
-                    nbr_fic = option_p(entry,cmdFor);
-                    int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
-                    maxp = atoi(cmdFor->op[i]);
-                }
-                if (pid == getpid()){
-                    nbr_fic = 0;
-                    break; 
-                }else{
-                    // printf(" nbr_fic = %d et cmp_p = %d\n",nbr_fic,cmp_p);
-                    if (cmp_p < nbr_fic-1+k*maxp){
-                        cmp_p++;
-                        continue;
-                    }
-                    // printf("je viens ici\n");
-                    cmp_p = 0;
-                }
-            }
             int nbr_cmd = 0;
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
@@ -421,8 +405,25 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-
-                ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                if (rechercheDansArgs("-p",cmdFor->op)){
+                    if (flag_p == false){
+                        flag_p = true;
+                        int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+                        maxp = atoi(cmdFor->op[i]);
+                    }
+                    int g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
+                    if (g == 3){
+                        while (nombre_fils >= maxp) {
+                            wait(NULL);
+                            nombre_fils--;
+                        }
+                    }else{
+                        ret = g;
+                    }
+                } 
+                else{
+                    ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                }
                 if (ret == -255)
                 {
                     max = -255;
@@ -468,29 +469,20 @@ int boucle_for(cmdFor *cmdFor)
                 if (inter != NULL)
                     free(inter);
             }
+<<<<<<< HEAD
             k++;
+=======
+>>>>>>> cfd4dd3 (push pr tester sur lulu)
         }
         // printf(" la valeur de retour du while est %d\n",ret);
     }
     if (flag_p == true){
-        if (pid == getpid()){
-          int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
-            int maxp = atoi(cmdFor->op[i]);
-            for (int i = 0; i < maxp; i++) {
-                int status;
-                wait(&status);
-                if (WIFEXITED(status)) {
-                    ret = WEXITSTATUS(status);
-                }
-            }
-            closedir(dir);
-            return ret;
-        }
-        else{
-            closedir(dir);
-            exit(0);
+        while (nombre_fils >= maxp) {
+            wait(NULL);
+            nombre_fils--;
         }
     }
+
     closedir(dir);
 <<<<<<< HEAD
 =======
