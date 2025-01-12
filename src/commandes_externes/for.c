@@ -505,6 +505,12 @@ int boucle_for(cmdFor *cmdFor)
                 nombre_fils--;
                 if (WIFEXITED(status)) {
                     ret = WEXITSTATUS(status);
+                    if (ret > max){
+                        max = ret;
+                    }
+                    if (ret == -255){
+                        max = -255;
+                    }
                 }
             // wait(NULL);
             // nombre_fils--;
