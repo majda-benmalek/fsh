@@ -413,7 +413,7 @@ int boucle_for(cmdFor *cmdFor)
                         maxp = atoi(cmdFor->op[i]);
                     }
                     if (nombre_fils > maxp) {
-                        printf("Trop d'itérations en parallèle !");
+                        printf("Trop d'itérations en parallèle !\n");
                         break;
                     }
                     while (nombre_fils> maxp -1){
@@ -429,8 +429,15 @@ int boucle_for(cmdFor *cmdFor)
                     }
                     if (g == 3){
                         if (nombre_fils > maxp) {
-                            printf("Trop d'itérations en parallèle !");
+                            printf("Trop d'itérations en parallèle !\n");
                             break;
+                        }
+                         while (nombre_fils> maxp -1){
+                            int status;
+                            pid_t pid = wait(&status);
+                            if (pid > 0) {
+                                nombre_fils--;
+                            }
                         }
                     }else{
                         ret = g;
@@ -488,6 +495,9 @@ int boucle_for(cmdFor *cmdFor)
          //printf(" la valeur de retour du while est %d\n",ret);
     }
     if (flag_p == true){
+        if (nombre_fils > maxp) {
+            printf("Trop d'itérations en parallèle !\n");
+        }
         while (nombre_fils > 0) {
             int status;
             pid_t pid = wait(&status);
