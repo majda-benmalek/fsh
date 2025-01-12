@@ -22,14 +22,63 @@ Ce projet implémente un shell personnalisé fsh, qui supporte des commandes int
 ### Structure de Données : 
 Les commandes de notre projet sont organisées en plusieurs types de structures pour permettre une représentation flexible et extensible (dans le fichier `utils/commande.h`).Chaque commande peut être de type simple,Conditionnelle...
 
-## 2. `cmd_simple`: 
-Elle représente les commandes simples (commandes internes et redirection).
+## 1. Type des commandes : 
+Nous avons plusieurs types pour représenter une commande et chacun est représenté par des structures propres à chaque type: 
+```c
+typedef enum
+{
+    CMD_EXTERNE, 
+    CMD_INTERNE,
+    REDIRECTION,
+    CMD_STRUCT,
+    FOR,
+    IF,
+    PIPE
+} Type;
 
-## 3. `cmd_simple`: 
+```
+
+## 2. `cmd_simple`: 
+Elle représente les commandes simples. Une commande simple peut être soit une commande externe (par exemple `ls` ou `cat`), soit une commande interne du shell (par exemple `cd`, `exit`)
+```c
+typedef struct
+{
+    Type type; // le type de la commande (CMD_INTERNE, REDIRECTION, CMD_EXTERNE )
+    char **args; // tableau des arguments de la commande
+} cmd_simple;
+
+```
+
+## 3. `cmd_pipe`: 
 Pour représenter les commandes de type `CMD_1 | CMD_2 | ... | CMD_N`.
+```c
+typedef struct
+{
+    Type type; 
+    cmd_simple **commandes; 
+    int nbCommandes;
+} cmd_pipe;
+```
+
+### 3.2 Description des champs : 
+* `type` : Le type de la commande, ici ça sera `PIPE` pour indiquer que c'est une commande avec des pipes.
+* `**commandes` : Un tableau de pointeurs vers des structures `cmd_simple` , chaque élément représentant une commande simple dans le pipline.
+* `nbCommandes` : Le nombre de commandes dans le pipline. 
+
+
 
 ## 4. `cmdIf`: 
 Pour représenter les commandes conditionnelles de type `if TEST { CMD_1 } else { CMD_2 }`.
+
+```c
+typedef struct
+{
+    Type type;
+    commandeStruct *test;
+    commandeStruct *commandeIf;
+    commandeStruct *commandeElse;
+} cmdIf;
+```
 
 ## 5. `cmdFor`: 
 Permet de représenter les commandes de type `for F in REP [-A] [-r] [-e EXT] [-t TYPE] [-p MAX] { CMD }`.
