@@ -412,7 +412,11 @@ int boucle_for(cmdFor *cmdFor)
                         int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                         maxp = atoi(cmdFor->op[i]);
                     }
-                    while (nombre_fils >= maxp) {
+                    if (nombre_fils > maxp) {
+                        printf("Trop d'itérations en parallèle !");
+                        break;
+                    }
+                    while (nombre_fils> maxp -1){
                         int status;
                         pid_t pid = wait(&status);
                         if (pid > 0) {
