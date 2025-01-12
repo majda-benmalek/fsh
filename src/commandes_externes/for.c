@@ -296,33 +296,26 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     return 1;
 }
 
-int option_p(commandeStruct *cmd,int maxp){
-    if (nombre_fils < maxp){
+int option_p(commandeStruct *cmd, int maxp)
+{
+    if (nombre_fils < maxp)
+    {
         pid_t pid = fork();
-        if (pid < 0){
+        if (pid < 0)
+        {
             perror("fork");
             return pid;
-        }else if (pid == 0){
-            int r = fsh("",&dernier_exit,cmd);
-            exit(r);
-        }else{
-            nombre_fils++;
-            return -7;
-            // int status;
-            // pid_t fini = waitpid(pid,&status,0);
-            // if (fini > 0){
-            //     nombre_fils--;
-            // }
-            // if (WIFEXITED(status)) {
-            //     return WEXITSTATUS(status);
-            // } else {
-            //     return -1; 
-            // }
         }
-    }else{
-        return -7;
-        //  int r = fsh("",&dernier_exit,cmd);
-        //  return r;
+        else if (pid == 0)
+        {
+            int r = fsh("", &dernier_exit, cmd);
+            exit(r);
+        }
+        else
+        {
+            nombre_fils++;
+            return 3;
+        }
     }
 }
 
