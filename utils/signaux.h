@@ -3,11 +3,22 @@
 #include <signal.h>
 
 extern volatile sig_atomic_t sigint_received;
-void configuration_signaux(sigset_t *block_mask);
-void debloquer_signaux(sigset_t *block_mask);
-void restaurer(sigset_t *block_mask);
+
 void sigint_handleur(int sig);
+/**
+ * @brief réinitialise les gestionnaires de signaux aux comportements par défaut pour un processus fils
+ */
+
 void signaux_fils();
+
+
+/**
+ * @brief Configure les gestionnaires de signaux pour le main
+ * 
+ * @details
+ * - ignore `SIGTERM`
+ * - Définit un gestionnaire pour le signal `SIGINT` afin de capturer son occurrence en définissant une variable globale sigint_received`.
+ */
 void sigaux_main();
-void ignorer_sigterm();
+
 #endif 

@@ -326,9 +326,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
 void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
 {
     cmdStruct->cmdsStruc = malloc(sizeof(commandeStruct *) * ARG_MAX);
-    // printf("cmd->type dans remplissageCmdStructurees [%d]\n", cmdStruct->type);
     int nbCommandes = decoupe_args(args, cmdStruct->cmdsStruc, ARG_MAX);
-    // printf("nbCommandes = %d\n",nbCommandes);
     if (nbCommandes < 0 && cmdStruct->cmdsStruc == NULL)
     {
         freeCmdStruct(cmdStruct);

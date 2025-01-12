@@ -30,6 +30,12 @@ cmd_simple *remplissage_cmdSimple(char **args);
 cmd_redirection *remplissageCmdRedirection(char **args);
 
 cmd_pipe *remplissageCmdPipe(char **args);
+
+/**
+ * @brief Remplit une structure `commandeStruct` 
+ * @param args un tableau contenant les arguments des commandes
+ * @param cmdStruct Un pointeur vers une `commandeStruct` à remplir
+ */
 void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct);
 
 size_t tailleArgs(char **args);
