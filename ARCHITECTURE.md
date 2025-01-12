@@ -39,12 +39,13 @@ typedef enum
 ```
 
 ## 2. `cmd_simple`: 
-Elle représente les commandes simples. Une commande simple peut être soit une commande externe (par exemple `ls` ou `cat`), soit une commande interne du shell (par exemple `cd`, `exit`)
+Elle représente les commandes simples. Une commande simple peut être soit une commande externe (par exemple `ls` ou `cat`), soit une commande interne du shell (par exemple `cd`, `exit`), ou encore une redirection.
 ```c
 typedef struct
 {
     Type type; // le type de la commande (CMD_INTERNE, REDIRECTION, CMD_EXTERNE )
     char **args; // tableau des arguments de la commande
+    cmd_redirection *red;// pointeur vers une structure de type redirection
 } cmd_simple;
 
 ```
@@ -60,7 +61,7 @@ typedef struct
 } cmd_pipe;
 ```
 
-### 3.2 Description des champs : 
+### 3.1 Description des champs : 
 * `type` : Le type de la commande, ici ça sera `PIPE` pour indiquer que c'est une commande avec des pipes.
 * `**commandes` : Un tableau de pointeurs vers des structures `cmd_simple` , chaque élément représentant une commande simple dans le pipline.
 * `nbCommandes` : Le nombre de commandes dans le pipline. 
@@ -79,15 +80,44 @@ typedef struct
     commandeStruct *commandeElse;
 } cmdIf;
 ```
+### 4.1 Description des champs : 
+* `type` : Le type de la commande, ici `IF`.
+* `*test` : Ce champs est un pointeur vers une structure `commandeStruct` représentant le `pipline` à exécuter.
+* `*commandeIf` : Elle représente un pointeur vers une structure `commandeStruct` qui en cas de succès de `*test` sera exécutée.
+* `*commandeElse` : Elle représente un pointeur vers une structure `commandeStruct` qui en cas d'échec de `*test` sera exécutée.
 
 ## 5. `cmdFor`: 
 Permet de représenter les commandes de type `for F in REP [-A] [-r] [-e EXT] [-t TYPE] [-p MAX] { CMD }`.
+```c
+typedef struct
+{
+    Type type; // type de la commande (FOR)
+    char *rep; // le répertoire à itérer
+    char **op; // les options à appliquer
+    char *variable; // la variable de boucle utilisé dans l'itération
+    commandeStruct *cmd; // commande à exécuter pour chaque élement du répertoire
+} cmdFor;
+
+```
 
 ## 6. `cmd_redirection`: 
-Pour représenter les commandes de type redirection.
+Elle permet de gérer la redirection de la sortie d'une commande vers un fichier.
+
+```c
+struct cmd_redirection
+{
+    cmd_simple *cmd; // la commande dont la sortie doit être redirigée
+    char *fichier; // fichier vers lequel la sortie de la commandes sera redirigée
+    char *separateur; // le séparateur tel que '>', '>>'...
+};
 
 
-## 6. `commandeStruct`: 
+```
+
+
+
+
+## 7. `commandeStruct`: 
 Cette structure est l'élément central du projet, utilisée pour représenter différentes commandes. Elle contient des pointeurs vers d'autres structures représentant les autres types de commandes de notre projet : 
 #### Définition
 ```c
