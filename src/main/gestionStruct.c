@@ -361,7 +361,7 @@ cmdFor *make_for(char **args)
     // * ------------------ variable ---------------
     if (strlen(args[1]) != 1)
     {
-        perror("Erreur de syntaxe, la variabme doit contenir un seul caractère");
+        perror("Erreur de syntaxe, la variable doit contenir un seul caractère");
         return NULL;
     }
 
@@ -378,7 +378,6 @@ cmdFor *make_for(char **args)
     cmdFor->op = malloc(12 * sizeof(char *));
     if (cmdFor->op == NULL)
     {
-        perror("aie aie aie");
         free_for(cmdFor);
         return NULL;
     }
@@ -420,11 +419,11 @@ cmdFor *make_for(char **args)
                 }
                 i = i + 2;
                 j = j + 2;
-                // flag = true;
             }
             else
             {
                 perror("il manque un argument");
+                dernier_exit=2;
                 free_for(cmdFor);
                 return NULL;
             }
