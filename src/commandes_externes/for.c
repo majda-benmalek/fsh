@@ -297,7 +297,7 @@ int option_r(struct dirent *entry, cmdFor *cmd)
 }
 
 int option_p(commandeStruct *cmd,int maxp){
-    if (nombre_fils < max){
+    if (nombre_fils < maxp){
         pid_t pid = fork();
         if (pid < 0){
             perror("fork");
@@ -411,6 +411,13 @@ int boucle_for(cmdFor *cmdFor)
                         flag_p = true;
                         int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
                         maxp = atoi(cmdFor->op[i]);
+                    }
+                    while (nombre_fils >= maxp) {
+                        int status;
+                        pid_t pid = wait(&status);
+                        if (pid > 0) {
+                            nombre_fils--;
+                        }
                     }
                     int g;
                     if (pid_pere == getpid()){
