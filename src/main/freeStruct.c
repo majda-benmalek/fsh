@@ -62,19 +62,18 @@ void free_pipe(cmd_pipe *cmd)
     {
         if (cmd->commandes != NULL)
         {
-            for (int i = 0; cmd->commandes[i] != NULL; i++)
+            for (int i = 0; i < cmd->nbCommandes; i++)
             {
                 if (cmd->commandes[i] != NULL)
                 {
                     freeCmdSimple(cmd->commandes[i]);
                 }
             }
+            free(cmd->commandes);
         }
-        free(cmd->commandes);
         free(cmd);
     }
 }
-
 void free_for(cmdFor *cmdFor)
 {
     if (cmdFor != NULL)

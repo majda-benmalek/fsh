@@ -86,6 +86,7 @@ int nouveau_var_simple(char *ancienne, char *nouveau, cmd_simple *cmd)
         if (ancienne_cmd != NULL)
             free(ancienne_cmd);
     }
+    return 0;
 }
 
 int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
@@ -118,15 +119,10 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
             return 1;
 
         int l = 0;
-        commandeStruct *inter_type;
         while (cmd->pipe->commandes[l] != NULL)
         {
             nouveau_var_simple(ancienne, nouveau, cmd->pipe->commandes[l]);
             l++;
-        }
-        if (inter_type != NULL)
-        {
-            freeCmdStruct(inter_type);
         }
     }
     else if (cmd->type == CMD_STRUCT)
@@ -153,58 +149,12 @@ int nouveau_var(char *ancienne, char *nouveau, commandeStruct *cmd)
     }
     else if (cmd->type == REDIRECTION)
     {
-        // if (cmd->cmdSimple->red->cmd == NULL || cmd->cmdSimple->red->cmd->args == NULL)
-        //     return 1;
-
-        // int k = 0;
-        // while (cmd->cmdSimple->red->cmd->args[k] != NULL)
-        // {
-        //     char *ancienne_cmd = strdup(cmd->cmdSimple->red->cmd->args[k]);
-        //     char *a_changer = strstr(ancienne_cmd, ancienne);
-        //     if (a_changer == NULL)
-        //     {
-        //         k++;
-        //     }
-        //     else
-        //     {
-        //         int occ_ancienne = compte_occ(cmd->cmdSimple->red->cmd->args[k], ancienne);
-        //         int taille = strlen(cmd->cmdSimple->red->cmd->args[k]) - occ_ancienne * strlen(ancienne) + occ_ancienne * strlen(nouveau) + 1;
-        //         char *realloue = realloc(cmd->cmdSimple->red->cmd->args[k], taille);
-        //         if (realloue == NULL)
-        //         {
-        //             perror("Reallocation");
-        //             free(ancienne_cmd);
-        //             return 1;
-        //         }
-        //         cmd->cmdSimple->red->cmd->args[k] = realloue;
-        //         char *prefixe = ancienne_cmd;
-        //         cmd->cmdSimple->red->cmd->args[k][0] = '\0'; // pour pas qu'il soit à null
-        //         while (a_changer != NULL)
-        //         {
-        //             int taille_prefixe = strlen(prefixe) - strlen(a_changer);
-        //             if (taille_prefixe > 0)
-        //             {
-        //                 strncat(cmd->cmdSimple->red->cmd->args[k], prefixe, taille_prefixe);
-        //             }
-        //             strcat(cmd->cmdSimple->red->cmd->args[k], nouveau);
-        //             prefixe = a_changer + strlen(ancienne);
-        //             a_changer = strstr(prefixe, ancienne);
-        //         }
-        //         strcat(cmd->cmdSimple->red->cmd->args[k], prefixe);
-        //         strcat(cmd->cmdSimple->red->cmd->args[k], "\0");
-        //         k++;
-        //     }
-        //     if (ancienne_cmd != NULL)
-        //         free(ancienne_cmd);
-        // }
         nouveau_var_simple(ancienne, nouveau, cmd->cmdSimple->red->cmd);
 
         if (cmd->cmdSimple->red->fichier != NULL && strstr(cmd->cmdSimple->red->fichier, "$") != NULL)
         {
             snprintf(cmd->cmdSimple->red->fichier, strlen(nouveau) + 1, "%s", nouveau);
         }
-        // commandeStruct *inter = remplissage_cmdStruct(cmd->cmdSimple->red->cmd->type, cmd->cmdSimple->red->cmd, NULL, NULL, NULL, NULL, 0, NULL);
-        // nouveau_var(ancienne, nouveau, inter);
     }
     return 0;
 }

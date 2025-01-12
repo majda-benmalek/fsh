@@ -76,7 +76,9 @@ commandeStruct *remplissage_cmdStruct(Type type, cmd_simple *cmdSimple, cmd_pipe
         assert(cmd->cmdFor == cmdForStruct);
         assert(cmd->nbCommandes == nbcommandes);
         assert(cmd->cmdsStruc == cmdsStrcu);
-    }else{
+    }
+    else
+    {
         perror("null");
     }
     return cmd;
@@ -243,12 +245,12 @@ cmd_redirection *remplissageCmdRedirection(char **args)
 cmd_pipe *remplissageCmdPipe(char **args)
 {
     cmd_pipe *cmd = malloc(sizeof(cmd_pipe));
-    cmd->commandes = malloc(40 * sizeof(cmd_simple));
+    cmd->commandes = malloc(ARG_MAX * sizeof(cmd_simple));
     int nb = 0;
     int j = 0;
 
     // TODO tableau dynamique
-    char *commande[10];
+    char *commande[ARG_MAX];
     memset(commande, 0, sizeof(commande));
     for (size_t i = 0; i < tailleArgs(args); i++)
     {
@@ -262,7 +264,6 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 return NULL;
             }
             cmd->commandes[nb] = remplissage_cmdSimple(commande);
-            // printf cmd->commandes[nb]->args
             if (cmd->commandes[nb] == NULL)
             {
                 perror("remplissage cmd simple dans remplissage pipe");
@@ -286,24 +287,13 @@ cmd_pipe *remplissageCmdPipe(char **args)
                 if (arg_cmdsimple(args, commande, i, j) == 1)
                 {
                     free_pipe(cmd);
-                    // for (int i = 0; commande[i]!= NULL; i++)
-                    // {
-                    //     free(commande[i]);
-                    // }
-                    // free(commande);
                     return NULL;
                 }
                 cmd->commandes[nb] = remplissage_cmdSimple(commande);
-                // printf cmd->commandes[nb]->args
                 if (cmd->commandes[nb] == NULL)
                 {
                     perror("remplissage cmd simple dans remplissage pipe");
                     free_pipe(cmd);
-                    // for (int i = 0; commande[i]!= NULL; i++)
-                    // {
-                    //    free(commande[i]);
-                    // }
-                    // free(commande);
                     return NULL;
                 }
                 nb += 1;
@@ -326,6 +316,7 @@ cmd_pipe *remplissageCmdPipe(char **args)
     }
     cmd->commandes = temp;
 
+
     return cmd;
 }
 // si vous voulez teste les pipes
@@ -345,26 +336,6 @@ void remplissageCmdStructurees(char **args, commandeStruct *cmdStruct)
         return;
     }
     cmdStruct->nbCommandes = nbCommandes;
-    // ! en mettant realloc ca marche plus mais c'est pas grave ya pas de pertes au final
-    // commandeStruct **tmp = realloc(cmdStruct->cmdsStruc, sizeof(commandeStruct *) * (nbCommandes + 1));
-    // if (tmp != NULL)
-    //     cmdStruct->cmdsStruc = tmp;
-    // else
-    // {
-    //     perror("probleme de realloc");
-    //     for (int i = 0; tmp[i] != NULL; i++)
-    //     {
-    //         freeCmdStruct(tmp[i]);
-    //     }
-    //     free(tmp);
-    //     freeCmdStruct(cmdStruct);
-    //     return;
-    // }
-    // for (int i = 0; tmp[i] != NULL; i++)
-    // {
-    //     freeCmdStruct(tmp[i]);
-    // }
-    // free(tmp);
     cmdStruct->type = CMD_STRUCT;
 }
 
