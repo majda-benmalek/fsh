@@ -16,7 +16,9 @@ int compter_chiffres(int nombre)
     if (nombre > 0)
     {
         count = 0;
-    }else{
+    }
+    else
+    {
         count = 1;
     }
 
@@ -72,6 +74,10 @@ int prompt(char *chemin, char *input, int *ret)
         sprintf(readline_prompt, "%s[%s%d]%s%s$%s ", vert, reset_color, *(ret), new, bleu, reset_color);
     }else if(*ret == -255){
        sprintf(readline_prompt, "%s[%sSIG]%s%s$%s ", rouge, reset_color,  new, bleu, reset_color);
+    }
+    else if (*ret == -255)
+    {
+        sprintf(readline_prompt, "%s[%sSIG]%s%s$%s ", rouge, reset_color, new, bleu, reset_color);
     }
     else
     {

@@ -19,7 +19,6 @@
 
 int exec_if(cmdIf *cmd, char *chemin)
 {
-    // ! if [ 1 -eq 1 ] { echo 1=1 }
     // redirection de la sortie d'erreur et de la sortie standard OU l'exécuté sur un autre processus
     int pid_enf = fork();
     switch (pid_enf)

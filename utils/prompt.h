@@ -27,12 +27,16 @@ int compter_chiffres(int nombre);
  *         La mémoire allouée pour cette chaîne doit être libérée par l'appelant.
  */
 char *decoupe(char *chemin, int *ret);
+
 /**
- * Affiche l'invite de commande et récupère l'entrée de l'utilisateur.
- * 
- * @param chemin Le chemin du répertoire courant.
- * @param input Un pointeur vers une chaîne de caractères pour stocker l'entrée de l'utilisateur.
+ * Affiche une invite de commande personnalisée et lit l'entrée de l'utilisateur.
+ * @param chemin le chemin actuel du répertoire de travail
+ * @param input un buffer pour stocker l'entrée de l'utilisateur
+ * @param ret un pointeur vers un entier qui stocke le code de retour de la dernière commande exécutée
+ * La fonction affiche une invite de commande colorée en fonction du code de retour de la dernière commande.
+ * Elle lit ensuite l'entrée de l'utilisateur, la stocke dans le buffer input et ajoute cette entrée à l'historique des commandes.
+ * @return 0 si l'entrée est lue avec succès, 1 sinon.
  */
-int prompt(char *chemin, char *input,int *ok);
+int prompt(char *chemin, char *input,int *ret);
 
 #endif // PROMPT_H

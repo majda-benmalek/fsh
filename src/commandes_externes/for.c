@@ -21,6 +21,7 @@
 
 int max = 0;
 int nombre_fils = 0;
+int retF = -233;
 
 int compte_occ(char *chaine, char *sous_chaine)
 {
@@ -68,7 +69,7 @@ int nouveau_var_simple(char *ancienne, char *nouveau, cmd_simple *cmd)
             }
             cmd->args[k] = realloue;
             char *prefixe = ancienne_cmd;
-            cmd->args[k][0] = '\0'; // pour pas qu'il soit à null
+            cmd->args[k][0] = '\0';
             while (a_changer != NULL)
             {
                 int taille_prefixe = strlen(prefixe) - strlen(a_changer);
@@ -230,21 +231,11 @@ int option_t(struct dirent *entry, cmdFor *cmd)
         {
             return -1;
         }
-        return type == for_type; //! retourne 0 si c'est faux
+        return type == for_type;
     }
     else
     {
         return -1;
-    }
-}
-
-void print_arg(commandeStruct *cmd)
-{
-    int k = 0;
-    while (cmd->cmdSimple->args[k] != NULL)
-    {
-        printf("cmd->cmdSimple->args[%d] = %s\n", k, cmd->cmdSimple->args[k]);
-        k++;
     }
 }
 
@@ -296,44 +287,43 @@ int option_r(struct dirent *entry, cmdFor *cmd)
     return 1;
 }
 
-int option_p(commandeStruct *cmd,int maxp){
-    if (nombre_fils < maxp){
+int option_p(commandeStruct *cmd, int maxp)
+{
+    if (nombre_fils < maxp)
+    {
         pid_t pid = fork();
-        if (pid < 0){
+        if (pid < 0)
+        {
             perror("fork");
             return pid;
-        }else if (pid == 0){
-            int r = fsh("",&dernier_exit,cmd);
-            exit(r);
-        }else{
-            nombre_fils++;
-            return 3;
-            // int status;
-            // pid_t fini = waitpid(pid,&status,0);
-            // if (fini > 0){
-            //     nombre_fils--;
-            // }
-            // if (WIFEXITED(status)) {
-            //     return WEXITSTATUS(status);
-            // } else {
-            //     return -1; 
-            // }
         }
-    }else{
-        return 3;
-        //  int r = fsh("",&dernier_exit,cmd);
-        //  return r;
+        else if (pid == 0)
+        {
+            char *chemin = malloc(PATH_MAX);
+            if (getcwd(chemin, PATH_MAX) == NULL)
+            {
+                perror("getcwd");
+                free(chemin);
+                return 1;
+            }
+            int r = fsh(chemin, &dernier_exit, cmd);
+            if (chemin != NULL)
+                free(chemin);
+            exit(r);
+        }
+        else
+        {
+            nombre_fils++;
+            return -7;
+        }
     }
+    return -7;
 }
-
-// TODO ERREUR DE SYNTAXE CODE ERREUR = 2
-//  TODO Si ca ce passe mal ft faire un truc
-// TODO JE FERME PAS LE REP ?
 
 int boucle_for(cmdFor *cmdFor)
 {
 
-    int ret = -255; // TODO A CHANGER;
+    int ret = -255; 
     DIR *dir = opendir(cmdFor->rep);
     if (dir == NULL)
     {
@@ -363,7 +353,6 @@ int boucle_for(cmdFor *cmdFor)
                 int r = option_r(entry, cmdFor);
                 if (r == 1)
                     break;
-                // continue ;
             }
             if (rechercheDansArgs("-t", cmdFor->op))
             {
@@ -374,7 +363,7 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 if (res == -1)
                 {
-                    dernier_exit = 1;
+                    closedir(dir);
                     return 2;
                 }
             }
@@ -382,13 +371,14 @@ int boucle_for(cmdFor *cmdFor)
             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
             {
 
-                char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                char *inter = malloc(strlen(cmdFor->variable) + 2);
                 strcpy(inter, "$");
                 strcat(inter, cmdFor->variable);
 
-                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
+                char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
                 if (path == NULL)
                 {
+                    closedir(dir);
                     return 1;
                 }
                 strcpy(path, cmdFor->rep);
@@ -398,7 +388,6 @@ int boucle_for(cmdFor *cmdFor)
                 }
                 strcat(path, entry->d_name);
                 strcat(path, "\0");
-                // printf("path = %s\n",path);
                 int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 if (n != 0)
                 {
@@ -406,47 +395,100 @@ int boucle_for(cmdFor *cmdFor)
                     free_for(cmdFor);
                     return 1;
                 }
-                if ( flag_p || rechercheDansArgs("-p",cmdFor->op)){
-                    if (flag_p == false){
+                if (flag_p || rechercheDansArgs("-p", cmdFor->op))
+                {
+                    if (flag_p == false)
+                    {
                         flag_p = true;
-                        int i = arg_options(cmdFor->op, "-p");//TODO SI J AI 3 FICHIERS ET QUE JE FAIS -P 5 je peux prendre que 3 fichiers
+                        int i = arg_options(cmdFor->op, "-p");
                         maxp = atoi(cmdFor->op[i]);
                     }
-                    if (nombre_fils > maxp) {
-                        printf("Trop d'itérations en parallèle !");
+                    if (nombre_fils > maxp)
+                    {
+                        printf("Trop d'itérations en parallèle !\n");
                         break;
                     }
-                    while (nombre_fils> maxp -1){
+                    while (nombre_fils > maxp - 1)
+                    {
                         int status;
                         pid_t pid = wait(&status);
-                        if (pid > 0) {
+                        if (pid > 0)
+                        {
                             nombre_fils--;
+                            if (WIFEXITED(status))
+                            {
+                                retF = WEXITSTATUS(status);
+                                if (retF > max)
+                                {
+                                    max = ret;
+                                }
+                                if (retF == -255)
+                                {
+                                    max = -255;
+                                }
+                                dernier_exit = max;
+                            }
                         }
                     }
                     int g;
-                    if (pid_pere == getpid()){
-                        g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd],maxp);
+                    if (pid_pere == getpid())
+                    {
+                        g = option_p(cmdFor->cmd->cmdsStruc[nbr_cmd], maxp);
                     }
-                    if (g == 3){
-                        if (nombre_fils > maxp) {
-                            printf("Trop d'itérations en parallèle !");
+                    if (g == -7)
+                    {
+                        if (nombre_fils > maxp)
+                        {
+                            printf("Trop d'itérations en parallèle !\n");
                             break;
                         }
-                    }else{
-                        ret = g;
+                        while (nombre_fils > maxp - 1)
+                        {
+                            int status;
+                            pid_t pid = wait(&status);
+                            if (pid > 0)
+                            {
+                                nombre_fils--;
+                                if (WIFEXITED(status))
+                                {
+                                    ret = WEXITSTATUS(status);
+                                    if (retF > max)
+                                    {
+                                        max = ret;
+                                    }
+                                    if (retF == -255)
+                                    {
+                                        max = -255;
+                                    }
+                                    dernier_exit = max;
+                                }
+                            }
+                        }
                     }
-                } 
-                else{
-                    ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                }
+                else
+                {
+                    char *chemin = malloc(PATH_MAX);
+                    if (getcwd(chemin, PATH_MAX) == NULL)
+                    {
+                        perror("getcwd");
+                        free(chemin);
+                        return 1;
+                    }
+                    ret = fsh(chemin, &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
+                    if (chemin != 0)
+                        free(chemin);
                 }
                 if (ret == -255)
                 {
                     max = -255;
                 }
-                else if (ret > max)
+                if (ret > max)
                 {
                     max = ret;
                 }
+                dernier_exit = max;
+
                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
                 {
                     perror("pb ds le changement de var");
@@ -460,11 +502,10 @@ int boucle_for(cmdFor *cmdFor)
                     strcat(ancienne, "/");
                 }
                 strcat(ancienne, entry->d_name);
-                char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
+                char *dollar = malloc(strlen(cmdFor->variable) + 2);
                 strcpy(dollar, "$");
                 strcat(dollar, cmdFor->variable);
                 strcat(path, "\0");
-                // printf("ancienne = %s\n",ancienne);
                 n = nouveau_var(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
                 if (n != 0)
                 {
@@ -485,19 +526,33 @@ int boucle_for(cmdFor *cmdFor)
                     free(inter);
             }
         }
-        // printf(" la valeur de retour du while est %d\n",ret);
     }
-    if (flag_p == true){
-        while (nombre_fils > 0) {
+    if (flag_p == true)
+    {
+        if (nombre_fils > maxp)
+        {
+            printf("Trop d'itérations en parallèle !\n");
+        }
+        while (nombre_fils > 0)
+        {
             int status;
             pid_t pid = wait(&status);
-            if (pid > 0) {
+            if (pid > 0)
+            {
                 nombre_fils--;
-                if (WIFEXITED(status)) {
-                    ret = WEXITSTATUS(status);
+                if (WIFEXITED(status))
+                {
+                    retF = WEXITSTATUS(status);
+                    if (retF > max)
+                    {
+                        max = retF;
+                    }
+                    if (retF == -255)
+                    {
+                        max = -255;
+                    }
+                    dernier_exit = max;
                 }
-            // wait(NULL);
-            // nombre_fils--;
             }
         }
     }
@@ -505,118 +560,3 @@ int boucle_for(cmdFor *cmdFor)
     closedir(dir);
     return ret;
 }
-
-
-// int boucle_for(cmdFor *cmdFor)
-// {
-//     int ret = -255; // TODO A CHANGER;
-//     DIR *dir = opendir(cmdFor->rep);
-//     if (dir == NULL)
-//     {
-//         fprintf(stderr, "command_for_run: %s\n", cmdFor->rep);
-//         ret = 1;
-//         return ret;
-//     }
-//     struct dirent *entry;
-//     while ((entry = readdir(dir)) != NULL)
-//     {    
-//         if ((entry->d_name[0] != '.' || optionA(entry, cmdFor)))
-//         {
-//             if (rechercheDansArgs("-e", cmdFor->op))
-//             {
-//                 if (!option_e(entry, cmdFor))
-//                 {
-//                     continue;
-//                 }
-//             }
-//             if (rechercheDansArgs("-r", cmdFor->op) && entry->d_type == DT_DIR)
-//             {
-//                 int r = option_r(entry, cmdFor);
-//                 if (r == 1)
-//                     break;
-//                 // continue ;
-//             }
-//             if (rechercheDansArgs("-t", cmdFor->op))
-//             {
-//                 int res = option_t(entry, cmdFor);
-//                 if (res == 0)
-//                 {
-//                     continue;
-//                 }
-//                 if (res == -1)
-//                 {
-//                     dernier_exit = 1;
-//                     return 2;
-//                 }
-//             }
-//             int nbr_cmd = 0;
-//             while (cmdFor->cmd->cmdsStruc[nbr_cmd] != NULL)
-//             {          
-//                 char *inter = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
-//                 strcpy(inter, "$");
-//                 strcat(inter, cmdFor->variable);
-//                 char *path = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2); // +2 pr / et '\0'
-//                 if (path == NULL)
-//                 {
-//                     return 1;
-//                 }
-//                 strcpy(path, cmdFor->rep);
-//                 if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
-//                 {
-//                     strcat(path, "/");
-//                 }
-//                 strcat(path, entry->d_name);
-//                 strcat(path,"\0");
-//                 // printf("path = %s\n",path);
-//                 int n = nouveau_var(inter, path, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-//                 if (n != 0)
-//                 {
-//                     perror("problème dans nouveau");
-//                     free_for(cmdFor);
-//                     return 1;
-//                 }
-//                 ret = fsh("", &dernier_exit, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-//                 if(ret>max){
-//                     max=ret;
-//                 }
-//                 if (cmdFor->cmd->cmdsStruc[nbr_cmd] == NULL)
-//                 {
-//                     perror("pb ds le changement de var");
-//                     free_for(cmdFor);
-//                     return 1;
-//                 }
-//                 char *ancienne = malloc(strlen(entry->d_name) + strlen(cmdFor->rep) + 2);
-//                 strcpy(ancienne, cmdFor->rep);
-//                 if (cmdFor->rep[strlen(cmdFor->rep) - 1] != '/')
-//                 {
-//                     strcat(ancienne, "/");
-//                 }
-//                 strcat(ancienne, entry->d_name);
-//                 char *dollar = malloc(strlen(cmdFor->variable) + 2); // ? CA C PR AVOIR LE BON NOM DE VARIABLE +2 pr $ et le char 0
-//                 strcpy(dollar, "$");
-//                 strcat(dollar, cmdFor->variable);
-//                 strcat(path,"\0");
-//                 // printf("ancienne = %s\n",ancienne);
-//                 n = nouveau_var(ancienne, dollar, cmdFor->cmd->cmdsStruc[nbr_cmd]);
-//                 if (n != 0)
-//                 {
-//                     perror("problème dans le 2ème appel de nv");
-//                     free_for(cmdFor);
-//                     return 1;
-//                 }
-//                 nbr_cmd = nbr_cmd + 1;
-//                 if (dollar != NULL)
-//                     free(dollar);
-//                 if (ancienne != NULL)
-//                     free(ancienne);
-//                 if (path != NULL)
-//                     free(path);
-//                 if (inter != NULL)
-//                     free(inter);
-//             }
-//         }
-//          //printf(" la valeur de retour du while est %d\n",ret);
-//     }
-//     closedir(dir);
-//     return ret;
-// }

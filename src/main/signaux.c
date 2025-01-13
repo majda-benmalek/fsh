@@ -8,12 +8,11 @@
 
 volatile sig_atomic_t sigint_received;
 
-
-
-
 void sigint_handleur(int sig){
     sigint_received = 1;
 }
+
+
 
 void sigaux_main(){
     struct sigaction sa;
@@ -26,6 +25,7 @@ void sigaux_main(){
 
 }
 
+
 void signaux_fils(){
     struct sigaction sa;
     sa.sa_handler = SIG_DFL;
@@ -33,12 +33,4 @@ void signaux_fils(){
     sa.sa_flags = 0;
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
-}
-
-
-void ignorer_sigterm(){
-     struct sigaction sa;
-     sa.sa_handler = SIG_IGN;
-     sa.sa_flags = 0;
-     sigaction(SIGTERM, &sa, NULL);
 }

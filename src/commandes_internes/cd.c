@@ -38,17 +38,6 @@ int cd_commande(char* chemin ){
     }
 
     /*on va tester si le chemin a ete fournit si c'est pas le cas on retourne vers $HOME*/
-
-    /*if(strcmp(chemin , "") == 0 || chemin == NULL){
-        chemin = getenv("HOME"); // voir si c'est autorisé d'utiliser getenv 
-
-        if(chemin == NULL){
-            perror("Variable HOME non trouvée");
-            return 1 ; 
-        }
-
-    }*/
-
     else if(strcmp(chemin , "-") == 0){
         chemin = chemin_precedent; 
         if(strlen(chemin) == 0){
