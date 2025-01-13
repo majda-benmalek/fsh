@@ -239,16 +239,6 @@ int option_t(struct dirent *entry, cmdFor *cmd)
     }
 }
 
-void print_arg(commandeStruct *cmd)
-{
-    int k = 0;
-    while (cmd->cmdSimple->args[k] != NULL)
-    {
-        printf("cmd->cmdSimple->args[%d] = %s\n", k, cmd->cmdSimple->args[k]);
-        k++;
-    }
-}
-
 int boucle_for(cmdFor *cmdFor);
 
 int option_r(struct dirent *entry, cmdFor *cmd)

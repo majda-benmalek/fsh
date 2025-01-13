@@ -248,7 +248,6 @@ cmd_pipe *remplissageCmdPipe(char **args)
     int nb = 0;
     int j = 0;
 
-    // TODO tableau dynamique
     char *commande[ARG_MAX];
     memset(commande, 0, sizeof(commande));
     for (size_t i = 0; i < tailleArgs(args); i++)

@@ -37,12 +37,9 @@ int trouver_fin_bloc(char **args, int debut)
     return fin;
 }
 
-/*TO DO : refaire le ARG_mAX*/
 
 int decoupe_commande(char **commande, commandeStruct **cmds, int *nbCmds, int maxCmds)
 {
-    // perror("decoupe_commande");
-    // if(*nbCmds >= maxCmds) return -1;
     commandeStruct *cmdstruct = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
     if (cmdstruct == NULL)
     {
@@ -65,7 +62,6 @@ int decoupe_commande(char **commande, commandeStruct **cmds, int *nbCmds, int ma
 
 int decoupe_args(char **args, commandeStruct **cmds, int maxcmds)
 {
-    // perror("decoupe_args");
     size_t taille = tailleArgs(args);
     int debut = 0;
     int nbcommandes = 0;
@@ -79,7 +75,6 @@ int decoupe_args(char **args, commandeStruct **cmds, int maxcmds)
             perror("Erreur alocation commande dans decoupe_args");
             return -1;
         }
-        // extraire la commande entre debut et fin
         if (arg_cmdsimple(args, commande, fin, debut) != 0)
         {
             perror("arg_cmdsimple");

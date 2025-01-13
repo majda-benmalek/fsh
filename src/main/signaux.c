@@ -8,29 +8,11 @@
 
 volatile sig_atomic_t sigint_received;
 
-
-void configuration_signaux(sigset_t *block_mask){
-    sigemptyset(block_mask);
-    sigaddset(block_mask, SIGINT);
-    sigaddset(block_mask, SIGTERM);
-    sigprocmask(SIG_BLOCK, block_mask,NULL); // block signaux
-}
-
-
-// debloquer les signaux tem pour les cmdStruct
-
-void debloquer_signaux(sigset_t *block_mask){
-    sigprocmask(SIG_UNBLOCK, block_mask,NULL);
-}
-
-void restaurer(sigset_t *block_mask){
-    sigprocmask(SIG_BLOCK, block_mask,NULL);
-}
-
-
 void sigint_handleur(int sig){
     sigint_received = 1;
 }
+
+
 
 void sigaux_main(){
     struct sigaction sa;
@@ -43,6 +25,7 @@ void sigaux_main(){
 
 }
 
+
 void signaux_fils(){
     struct sigaction sa;
     sa.sa_handler = SIG_DFL;
@@ -50,12 +33,4 @@ void signaux_fils(){
     sa.sa_flags = 0;
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
-}
-
-
-void ignorer_sigterm(){
-     struct sigaction sa;
-     sa.sa_handler = SIG_IGN;
-     sa.sa_flags = 0;
-     sigaction(SIGTERM, &sa, NULL);
 }

@@ -175,14 +175,6 @@ int redirection(cmd_redirection *cmd)
     }
 
     commandeStruct *cmdstr = remplissage_cmdStruct(CMD_STRUCT, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-
-    // if(cmd->cmd->args[0] == NULL){
-    //     perror("bien null");
-    // }
-    // for (int i = 0; cmd->cmd->args[i]; i++)
-    // {
-    //     printf("redirection cmd->cmd->args[%d] = [%s]\n", i, cmd->cmd->args[i]);
-    // }
     gestion_cmd(cmd->cmd->args, cmdstr);
 
     ret = fsh(chemin, &dernier_exit, cmdstr);
@@ -199,4 +191,3 @@ int redirection(cmd_redirection *cmd)
     return ret;
 }
 
-// ? for i in . { cat $i >> res }

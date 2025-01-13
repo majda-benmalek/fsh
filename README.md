@@ -8,7 +8,7 @@ make
 ## Pour exéuter :
 
 ```bash 
-make run
+./fsh
 ```
 
 

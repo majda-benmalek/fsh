@@ -58,7 +58,6 @@ void gestion_cmd(char **args, commandeStruct *cmdstruct)
             {
                 if (strcmp(args[trouver_fin_bloc(args, 0) - 1], ";") != 0)
                 {
-                    // perror("je suis un if ");
                     cmdstruct->cmdIf = remplissageCmdIf(args);
                     cmdstruct->type = IF;
                     if (cmdstruct->cmdIf == NULL)

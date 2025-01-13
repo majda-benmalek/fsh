@@ -33,7 +33,6 @@ typedef struct
 {
     Type type;
     commandeStruct *test;
-    // c'etait des tableaux de commandeStruct mais inutile mainteant
     commandeStruct *commandeIf;
     commandeStruct *commandeElse;
 } cmdIf;
@@ -44,7 +43,6 @@ typedef struct
     char *rep;
     char **op;
     char *variable;
-    // int nbCommandes;
     commandeStruct *cmd;
 } cmdFor;
 
