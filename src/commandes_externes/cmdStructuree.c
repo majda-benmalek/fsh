@@ -14,6 +14,7 @@
 #include "../../utils/freeStruct.h"
 #include "../../utils/cd.h"
 #include "../../utils/signaux.h"
+#include "../../utils/signaux.h"
 
 
 int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
@@ -40,5 +41,3 @@ int execCmdStruct(commandeStruct **cmds, int nbCommandes ,char * chemin) {
 
     return last_ret;
 }
-
-

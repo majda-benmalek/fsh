@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -21,6 +23,7 @@
  * @return 0 si la commande est exécutée avec succès, 1 sinon.
  */
 
+int redirection(cmd_redirection *cmd);
 int redirection(cmd_redirection *cmd);
 
 #endif

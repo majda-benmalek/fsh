@@ -3,6 +3,7 @@
 
 typedef struct commandeStruct commandeStruct;
 typedef struct cmd_redirection cmd_redirection;
+typedef struct cmd_redirection cmd_redirection;
 
 typedef enum
 {

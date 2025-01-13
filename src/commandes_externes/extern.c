@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <signal.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/wait.h>
 #include "../../utils/commande.h"
+#include "../../utils/signaux.h"
 #include "../../utils/signaux.h"
 
 int cmd_extern(cmd_simple *cmd){
