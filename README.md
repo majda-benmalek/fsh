@@ -18,5 +18,3 @@ make
     Mushtaq Amenah 
     Hounas Sabrina 
     Benmalek Majda
-
-### liste des contributeurs
